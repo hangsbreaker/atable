@@ -1,5 +1,5 @@
 # atable
-Ajax data table with php
+Ajax data table with php<br>
 This atable is automatic creating ajax table that data get from database
 (Automatic Pagination, Sorting and Searching)
 The atable can include parameter from outside variable
