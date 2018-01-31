@@ -17,7 +17,7 @@ $atable['colv']       // column name view (visible in webpage as table column he
 $atable['param']      // php string inside one single quote ('') will be eval to atable<br>
 $atable['colsize']    // column size of table as style (default empty)<br>
 $atable['tdalign']    // column align table as style (default align left)<br>
-$atable['showsql']    // show query result<br>
+$atable['showsql']    // show query result (default FLASE)<br>
 $atable['style']      // modify table style (default using bootstrap 3)<br>
 
 # Example
