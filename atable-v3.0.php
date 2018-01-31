@@ -253,7 +253,7 @@ function rbline(str){
 	text-align:center;
 	background:#eee;
 }
-.atable .paggingfield,.atable{
+.atable .paggingfield{
 	float:right;
 }
 .atable .datainfo{
