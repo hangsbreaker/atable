@@ -50,4 +50,12 @@ $table2 = the_atable($atableb);<br><br>
 
 // ===== Write Atable<br>
 echo $table1;<br>
-echo $table2;<br>
+echo $table2;<br><br><br>
+
+/* NOTE:<br>
+* Please asign $_POST['databases'] before call atable.php if the Atable Unkown Database<br>
+* Example:<br>
+* $_POST['databases']='mysql'; // for mysql database<br>
+* $_POST['databases']='mysqli'; // for mysqli database<br>
+* $_POST['databases']='pgsql'; // for pgsql database
+*/
