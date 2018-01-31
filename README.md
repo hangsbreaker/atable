@@ -3,7 +3,7 @@ Ajax data table with php<br>
 This atable is automatic creating ajax table that data get from database<br>
 (Automatic Pagination, Sorting and Searching)<br>
 The atable can include parameter from outside variable<br>
-Support join table
+Support database (mysql, mysqli, pgsql) and joining table
 
 # Using
 $atable['limit']      // number limit data select (default 10)<br>
