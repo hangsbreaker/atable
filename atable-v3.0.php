@@ -1,4 +1,4 @@
-<!-- Atable Copyright @ 2018 Rachmadany -->
+<!-- Atable v3.0 Copyright @ 2018 Rachmadany -->
 <script>
 var xhr;
 var thepage="";
@@ -40,15 +40,17 @@ var ascdsc=[];
 				});
 			});
 		});
-
+		
 		$('.showall').live("click", function(){
 			var vid = this.id.split('-');
+			var v_afind = $('#txtcari-'+vid[1]).val();
 			document.getElementById("atablepreloader"+vid[1]).style.display="block";
-
+			
 			var tbpage = Object.assign({}, datapost);
 			tbpage.showall=true;
 			tbpage['atabledata'+vid[1]]=true;
 			tbpage['sortby']=sortby[vid[1]];
+			tbpage.afind=v_afind;
 			//alert(tbpage.toSource());
 			$.post(thepage, tbpage ,function(data) {
 				document.getElementById("atablepreloader"+vid[1]).style.display="none";
@@ -57,7 +59,7 @@ var ascdsc=[];
 				$(htmldata).find(".dtatable").each(function(i, obj){
 					atableno[i]=this.innerHTML;
 				});
-
+				
 				forEach.call(atable, function (el, i) {
 					if(i==vid[1]){
 						atable[i].innerHTML=atableno[i];
@@ -67,7 +69,7 @@ var ascdsc=[];
 				document.getElementById("showall-"+vid[1]).style.display="none";
 			});
 		});
-
+		
 		$('.showles').live("click", function(){
 			var vid = this.id.split('-');
 			document.getElementById("atablepreloader"+vid[1]).style.display="block";
@@ -361,7 +363,7 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']])){
 		$i=$i+(($halaman-1)*$per_page);
 	}
 
-	if(isset($_POST['afind']) != ""){
+	if(isset($_POST['afind'])){
 		if($_POST['afind']==''){
 			$per_page = $limit;
 			$querysql = $qrytable." ".$groupby." ".$where." ".$orderby." LIMIT $per_page OFFSET ".($halaman-1) * $per_page;
@@ -381,10 +383,16 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']])){
 			}else{
 				$iswhere = ' HAVING ';
 			}
+			
+			if(isset($_POST['showall'])){
+				$forlimit = "";
+			}else{
+				$forlimit = " LIMIT $per_page OFFSET ".($halaman-1) * $per_page;
+			}
 
 			$colsrc=preg_replace("/,(?=[^)]*(?:[(]|$))/", ",' ',",$getcoltable);
 			if($colsrc==" * "){$colsrc=implode(",",$atablecol);}
-			$querysql = $qrytable." ".$groupby." ".$where.$iswhere."lower(concat(".$colsrc.")) LIKE '%".strtolower($afind)."%' "." ".$orderby." LIMIT $per_page OFFSET ".($halaman-1) * $per_page;
+			$querysql = $qrytable." ".$groupby." ".$where.$iswhere."lower(concat(".$colsrc.")) LIKE '%".strtolower($afind)."%' "." ".$orderby.$forlimit;
 			$qry=db_query($querysql);
 
 			if(db_num_rows($qry)==0){
@@ -399,7 +407,7 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']])){
 			$jml_halaman = 1;
 		}
 	}else{
-		if(isset($_POST['showall']) != ""){
+		if(isset($_POST['showall'])){
 			$querysql = $qrytable." ".$groupby." ".$where." ".$orderby;
 			$qry = db_query($querysql);
 			$jml_halaman = 1;
