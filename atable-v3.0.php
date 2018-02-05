@@ -432,7 +432,7 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']])){
 	}
 	
 	if($showsql || $sqlerror){
-		$theatable.= '<tr><td colspan="'.(count($atablecol)+1).'" align="center" style="color:#c1a;">'.$querysql.'</td><tr>';
+		$theatable.= '<tr><td colspan="'.(count($atablecol)+1).'" align="center" style="color:#c1a;">'.$querysql.'</td></tr>';
 	}
 
 	if($qry){
