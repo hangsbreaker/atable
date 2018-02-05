@@ -1,5 +1,5 @@
 # atable
-Ajax data table with php<br>
+Responsive Ajax data table with php<br>
 This atable is automatic creating ajax table that data get from database<br>
 (Automatic Pagination, Sorting and Searching)<br>
 The atable can include parameter from outside variable<br>
@@ -19,6 +19,7 @@ $atable['colsize']    // column size of table as style (default empty)<br>
 $atable['tdalign']    // column align table as style L/R (default align left)<br>
 $atable['showsql']    // show query result boolean (default FALSE)<br>
 $atable['style']      // modify table style (default using bootstrap 3)<br>
+$atable['caption']    // title of table (default empty)<br>
 
 # Example
 // ======================================================================================<br>
