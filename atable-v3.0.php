@@ -366,7 +366,13 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']])){
 	if(isset($_POST['afind'])){
 		if($_POST['afind']==''){
 			$per_page = $limit;
-			$querysql = $qrytable." ".$groupby." ".$where." ".$orderby." LIMIT $per_page OFFSET ".($halaman-1) * $per_page;
+			if(isset($_POST['showall'])){
+				$forlimit = "";
+				$jml_halaman = 1;
+			}else{
+				$forlimit = " LIMIT $per_page OFFSET ".($halaman-1) * $per_page;
+			}
+			$querysql = $qrytable." ".$groupby." ".$where." ".$orderby.$forlimit;
 			$qry = db_query($querysql);
 			if(db_num_rows($qry)==0){
 				$theatable.= '<tr><td colspan="'.(count($atablecol)+1).'" align="center" style="font-weight:bold;">No Data.</td><tr>';
