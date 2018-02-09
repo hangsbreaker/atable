@@ -22,6 +22,7 @@ $atable['style']      // modify table style (default using bootstrap 3)<br>
 $atable['caption']    // title of table (default empty)<br>
 
 # Example
+// need jquery
 require atable.php // include or require the atable script<br>
 // ======================================================================================<br>
 // creating ajax atable<br>
