@@ -15,11 +15,16 @@ $atable['groupby']    // group by string after query parameter (default empty)<b
 $atable['col']        // column name table in database (required)<br>
 $atable['colv']       // column name view (visible in webpage as table column header) (required)<br>
 $atable['param']      // php string inside one single quote ('') will be eval to atable<br>
+$atable['colnumber']  // show/hide column number boolean (default TRUE)<br>
 $atable['colsize']    // column size of table as style (default empty)<br>
 $atable['tdalign']    // column align table as style L/R (default align left)<br>
 $atable['showsql']    // show query result boolean (default FALSE)<br>
 $atable['style']      // modify table style (default using bootstrap 3)<br>
-$atable['caption']    // title of table (default empty)<br>
+$atable['caption']    // title of table (default empty)<br><br>
+
+Tips:<br>
+- For search can use quotation. eg: "build 23"<br>
+- Use table column as variable in param then column can be sort<br>
 
 # Example
 // need jquery<br>
