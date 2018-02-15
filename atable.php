@@ -1,4 +1,4 @@
-<!-- Atable v3.3 Copyright @ 2018 Rachmadany -->
+<!-- Atable v3.5 Copyright @ 2018 Rachmadany -->
 <script>
 var xhr;
 var thepage="";
@@ -354,6 +354,7 @@ $where = !empty($atable['where'])?$atable['where']:'';
 $qrytable = $atable['query'];
 $atablecol = $atable['col'];
 $atablecolv = $atable['colv'];
+$colnumber = isset($atable['colnumber'])?$atable['colnumber']:TRUE;
 $param = !empty($atable['param'])?$atable['param']:'';
 $colsize = !empty($atable['colsize'])?$atable['colsize']:'';
 $tdalign = !empty($atable['tdalign'])?$atable['tdalign']:'';
@@ -380,8 +381,8 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']])){
 	if(!empty($where)){$where='HAVING '.$where;}
 	$theatable.= '<table class="'.$style.'">
 				<caption>'.$caption.'</caption>
-				<thead>
-					<th>No</th>';
+				<thead>';
+				$theatable.= ($colnumber==TRUE?'<th>No</th>':'');
 				$sortpost = explode(" ",$sortpost);
 				foreach($atablecolv as $key=>$acolv){
 					$theatable.= '<th '.(isset($colsize[$key])?'width="'.$colsize[$key].'"':'').' '.(isset($tdalign)?'style="text-align:'.($tdalign[$key]=='R'?'right':'left').';"':'').'>';
@@ -496,8 +497,8 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']])){
 			if(!empty($param)){
 				eval($param);
 			}
-			$theatable.= '<tr>
-					<td data-label="No">'.$i.'</td>';
+			$theatable.= '<tr>'.
+					($colnumber==TRUE?'<td data-label="No">'.$i.'</td>':'');
 					$nocols=0;
 					foreach($atablecol as $key=>$acol){
 						$theatable.= '<td '.(isset($tdalign)?'style="text-align:'.($tdalign[$nocols++]=='R'?'right':'left').';"':'').' data-label="'.$atablecolv[$key].'">';
