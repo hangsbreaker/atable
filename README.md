@@ -19,7 +19,7 @@ $atable['colnumber']  // show/hide column number boolean (default TRUE)<br>
 $atable['colsize']    // column size of table as style (default empty)<br>
 $atable['tdalign']    // column align table as style L/R (default align left)<br>
 $atable['showsql']    // show query result boolean (default FALSE)<br>
-$atable['style']      // modify table style (default using bootstrap 3)<br>
+$atable['style']      // modify table css class (default using bootstrap 3)<br>
 $atable['caption']    // title of table (default empty)<br><br>
 
 Tips:<br>
