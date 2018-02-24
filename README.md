@@ -17,7 +17,7 @@ $atable['colv']       // column name view (visible in webpage as table column he
 $atable['param']      // php string inside one single quote ('') will be eval to atable<br>
 $atable['colnumber']  // show/hide column number boolean (default TRUE)<br>
 $atable['colsize']    // column size of table as style (default empty)<br>
-$atable['tdalign']    // column align table as style L/R (default align left)<br>
+$atable['colalign']   // column align table as style L(left),R(right),C(center) (default align left)<br>
 $atable['showsql']    // show query result boolean (default FALSE)<br>
 $atable['style']      // modify table css class (default using bootstrap 3)<br>
 $atable['caption']    // title of table (default empty)<br><br>
