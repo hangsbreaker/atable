@@ -37,10 +37,6 @@
 .atable .paggingfield, .atable .findfield{
 	float:right;
 }
-.atable table tr td:first-child{
-    width:1%;
-    /*white-space:nowrap;*/
-}
 .atable table caption {
 	color:#000;
 	font-size: 1.5em;
@@ -386,7 +382,7 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']])){
 	$theatable.= '<table class="'.$style.'">
 				<caption>'.$caption.'</caption>
 				<thead>';
-				$theatable.= ($colnumber==TRUE?'<th>No</th>':'');
+				$theatable.= ($colnumber==TRUE?'<th width="1px">No</th>':'');
 				$sortpost = explode(" ",$sortpost);
 				foreach($atablecolv as $key=>$acolv){
 					$theatable.= '<th '.(isset($colsize[$key])?'width="'.$colsize[$key].'"':'').' '.(isset($colalign)?'style="text-align:'.($colalign[$key]=='R'?'right':($colalign[$key]=='C'?'center':'left')).';"':'').'>';
@@ -619,5 +615,5 @@ function db_num_rows($qry){
 * $_POST['databases']='mysqli'; // for mysqli database
 * $_POST['databases']='pgsql'; // for pgsql database
 */
-/** Atable v4 Copyright @ 2018 Hangsbreaker **/
+/** Atable v4 Copyright @ 2018 Rachmadany **/
 ?>
