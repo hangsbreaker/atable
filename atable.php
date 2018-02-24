@@ -1,225 +1,6 @@
-<!-- Atable v3.5 Copyright @ 2018 Rachmadany -->
-<script>
-var xhr;
-var thepage="";
-var datapost={};
-var sortby=[];
-var ascdsc=[];
-(function($) {
-	$(window).load(function() {});
-	$(document).ready(function(e) {
-		var atable = document.querySelectorAll('.dtatable');
-		var forEach = [].forEach;
-		forEach.call(atable, function (el, i) {
-			atable[i].insertAdjacentHTML('beforeBegin','<div class="col-xs-2 findfield" style="margin-bottom: 10px;padding:0px 5px;min-width:200px;"><div class="input-group"><input type="text" class="txtcari form-control" name="cari" placeholder="Find" id="txtcari-'+i+'"><span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span></div></div>');
-			atable[i].insertAdjacentHTML('afterEnd','');
-		});
-
-
-		$('.halaman').live("click", function(){
-			var vid = this.id.split('-');
-			document.getElementById("atablepreloader"+vid[1]).style.display="block";
-
-			var tbpage = Object.assign({}, datapost);
-			tbpage.h=vid[0];
-			tbpage['atabledata'+vid[1]]=true;
-			tbpage['sortby']=sortby[vid[1]];
-			//alert(tbpage.toSource());
-			$.post(thepage, tbpage ,function(data) {
-				document.getElementById("atablepreloader"+vid[1]).style.display="none";
-				var atableno=[];
-				var htmldata = "<div>"+rbline(data)+"</div>";
-				$(htmldata).find(".dtatable").each(function(i, obj){
-					atableno[i]=this.innerHTML;
-				});
-
-				forEach.call(atable, function (el, i) {
-					if(i==vid[1]){
-						atable[i].innerHTML=atableno[i];
-					}
-				});
-			});
-		});
-		
-		$('.showall').live("click", function(){
-			var vid = this.id.split('-');
-			var v_afind = $('#txtcari-'+vid[1]).val();
-			document.getElementById("atablepreloader"+vid[1]).style.display="block";
-			
-			var tbpage = Object.assign({}, datapost);
-			tbpage.showall=true;
-			tbpage['atabledata'+vid[1]]=true;
-			tbpage['sortby']=sortby[vid[1]];
-			tbpage.afind=v_afind;
-			//alert(tbpage.toSource());
-			$.post(thepage, tbpage ,function(data) {
-				document.getElementById("atablepreloader"+vid[1]).style.display="none";
-				var atableno=[];
-				var htmldata = "<div>"+rbline(data)+"</div>";
-				$(htmldata).find(".dtatable").each(function(i, obj){
-					atableno[i]=this.innerHTML;
-				});
-				
-				forEach.call(atable, function (el, i) {
-					if(i==vid[1]){
-						atable[i].innerHTML=atableno[i];
-					}
-				});
-				document.getElementById("showles-"+vid[1]).style.display="inline-block";
-				document.getElementById("showall-"+vid[1]).style.display="none";
-			});
-		});
-		
-		$('.showles').live("click", function(){
-			var vid = this.id.split('-');
-			document.getElementById("atablepreloader"+vid[1]).style.display="block";
-
-			var tbpage = Object.assign({}, datapost);
-			tbpage['atabledata'+vid[1]]=true;
-			tbpage['sortby']=sortby[vid[1]];
-			//alert(tbpage.toSource());
-			$.post(thepage, tbpage ,function(data) {
-				document.getElementById("atablepreloader"+vid[1]).style.display="none";
-				var atableno=[];
-				var htmldata = "<div>"+rbline(data)+"</div>";
-				$(htmldata).find(".dtatable").each(function(i, obj){
-					atableno[i]=this.innerHTML;
-				});
-
-				forEach.call(atable, function (el, i) {
-					if(i==vid[1]){
-						atable[i].innerHTML=atableno[i];
-					}
-				});
-				document.getElementById("showles-"+vid[1]).style.display="none";
-				document.getElementById("showall-"+vid[1]).style.display="inline-block";
-			});
-		});
-
-		$(".txtcari").keyup(function(event){
-			//if(event.which == 13){
-				xhr.abort();
-				var vid = this.id.split('-');
-
-				var v_afind = $('#txtcari-'+vid[1]).val();
-				document.getElementById("atablepreloader"+vid[1]).style.display="block";
-				document.getElementById("showles-"+vid[1]).style.display="none";
-				document.getElementById("showall-"+vid[1]).style.display="inline-block";
-
-				var tbpage = Object.assign({}, datapost);
-				tbpage['atabledata'+vid[1]]=true;
-				tbpage.afind=v_afind;
-				tbpage['sortby']=sortby[vid[1]];
-				
-				xhr = $.ajax({
-					type: "POST",
-					url: thepage,
-					data: tbpage,
-					success: function(data){
-						document.getElementById("atablepreloader"+vid[1]).style.display="none";
-						var atableno=[];
-						var htmldata = "<div>"+rbline(data)+"</div>";
-						$(htmldata).find(".dtatable").each(function(i, obj){
-							atableno[i]=this.innerHTML;
-						});
-
-						forEach.call(atable, function (el, i) {
-							if(i==vid[1]){
-								atable[i].innerHTML=atableno[i];
-							}
-						});
-					}
-				});
-			//}
-		});
-
-		$('.sortby').live("click", function(){
-			var vid = this.id.split('-');
-			document.getElementById("atablepreloader"+vid[1]).style.display="block";
-			if(ascdsc[vid[1]]==''){
-				sortby[vid[1]] = vid[2]+' ASC';
-				ascdsc[vid[1]]='ASC';
-			}else if(ascdsc[vid[1]]=='ASC'){
-				sortby[vid[1]] = vid[2]+' DESC';
-				ascdsc[vid[1]]='DESC';
-			}else{
-				sortby[vid[1]] = vid[2]+' ASC';
-				ascdsc[vid[1]]='ASC';
-			}
-
-			var tbpage = Object.assign({}, datapost);
-			tbpage['atabledata'+vid[1]]=true;
-			tbpage['sortby']=sortby[vid[1]];
-			//alert(tbpage.toSource());
-			$.post(thepage, tbpage ,function(data) {
-				document.getElementById("atablepreloader"+vid[1]).style.display="none";
-				var atableno=[];
-				var htmldata = "<div>"+rbline(data)+"</div>";
-				$(htmldata).find(".dtatable").each(function(i, obj){
-					atableno[i]=this.innerHTML;
-				});
-
-				forEach.call(atable, function (el, i) {
-					if(i==vid[1]){
-						atable[i].innerHTML=atableno[i];
-					}
-				});
-				document.getElementById("showles-"+vid[1]).style.display="none";
-				document.getElementById("showall-"+vid[1]).style.display="inline-block";
-			});
-		});
-
-	});
-}) (jQuery);
-
-//var html= '<div><div id="data" class="atables">val</div></div>';
-//alert($(html).find('.atables').html());
-
-function load_atable(curpage,post){
-	thepage = curpage;
-	datapost=JSON.parse(post);
-	var loadtable = Object.assign({}, datapost);
-	var atable = document.querySelectorAll('.dtatable');
-	var forEach = [].forEach;
-	forEach.call(atable, function (el, i) {
-		sortby[i]='';
-		ascdsc[i]='';
-		loadtable['atabledata'+i]=true;
-	});
-
-	loadtable.fromatable=true;
-				
-	xhr = $.ajax({
-		type: "POST",
-		url: thepage,
-		data: loadtable,
-		success: function(data){
-			var atableno=[];
-			var htmldata = "<div>"+rbline(data)+"</div>";
-			$(htmldata).find(".dtatable").each(function(i, obj){
-				 atableno[i]=this.innerHTML;
-			});
-
-			var atable = document.querySelectorAll('.dtatable');
-			var forEach = [].forEach;
-			forEach.call(atable, function (el, i) {
-				atable[i].innerHTML=atableno[i];
-			});
-		}
-	});
-}
-
-function rbline(str){
-    var text=str;
-    text = text.replace(/(\r\n|\n|\r)/gm," ");
-    text = text.replace(/\s{2,}/g, ' ');
-    return text;
-}
-</script>
-
 <style>
-.atable{display:block;clear:both;}
-.atable .dtatable .table{margin-bottom:0px;}
+.atable{display:block;clear:both;margin-top:10px;margin-bottom:80px;}
+.atable .dtatable .table, .atable .jdtatable .table{margin-bottom:0px;}
 .atable .atablepreloader{
 	display:none;
 	position: absolute;
@@ -240,6 +21,8 @@ function rbline(str){
 	margin:0px 5px;
 }
 .atable .datainfo{
+	left:0px;
+	display:block;clear:both;
 	right:0px;margin:20px 5px;position:absolute;padding:10px 5px;
 }
 .atable .warningdb{
@@ -253,9 +36,6 @@ function rbline(str){
 }
 .atable .paggingfield, .atable .findfield{
 	float:right;
-}
-.atable .datainfo{
-	left:0px;
 }
 .atable table tr td:first-child{
     width:1%;
@@ -316,6 +96,230 @@ function rbline(str){
 	}
 }
 </style>
+<script>
+var xhr;
+var thepage="";
+var datapost={};
+var sortby=[];
+var ascdsc=[];
+(function($) {
+	$(window).load(function() {});
+	$(document).ready(function(e) {
+		
+		var atable = document.querySelectorAll('.dtatable');
+		var forEach = [].forEach;
+		forEach.call(atable, function (el, i) {
+			atable[i].insertAdjacentHTML('beforeBegin','<div class="col-xs-2 findfield" style="margin-bottom: 10px;padding:0px 5px;min-width:200px;"><div class="input-group"><input type="text" class="txtcari form-control" name="cari" placeholder="Find" id="txtcari-'+i+'"><span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span></div></div>');
+			atable[i].insertAdjacentHTML('afterEnd','');
+		});
+
+		$('.halaman').live("click", function(){
+			xhr.abort();
+			var vid = this.id.split('-');
+			document.getElementById("atablepreloader"+vid[1]).style.display="block";
+
+			var tbpage = Object.assign({}, datapost);
+			tbpage.h=vid[0];
+			tbpage['atabledata'+vid[1]]=true;
+			tbpage['sortby']=sortby[vid[1]];
+			//alert(tbpage.toSource());
+			
+			xhr = $.ajax({
+				type: "POST",
+				url: thepage,
+				data: tbpage,
+				success: function(data){
+					document.getElementById("atablepreloader"+vid[1]).style.display="none";
+					var atableno=[];
+					var htmldata = "<div>"+rbline(data)+"</div>";
+					$(htmldata).find(".dtatable").each(function(i, obj){
+						atableno[i]=this.innerHTML;
+					});
+
+					forEach.call(atable, function (el, i) {
+						if(i==vid[1]){
+							atable[i].innerHTML=atableno[i];
+						}
+					});
+				}
+			});
+		});
+		
+		$('.showall').live("click", function(){
+			var vid = this.id.split('-');
+			var v_afind = $('#txtcari-'+vid[1]).val();
+			document.getElementById("atablepreloader"+vid[1]).style.display="block";
+			
+			var tbpage = Object.assign({}, datapost);
+			tbpage.showall=true;
+			tbpage['atabledata'+vid[1]]=true;
+			tbpage['sortby']=sortby[vid[1]];
+			tbpage.afind=v_afind;
+			//alert(tbpage.toSource());
+			$.post(thepage, tbpage ,function(data) {
+				document.getElementById("atablepreloader"+vid[1]).style.display="none";
+				var atableno=[];
+				var htmldata = "<div>"+rbline(data)+"</div>";
+				$(htmldata).find(".dtatable").each(function(i, obj){
+					atableno[i]=this.innerHTML;
+				});
+				
+				forEach.call(atable, function (el, i) {
+					if(i==vid[1]){
+						atable[i].innerHTML=atableno[i];
+					}
+				});
+				document.getElementById("showless-"+vid[1]).style.display="inline-block";
+				document.getElementById("showall-"+vid[1]).style.display="none";
+			});
+		});
+		
+		$('.showless').live("click", function(){
+			var vid = this.id.split('-');
+			document.getElementById("atablepreloader"+vid[1]).style.display="block";
+
+			var tbpage = Object.assign({}, datapost);
+			tbpage['atabledata'+vid[1]]=true;
+			tbpage['sortby']=sortby[vid[1]];
+			//alert(tbpage.toSource());
+			$.post(thepage, tbpage ,function(data) {
+				document.getElementById("atablepreloader"+vid[1]).style.display="none";
+				var atableno=[];
+				var htmldata = "<div>"+rbline(data)+"</div>";
+				$(htmldata).find(".dtatable").each(function(i, obj){
+					atableno[i]=this.innerHTML;
+				});
+
+				forEach.call(atable, function (el, i) {
+					if(i==vid[1]){
+						atable[i].innerHTML=atableno[i];
+					}
+				});
+				document.getElementById("showless-"+vid[1]).style.display="none";
+				document.getElementById("showall-"+vid[1]).style.display="inline-block";
+			});
+		});
+
+		$(".txtcari").keyup(function(event){
+			//if(event.which == 13){
+				xhr.abort();
+				var vid = this.id.split('-');
+
+				var v_afind = $('#txtcari-'+vid[1]).val();
+				document.getElementById("atablepreloader"+vid[1]).style.display="block";
+				document.getElementById("showless-"+vid[1]).style.display="none";
+				document.getElementById("showall-"+vid[1]).style.display="inline-block";
+
+				var tbpage = Object.assign({}, datapost);
+				tbpage['atabledata'+vid[1]]=true;
+				tbpage.afind=v_afind;
+				tbpage['sortby']=sortby[vid[1]];
+				
+				xhr = $.ajax({
+					type: "POST",
+					url: thepage,
+					data: tbpage,
+					success: function(data){
+						document.getElementById("atablepreloader"+vid[1]).style.display="none";
+						var atableno=[];
+						var htmldata = "<div>"+rbline(data)+"</div>";
+						$(htmldata).find(".dtatable").each(function(i, obj){
+							atableno[i]=this.innerHTML;
+						});
+
+						forEach.call(atable, function (el, i) {
+							if(i==vid[1]){
+								atable[i].innerHTML=atableno[i];
+							}
+						});
+					}
+				});
+			//}
+		});
+
+		$('.sortby').live("click", function(){
+			var vid = this.id.split('-');
+			document.getElementById("atablepreloader"+vid[1]).style.display="block";
+			if(ascdsc[vid[1]]==''){
+				sortby[vid[1]] = vid[2]+' ASC';
+				ascdsc[vid[1]]='ASC';
+			}else if(ascdsc[vid[1]]=='ASC'){
+				sortby[vid[1]] = vid[2]+' DESC';
+				ascdsc[vid[1]]='DESC';
+			}else{
+				sortby[vid[1]] = vid[2]+' ASC';
+				ascdsc[vid[1]]='ASC';
+			}
+
+			var tbpage = Object.assign({}, datapost);
+			tbpage['atabledata'+vid[1]]=true;
+			tbpage['sortby']=sortby[vid[1]];
+			//alert(tbpage.toSource());
+			$.post(thepage, tbpage ,function(data) {
+				document.getElementById("atablepreloader"+vid[1]).style.display="none";
+				var atableno=[];
+				var htmldata = "<div>"+rbline(data)+"</div>";
+				$(htmldata).find(".dtatable").each(function(i, obj){
+					atableno[i]=this.innerHTML;
+				});
+
+				forEach.call(atable, function (el, i) {
+					if(i==vid[1]){
+						atable[i].innerHTML=atableno[i];
+					}
+				});
+				document.getElementById("showless-"+vid[1]).style.display="none";
+				document.getElementById("showall-"+vid[1]).style.display="inline-block";
+			});
+		});
+
+	});
+}) (jQuery);
+
+//var html= '<div><div id="data" class="atables">val</div></div>';
+//alert($(html).find('.atables').html());
+
+function load_atable(curpage,post){
+	thepage = curpage;
+	datapost=JSON.parse(post);
+	var loadtable = Object.assign({}, datapost);
+	var atable = document.querySelectorAll('.dtatable');
+	var forEach = [].forEach;
+	forEach.call(atable, function (el, i) {
+		sortby[i]='';
+		ascdsc[i]='';
+		loadtable['atabledata'+i]=true;
+	});
+
+	loadtable.fromatable=true;
+				
+	xhr = $.ajax({
+		type: "POST",
+		url: thepage,
+		data: loadtable,
+		success: function(data){
+			var atableno=[];
+			var htmldata = "<div>"+rbline(data)+"</div>";
+			$(htmldata).find(".dtatable").each(function(i, obj){
+				 atableno[i]=this.innerHTML;
+			});
+
+			var atable = document.querySelectorAll('.dtatable');
+			var forEach = [].forEach;
+			forEach.call(atable, function (el, i) {
+				atable[i].innerHTML=atableno[i];
+			});
+		}
+	});
+}
+
+function rbline(str){
+    var text=str;
+    text = text.replace(/(\r\n|\n|\r)/gm," ");
+    text = text.replace(/\s{2,}/g, ' ');
+    return text;
+}
+</script>
 <?php
 // == Atable Function ===================================================================================================================
 $http_s = isset($_SERVER['HTTPS'])?"https://":"http://";
@@ -357,7 +361,7 @@ $atablecolv = $atable['colv'];
 $colnumber = isset($atable['colnumber'])?$atable['colnumber']:TRUE;
 $param = !empty($atable['param'])?$atable['param']:'';
 $colsize = !empty($atable['colsize'])?$atable['colsize']:'';
-$tdalign = !empty($atable['tdalign'])?$atable['tdalign']:'';
+$colalign = !empty($atable['colalign'])?$atable['colalign']:'';
 $showsql = !empty($atable['showsql'])?$atable['showsql']:'';
 $caption = !empty($atable['caption'])?$atable['caption']:'';
 $style = !empty($atable['style'])?$atable['style']:'table table-bordered table-hover';
@@ -385,7 +389,7 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']])){
 				$theatable.= ($colnumber==TRUE?'<th>No</th>':'');
 				$sortpost = explode(" ",$sortpost);
 				foreach($atablecolv as $key=>$acolv){
-					$theatable.= '<th '.(isset($colsize[$key])?'width="'.$colsize[$key].'"':'').' '.(isset($tdalign)?'style="text-align:'.($tdalign[$key]=='R'?'right':'left').';"':'').'>';
+					$theatable.= '<th '.(isset($colsize[$key])?'width="'.$colsize[$key].'"':'').' '.(isset($colalign)?'style="text-align:'.($colalign[$key]=='R'?'right':($colalign[$key]=='C'?'center':'left')).';"':'').'>';
 							$nmcol= str_replace('$','',str_replace(';','',$atablecol[$key]));
 							$existcol= GetBetween($qrytable,"select","from");
 							if(strpos($existcol,$nmcol)!==false){
@@ -501,13 +505,14 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']])){
 					($colnumber==TRUE?'<td data-label="No">'.$i.'</td>':'');
 					$nocols=0;
 					foreach($atablecol as $key=>$acol){
-						$theatable.= '<td '.(isset($tdalign)?'style="text-align:'.($tdalign[$nocols++]=='R'?'right':'left').';"':'').' data-label="'.$atablecolv[$key].'">';
+						$theatable.= '<td '.(isset($colalign)?'style="text-align:'.($colalign[$nocols]=='R'?'right':($colalign[$nocols]=='C'?'center':'left')).';"':'').' data-label="'.$atablecolv[$key].'">';
 							if(strpos($acol, ';')!==false){
 								eval('$theatable.='.$acol);
 							}else{
 								$theatable.= $row[$acol];
 							}
 						$theatable.= '</td>';
+						$nocols++;
 					}
 			$theatable.= '</tr>';
 			$i++;
@@ -523,23 +528,27 @@ $theatable.= '<!-- paging -->
 '.((($i-1)==0?0:((($halaman-1) * $per_page)+1))." to ".($i-1)." of ".$datarecord." data").'
 &nbsp;&nbsp;
 <a href="#!" id="showall-'.$GLOBALS['atablenum'].'" class="showall">Show All</a>
-<a href="#!" id="showles-'.$GLOBALS['atablenum'].'" class="showles" style="display:none;">Show Less</a>
+<a href="#!" id="showless-'.$GLOBALS['atablenum'].'" class="showless" style="display:none;">Show Less</a>
 </div>
 <div class="paggingfield">
 	<ul class="pagination">';
-	if($halaman>1)$theatable.= '<li '.$class.'><a href="#!" id="'.($halaman-1).'-'.$GLOBALS['atablenum'].'" class="halaman">&laquo;</a></li>';
-		for($page = 1;$page <= $jml_halaman;$page++){
-			$page == $halaman ? $class='class="active"' : $class="";
-			if((($page >= $halaman-2) && ($page <= $halaman +2)) || ($page==1) || ($page==$jml_halaman)){
-				if(($showpg==1)&&($page !=2 )) $theatable.= '<li><a href="#!" class="gapdot">...</a></li>';
-				if(($showpg!=($jml_halaman-1))&&($page == $jml_halaman)) $theatable.= '<li><a href="#" class="gapdot">...</a></li>';
-				if($page == $halaman) $theatable.= '<li '.$class.'><a href="#!" id="'.$page.'-'.$GLOBALS['atablenum'].'">'.$page.'</a></li>';
-				else $theatable.= '<li '.$class.'><a href="#!" id="'.$page.'-'.$GLOBALS['atablenum'].'" class="halaman">'.$page.'</a></li>';
-				$showpg=$page;
-			}
+	if($halaman>1){
+		$theatable.= '<li '.$class.'><a href="#!" id="'.($halaman-1).'-'.$GLOBALS['atablenum'].'" class="halaman">&laquo;</a></li>';
+	}
+	for($page = 1;$page <= $jml_halaman;$page++){
+		$page == $halaman ? $class='class="active"' : $class="";
+		if((($page >= $halaman-2) && ($page <= $halaman +2)) || ($page==1) || ($page==$jml_halaman)){
+			if(($showpg==1)&&($page !=2 )){$theatable.= '<li><a href="#!" class="gapdot">...</a></li>';}
+			if(($showpg!=($jml_halaman-1))&&($page == $jml_halaman)){$theatable.= '<li><a href="#" class="gapdot">...</a></li>';}
+			if($page == $halaman){$theatable.= '<li '.$class.'><a href="#!" id="'.$page.'-'.$GLOBALS['atablenum'].'">'.$page.'</a></li>';}
+			else{$theatable.= '<li '.$class.'><a href="#!" id="'.$page.'-'.$GLOBALS['atablenum'].'" class="halaman">'.$page.'</a></li>';}
+			$showpg=$page;
 		}
-	if($halaman<$jml_halaman)$theatable.= '<li '.$class.'><a href="#!" id="'.($halaman+1).'-'.$GLOBALS['atablenum'].'" class="halaman">&raquo;</a></li>
-	</ul>
+	}
+	if($halaman<$jml_halaman){
+		$theatable.= '<li '.$class.'><a href="#!" id="'.($halaman+1).'-'.$GLOBALS['atablenum'].'" class="halaman">&raquo;</a></li>';
+	}
+	$theatable.= '</ul>
 </div>';
 
 }// end post
@@ -610,4 +619,5 @@ function db_num_rows($qry){
 * $_POST['databases']='mysqli'; // for mysqli database
 * $_POST['databases']='pgsql'; // for pgsql database
 */
+/** Atable v4 Copyright @ 2018 Hangsbreaker **/
 ?>
