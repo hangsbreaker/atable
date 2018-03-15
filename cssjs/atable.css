@@ -5,6 +5,7 @@
 	padding: 8px;
 	line-height: 1.37;
 	vertical-align: bottom;
+	text-align: left;
 }
 .atable table>thead>tr>td, .atable table>tbody>tr>td, .atable table>tfoot>tr>td{
 	padding: 8px;
