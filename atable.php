@@ -22,8 +22,8 @@
 }
 .atable .datainfo{
 	left:0px;
-	display:block;clear:both;
-	right:0px;margin:20px 5px;position:absolute;padding:10px 5px;
+	display:block;clear:both;float:left;
+	right:0px;margin:20px 5px;position:relative;padding:10px 5px;
 }
 .atable .warningdb{
 	position:absolute;
