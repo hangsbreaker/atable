@@ -101,7 +101,7 @@ var ascdsc=[];
 (function($) {
 	$(window).load(function() {});
 	$(document).ready(function(e) {
-		
+
 		var atable = document.querySelectorAll('.dtatable');
 		var forEach = [].forEach;
 		forEach.call(atable, function (el, i) {
@@ -118,8 +118,9 @@ var ascdsc=[];
 			tbpage.h=vid[0];
 			tbpage['atabledata'+vid[1]]=true;
 			tbpage['sortby']=sortby[vid[1]];
+			tbpage['fromatable']=true;
 			//alert(tbpage.toSource());
-			
+
 			xhr = $.ajax({
 				type: "POST",
 				url: thepage,
@@ -140,16 +141,17 @@ var ascdsc=[];
 				}
 			});
 		});
-		
+
 		$('.showall').live("click", function(){
 			var vid = this.id.split('-');
 			var v_afind = $('#txtcari-'+vid[1]).val();
 			document.getElementById("atablepreloader"+vid[1]).style.display="block";
-			
+
 			var tbpage = Object.assign({}, datapost);
 			tbpage.showall=true;
 			tbpage['atabledata'+vid[1]]=true;
 			tbpage['sortby']=sortby[vid[1]];
+			tbpage['fromatable']=true;
 			tbpage.afind=v_afind;
 			//alert(tbpage.toSource());
 			$.post(thepage, tbpage ,function(data) {
@@ -159,7 +161,7 @@ var ascdsc=[];
 				$(htmldata).find(".dtatable").each(function(i, obj){
 					atableno[i]=this.innerHTML;
 				});
-				
+
 				forEach.call(atable, function (el, i) {
 					if(i==vid[1]){
 						atable[i].innerHTML=atableno[i];
@@ -169,7 +171,7 @@ var ascdsc=[];
 				document.getElementById("showall-"+vid[1]).style.display="none";
 			});
 		});
-		
+
 		$('.showless').live("click", function(){
 			var vid = this.id.split('-');
 			document.getElementById("atablepreloader"+vid[1]).style.display="block";
@@ -177,6 +179,7 @@ var ascdsc=[];
 			var tbpage = Object.assign({}, datapost);
 			tbpage['atabledata'+vid[1]]=true;
 			tbpage['sortby']=sortby[vid[1]];
+			tbpage['fromatable']=true;
 			//alert(tbpage.toSource());
 			$.post(thepage, tbpage ,function(data) {
 				document.getElementById("atablepreloader"+vid[1]).style.display="none";
@@ -210,7 +213,8 @@ var ascdsc=[];
 				tbpage['atabledata'+vid[1]]=true;
 				tbpage.afind=v_afind;
 				tbpage['sortby']=sortby[vid[1]];
-				
+				tbpage['fromatable']=true;
+
 				xhr = $.ajax({
 					type: "POST",
 					url: thepage,
@@ -250,6 +254,7 @@ var ascdsc=[];
 			var tbpage = Object.assign({}, datapost);
 			tbpage['atabledata'+vid[1]]=true;
 			tbpage['sortby']=sortby[vid[1]];
+			tbpage['fromatable']=true;
 			//alert(tbpage.toSource());
 			$.post(thepage, tbpage ,function(data) {
 				document.getElementById("atablepreloader"+vid[1]).style.display="none";
@@ -285,10 +290,11 @@ function load_atable(curpage,post){
 		sortby[i]='';
 		ascdsc[i]='';
 		loadtable['atabledata'+i]=true;
+		document.getElementById("atablepreloader"+i).style.display="block";
 	});
 
 	loadtable.fromatable=true;
-				
+
 	xhr = $.ajax({
 		type: "POST",
 		url: thepage,
@@ -304,6 +310,7 @@ function load_atable(curpage,post){
 			var forEach = [].forEach;
 			forEach.call(atable, function (el, i) {
 				atable[i].innerHTML=atableno[i];
+				document.getElementById("atablepreloader"+i).style.display="none";
 			});
 		}
 	});
@@ -407,7 +414,7 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']])){
 				}
 	$theatable.= '</thead>
 			<tbody>';
-	
+
 	$i = 1;
 	$per_page = $limit;
 	$datarecord = db_num_rows(db_query($qrytable." ".$groupby." ".$where));
@@ -446,7 +453,7 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']])){
 			}else{
 				$iswhere = ' HAVING ';
 			}
-			
+
 			if(isset($_POST['showall'])){
 				$forlimit = "";
 			}else{
@@ -487,7 +494,7 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']])){
 			}
 		}
 	}
-	
+
 	if($showsql || $sqlerror){
 		$theatable.= '<tr><td colspan="'.(count($atablecol)+1).'" style="text-align:center !important;color:#c1a;">'.$querysql.'</td></tr>';
 	}
@@ -615,5 +622,5 @@ function db_num_rows($qry){
 * $_POST['databases']='mysqli'; // for mysqli database
 * $_POST['databases']='pgsql'; // for pgsql database
 */
-/** Atable v4 Copyright @ 2018 Rachmadany **/
+/** Atable v4 Hangsbreaker Copyright @ 2018 Rachmadany **/
 ?>
