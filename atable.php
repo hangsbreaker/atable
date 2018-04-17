@@ -283,6 +283,9 @@ var ascdsc=[];
 function load_atable(curpage,post){
 	thepage = curpage;
 	datapost=JSON.parse(post);
+	if(datapost.length != 0 && post.toLowerCase().indexOf('toatable') < 0){
+			datapost=[];
+	}
 	var loadtable = Object.assign({}, datapost);
 	var atable = document.querySelectorAll('.dtatable');
 	var forEach = [].forEach;
@@ -370,18 +373,18 @@ $caption = !empty($atable['caption'])?$atable['caption']:'';
 $style = !empty($atable['style'])?$atable['style']:'table table-bordered table-hover';
 $sortpost="";
 $sqlerror = FALSE;
-if(isset($_POST['sortby'])){
-	if($_POST['sortby']!=""){
-		$orderby=$_POST['sortby'];
-		$sortpost=$_POST['sortby'];
-	}
-}
 $getcoltable=preg_replace("/ as [\s\S]+? /"," ",preg_replace("/ as [\s\S]+?,/",",",GetBetween($qrytable,"select","from")));
 // ===============================
 
 $theatable= '<div class="atable">'.($GLOBALS['linkDB'] == ''?'<div class="warningdb">Atable Unkown Database connection.</div>':'').'<div class="atablepreloader" id="atablepreloader'.$GLOBALS['atablenum'].'">Loading ....</div>
 		<div class="dtatable" id="dtatable'.$GLOBALS['atablenum'].'">';
-if(isset($_POST['atabledata'.$GLOBALS['atablenum']])){
+if(isset($_POST['atabledata'.$GLOBALS['atablenum']]) && isset($_POST['fromatable'])){
+	if(isset($_POST['sortby'])){
+		if($_POST['sortby']!=""){
+			$orderby=$_POST['sortby'];
+			$sortpost=$_POST['sortby'];
+		}
+	}
 	if(empty($limit)){$limit=10;}
 	if(!empty($orderby)){$orderby='ORDER BY '.$orderby;}
 	if(!empty($groupby)){$groupby='GROUP BY '.$groupby;}else{if($getcoltable!=' * '){$groupby='GROUP BY '.$getcoltable;}}
@@ -622,5 +625,5 @@ function db_num_rows($qry){
 * $_POST['databases']='mysqli'; // for mysqli database
 * $_POST['databases']='pgsql'; // for pgsql database
 */
-/** Atable v4 Hangsbreaker Copyright @ 2018 Rachmadany **/
+/** Atable v4 Copyright @ 2018 Rachmadany **/
 ?>
