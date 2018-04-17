@@ -66,4 +66,6 @@ echo $table2;<br><br><br>
 ** $_POST['databases']='mysql'; // for mysql database<br>
 ** $_POST['databases']='mysqli'; // for mysqli database<br>
 ** $_POST['databases']='pgsql'; // for pgsql database<br>
+** ===================================================<br>
+** $_POST['toatable']=TRUE; // add this for send parameter to atable<br>
 **/
