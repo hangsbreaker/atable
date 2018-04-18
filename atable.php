@@ -365,7 +365,9 @@ $qrytable = $atable['query'];
 $atablecol = $atable['col'];
 $atablecolv = $atable['colv'];
 $colnumber = isset($atable['colnumber'])?$atable['colnumber']:TRUE;
+$addvar = !empty($atable['addvar'])?$atable['addvar']:'';
 $param = !empty($atable['param'])?$atable['param']:'';
+$addlastrow = !empty($atable['addlastrow'])?$atable['addlastrow']:'';
 $colsize = !empty($atable['colsize'])?$atable['colsize']:'';
 $colalign = !empty($atable['colalign'])?$atable['colalign']:'';
 $showsql = !empty($atable['showsql'])?$atable['showsql']:'';
@@ -375,6 +377,7 @@ $sortpost="";
 $sqlerror = FALSE;
 $getcoltable=preg_replace("/ as [\s\S]+? /"," ",preg_replace("/ as [\s\S]+?,/",",",GetBetween($qrytable,"select","from")));
 // ===============================
+
 
 $theatable= '<div class="atable">'.($GLOBALS['linkDB'] == ''?'<div class="warningdb">Atable Unkown Database connection.</div>':'').'<div class="atablepreloader" id="atablepreloader'.$GLOBALS['atablenum'].'">Loading ....</div>
 		<div class="dtatable" id="dtatable'.$GLOBALS['atablenum'].'">';
@@ -386,6 +389,7 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']]) && isset($_POST['fromatable
 		}
 	}
 	if(empty($limit)){$limit=10;}
+	if(!empty($addvar)){extract($addvar);}
 	if(!empty($orderby)){$orderby='ORDER BY '.$orderby;}
 	if(!empty($groupby)){$groupby='GROUP BY '.$groupby;}else{if($getcoltable!=' * '){$groupby='GROUP BY '.$getcoltable;}}
 	if(!empty($where)){$where='HAVING '.$where;}
@@ -502,11 +506,11 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']]) && isset($_POST['fromatable
 		$theatable.= '<tr><td colspan="'.(count($atablecol)+1).'" style="text-align:center !important;color:#c1a;">'.$querysql.'</td></tr>';
 	}
 
-	if($qry){
+	if($qry){$continue=FALSE;$break=FALSE;
 		while($row=db_fetch_array($qry)){
-			if(!empty($param)){
-				eval($param);
-			}
+			if(!empty($param)){eval($param);}
+			if($continue){$continue=FALSE;continue;}
+			if($break){$break=FALSE;break;}
 			$theatable.= '<tr>'.
 					($colnumber==TRUE?'<td data-label="No">'.$i.'</td>':'');
 					$nocols=0;
@@ -525,6 +529,7 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']]) && isset($_POST['fromatable
 		}
 	}
 
+if(!empty($addlastrow)){eval('$theatable.='.$addlastrow);}
 $theatable.= '</tbody>
 	</table>';
 
