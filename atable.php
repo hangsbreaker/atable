@@ -467,9 +467,31 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']]) && isset($_POST['fromatable
 				$forlimit = " LIMIT $per_page OFFSET ".($halaman-1) * $per_page;
 			}
 
+			$columnwhere="";
 			$colsrc=preg_replace("/,(?=[^)]*(?:[(]|$))/", ",' ',",$getcoltable);
-			if($colsrc==" * "){$colsrc=implode(",",$atablecol);}
-			$querysql = $qrytable." ".$groupby." ".$where.$iswhere."lower(concat(".$colsrc.")) LIKE '%".strtolower($afind)."%' "." ".$orderby.$forlimit;
+			if($colsrc==" * "){$colsrc=implode(",' ',",$atablecol);}
+			$colwhere=explode(",' ',",$colsrc);
+			$lencol=count($colwhere);
+			if($lencol>50){
+				$i=0;
+				$columnwhere.="(";
+				for($n=0;$n<ceil(count($colwhere)/50);$n++){
+					$arrhalf = array_slice($colwhere, $n+$i, 25*($n+1));
+
+					if($n>0){$columnwhere.=" OR ";}
+					$columnwhere.="lower(concat(";
+					foreach($arrhalf as $key => $value){
+						if($key!=0){$columnwhere.=",' ',";}
+						$columnwhere.=$value;
+						$i++;
+					}
+					$columnwhere.=")) LIKE '%".strtolower($afind)."%'";
+				}
+				$columnwhere.=")";
+			}else{
+				$columnwhere="lower(concat(".$colsrc.")) LIKE '%".strtolower($afind)."%'";
+			}
+			$querysql = $qrytable." ".$groupby." ".$where.$iswhere.$columnwhere." "." ".$orderby.$forlimit;
 			$qry=db_query($querysql);
 
 			if(db_num_rows($qry)==0){
@@ -629,6 +651,8 @@ function db_num_rows($qry){
 * $_POST['databases']='mysql'; // for mysql database
 * $_POST['databases']='mysqli'; // for mysqli database
 * $_POST['databases']='pgsql'; // for pgsql database
+* ******************
+* Use parameter $_POST['toatable'] for assign variable to atable
 */
 /** Atable v4 Copyright @ 2018 Rachmadany **/
 ?>
