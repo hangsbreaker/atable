@@ -416,7 +416,7 @@ if(isset($_POST['atabledata'.$GLOBALS['atablenum']]) && isset($_POST['fromatable
 							}else{
 								$iconsort = '';
 							}
-					$theatable.= (strpos($bysort, ';')!==false?$acolv:'<a href="#!" id="sortby-'.$GLOBALS['atablenum'].'-'.$bysort.'" class="sortby">'.$iconsort.'&nbsp;'.$acolv.'</a>');
+					$theatable.= (strpos($bysort, ';')!==false?$acolv:'<a href="javascript:void(0)" id="sortby-'.$GLOBALS['atablenum'].'-'.$bysort.'" class="sortby">'.$iconsort.'&nbsp;'.$acolv.'</a>');
 					$theatable.= '</th>';
 				}
 	$theatable.= '</thead>
@@ -560,26 +560,26 @@ $theatable.= '<!-- paging -->
 <div class="datainfo">
 '.((($i-1)==0?0:((($halaman-1) * $per_page)+1))." to ".($i-1)." of ".$datarecord." data").'
 &nbsp;&nbsp;
-<a href="#!" id="showall-'.$GLOBALS['atablenum'].'" class="showall">Show All</a>
-<a href="#!" id="showless-'.$GLOBALS['atablenum'].'" class="showless" style="display:none;">Show Less</a>
+<a href="javascript:void(0)" id="showall-'.$GLOBALS['atablenum'].'" class="showall">Show All</a>
+<a href="javascript:void(0)" id="showless-'.$GLOBALS['atablenum'].'" class="showless" style="display:none;">Show Less</a>
 </div>
 <div class="paggingfield">
 	<ul class="pagination">';
 	if($halaman>1){
-		$theatable.= '<li '.$class.'><a href="#!" id="'.($halaman-1).'-'.$GLOBALS['atablenum'].'" class="halaman">&laquo;</a></li>';
+		$theatable.= '<li '.$class.'><a href="javascript:void(0)" id="'.($halaman-1).'-'.$GLOBALS['atablenum'].'" class="halaman">&laquo;</a></li>';
 	}
 	for($page = 1;$page <= $jml_halaman;$page++){
 		$page == $halaman ? $class='class="active"' : $class="";
 		if((($page >= $halaman-2) && ($page <= $halaman +2)) || ($page==1) || ($page==$jml_halaman)){
-			if(($showpg==1)&&($page !=2 )){$theatable.= '<li><a href="#!" class="gapdot">...</a></li>';}
+			if(($showpg==1)&&($page !=2 )){$theatable.= '<li><a href="javascript:void(0)" class="gapdot">...</a></li>';}
 			if(($showpg!=($jml_halaman-1))&&($page == $jml_halaman)){$theatable.= '<li><a href="#" class="gapdot">...</a></li>';}
-			if($page == $halaman){$theatable.= '<li '.$class.'><a href="#!" id="'.$page.'-'.$GLOBALS['atablenum'].'">'.$page.'</a></li>';}
-			else{$theatable.= '<li '.$class.'><a href="#!" id="'.$page.'-'.$GLOBALS['atablenum'].'" class="halaman">'.$page.'</a></li>';}
+			if($page == $halaman){$theatable.= '<li '.$class.'><a href="javascript:void(0)" id="'.$page.'-'.$GLOBALS['atablenum'].'">'.$page.'</a></li>';}
+			else{$theatable.= '<li '.$class.'><a href="javascript:void(0)" id="'.$page.'-'.$GLOBALS['atablenum'].'" class="halaman">'.$page.'</a></li>';}
 			$showpg=$page;
 		}
 	}
 	if($halaman<$jml_halaman){
-		$theatable.= '<li '.$class.'><a href="#!" id="'.($halaman+1).'-'.$GLOBALS['atablenum'].'" class="halaman">&raquo;</a></li>';
+		$theatable.= '<li '.$class.'><a href="javascript:void(0)" id="'.($halaman+1).'-'.$GLOBALS['atablenum'].'" class="halaman">&raquo;</a></li>';
 	}
 	$theatable.= '</ul>
 </div>';
@@ -654,5 +654,5 @@ function db_num_rows($qry){
 * ******************
 * Use parameter $_POST['toatable'] for assign variable to atable
 */
-/** Atable v4 Copyright @ 2018 Rachmadany **/
+/** Atable v4 Copyright @ 2018 Hangsbreaker **/
 ?>
