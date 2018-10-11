@@ -28,7 +28,9 @@ class Atable {
 				}
 			}
 		}else{
-			$this->linkDB = $this->database;
+			if(empty($this->linkDB)){
+				$this->linkDB = $this->database;
+			}
 		}
 		// ==== param init
 		$qrytable = $this->query;
@@ -40,7 +42,7 @@ class Atable {
 		$groupby = !empty($this->groupby)?$this->groupby:'';
 		$where = !empty($this->where)?$this->where:'';
 		$colnumber = isset($this->colnumber)?$this->colnumber:TRUE;
-		$addvar = !empty($this->addvar)?$this->addvar:'';
+		$addvar = !empty($this->addvar)?json_decode($this->addvar):'';
 		$param = !empty($this->param)?$this->param:'';
 		$addlastrow = !empty($this->addlastrow)?$this->addlastrow:'';
 		$colsize = !empty($this->colsize)?json_decode($this->colsize):'';
@@ -268,7 +270,7 @@ class Atable {
     	}
 
     	if($qry){$continue=FALSE;$break=FALSE;
-    		while($row=$this->db_fetch_array($qry)){
+    		while($row=$this->db_fetch_object($qry)){
     			if(!empty($param)){eval($param);}
     			if($continue){$continue=FALSE;continue;}
     			if($break){$break=FALSE;break;}
@@ -280,7 +282,7 @@ class Atable {
     							if(strpos($acol, ';')!==false){
     								eval('$theatable.='.$acol);
     							}else{
-    								$theatable.= $row[$acol];
+    								$theatable.= $row->$acol;
     							}
     						$theatable.= '</td>';
     						$nocols++;
@@ -379,17 +381,26 @@ class Atable {
   		if(!$res){
   			$res = pg_last_error($this->dbcon);
   		}
+  	}else if($this->linkDB=="ci"){
+			$this->CI = & get_instance();
+			$database=$this->database;
+  		$res = $this->CI->$database->query($qry);
+  		if(!$res){
+  			$res = $this->CI->$database->_error_message();
+  		}
   	}
   	return $res;
   }
-  function db_fetch_array($qry){
+  function db_fetch_object($qry){
   	$res = "";
   	if($this->linkDB=="mysql"){
-  		$res = mysql_fetch_array($qry);
+  		$res = mysql_fetch_object($qry);
   	}else if($this->linkDB=="mysqli"){
-  		$res = mysqli_fetch_array($qry);
+  		$res = mysqli_fetch_object($qry);
   	}else if($this->linkDB=="pgsql"){
-  		$res = pg_fetch_array($qry);
+  		$res = pg_fetch_object($qry);
+  	}else if($this->linkDB=="ci"){
+  		$res = $qry->_fetch_object();
   	}
   	return $res;
   }
@@ -401,6 +412,8 @@ class Atable {
   		$res = mysqli_num_rows($qry);
   	}else if($this->linkDB=="pgsql"){
   		$res = pg_num_rows($qry);
+  	}else if($this->linkDB=="ci"){
+  		$res = $qry->num_rows();
   	}
   	return $res;
   }
