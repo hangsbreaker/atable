@@ -46,7 +46,7 @@ $atable->colalign = '["R","C",""]';
 $atable->colsize = '["110px", "10px", "20px"]';
 //$atable->showsql = TRUE;
 //$atable->database = 'pgsql';
-$atable->param = '$param1="From field 5: ".$row["tbl_field5"];
+$atable->param = '$param1="From field 5: ".$row->tbl_field5;
                   $param2="<a href=\"#\" class=\"btn btn-default\" onclick=\'return confirm(\"Click!\");\'>Clikc</a>";';
 $atable->style = 'table table-hover table-striped table-bordered';
 $atable->colnumber = FALSE;
