@@ -299,7 +299,7 @@ class Atable {
 		$showpg=0;$class="";//$lblcol
 		$theatable.= '<!-- datainfo -->
 		<div class="colhide" id="colhide'.$this->atablenum.'">
-		<div style="margin-bottom:6px;"><select multiple="multiple" style="width:250px;max-height:300px;" id="slctmltp'.$this->atablenum.'" class="form-control">';
+		<div style="margin-bottom:6px;"><select multiple="multiple" style="width:250px;min-height:83px;max-height:150px;" id="slctmltp'.$this->atablenum.'" class="form-control">';
 			if($this->colnumber){
 				$theatable.= '<option value="0" selected="selected">No</option>';
 			}
