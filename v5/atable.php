@@ -42,7 +42,7 @@ class Atable {
 		$groupby = !empty($this->groupby)?$this->groupby:'';
 		$where = !empty($this->where)?$this->where:'';
 		$colnumber = isset($this->colnumber)?$this->colnumber:TRUE;
-		$addvar = !empty($this->addvar)?json_decode($this->addvar):'';
+		$addvar = !empty($this->addvar)?json_decode($this->addvar,true):'';
 		$param = !empty($this->param)?$this->param:'';
 		$addlastrow = !empty($this->addlastrow)?$this->addlastrow:'';
 		$colsize = !empty($this->colsize)?json_decode($this->colsize):'';
@@ -299,7 +299,7 @@ class Atable {
 		$showpg=0;$class="";//$lblcol
 		$theatable.= '<!-- datainfo -->
 		<div class="colhide" id="colhide'.$this->atablenum.'">
-		<div style="margin-bottom:6px;"><select multiple="multiple" style="width:250px;min-height:83px;max-height:150px;" id="slctmltp'.$this->atablenum.'" class="form-control">';
+		<div style="margin-bottom:6px;"><select multiple="multiple" style="width:250px;min-height:83px;max-height:120px;" id="slctmltp'.$this->atablenum.'" class="form-control">';
 			if($this->colnumber){
 				$theatable.= '<option value="0" selected="selected">No</option>';
 			}
@@ -307,16 +307,16 @@ class Atable {
 				$theatable.= '<option value="'.($this->colnumber?$key+1:$key).'" selected="selected">'.$lbl.'</option>';
 			}
 		$theatable.= '</select></div>
-		<button type="button" class="btn btn-default btn-sm" style="float:right" onclick="showhide(\'colhide'.$this->atablenum.'\')">Cancel</button>
-		<button type="button" onclick="atable_hidecol(\'dtblatable'.$this->atablenum.'\',getSelectMultiValues(\'slctmltp'.$this->atablenum.'\'),'.$this->atablenum.');showhide(\'colhide'.$this->atablenum.'\')" class="btn btn-default btn-sm" style="float:right">Ok</button>
+		<button type="button" class="btn btn-default btn-sm" id="colhidecancel" style="float:right" onclick="showhide(\'colhide'.$this->atablenum.'\')">Cancel</button>
+		<button type="button" onclick="atable_hidecol(\'dtblatable'.$this->atablenum.'\',getSelectMultiValues(\'slctmltp'.$this->atablenum.'\'),'.$this->atablenum.');showhide(\'colhide'.$this->atablenum.'\')" class="btn btn-default btn-sm" id="colhideok" style="float:right">Ok</button>
 		</div>
 		<div class="datainfo">'.
 		($this->reload==TRUE?
-		  '<button type="button" onclick="atable_reload('.$this->atablenum.')" class="btn btn-info btn-xs" title="Reload" style="font-size:18px;height:30px;">&#8635;</button>&nbsp;':'').
+		  '<button type="button" onclick="atable_reload('.$this->atablenum.')" class="btn btn-info btn-xs" title="Reload" id="dtreload" style="font-size:18px;height:30px;">&#8635;</button>&nbsp;':'').
 		($this->collist==TRUE?
-		  '<button type="button" onclick="showhide(\'colhide'.$this->atablenum.'\')" class="btn btn-default btn-xs" title="Column" style="font-size:18px;height:30px;">&#8862;</button>&nbsp;':'').
+		  '<button type="button" onclick="showhide(\'colhide'.$this->atablenum.'\')" class="btn btn-default btn-xs" title="Column" id="dtlist" style="font-size:18px;height:30px;">&#8862;</button>&nbsp;':'').
 		($this->xls==TRUE?
-		  '<button type="button" onclick="atable_toexcel(\'dtblatable'.$this->atablenum.'\',\''.str_replace(" ","_",$caption).'\')" class="btn btn-success btn-sm" title="Export to Excel" style="">xls</button>&nbsp;':'').
+		  '<button type="button" onclick="atable_toexcel(\'dtblatable'.$this->atablenum.'\',\''.str_replace(" ","_",$caption).'\')" class="btn btn-success btn-sm" title="Export to Excel" id="dtxls">xls</button>&nbsp;':'').
 		($this->datainfo==TRUE?
 		((($i-1)==0?0:((($halaman-1) * $per_page)+1))." to ".($i-1)." of ".$datarecord." data").
 		'&nbsp;&nbsp;
@@ -888,4 +888,5 @@ function atable_init(){
 	echo "<script>$(document).ready(function(e) {load_atable('".$this_page."','".json_encode($_POST)."');});</script>";
 	}
 }
+// Hangsbreaker
 ?>
