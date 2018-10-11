@@ -49,7 +49,7 @@ class Atable {
 		$caption = !empty($this->caption)?$this->caption:'';
 		$style = !empty($this->style)?$this->style:'table table-hover';
 		$lblcol = array();
-		$sortpost="";
+		$sortpost = "";
 		$sqlerror = FALSE;
 		$getcoltable=preg_replace("/ as [\s\S]+? /"," ",preg_replace("/ as [\s\S]+?,/",",",$this->GetBetween($qrytable,"select","from")));
 		// ===============================
