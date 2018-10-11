@@ -15,10 +15,10 @@ include "atable.php";
 <body>
 <?php
 $tahun=date('Y');
-if(!isset($_POST['fromatable'])){
 if(isset($_POST['tahun'])){
 	$tahun=$_POST['tahun'];
 }
+if(!isset($_POST['fromatable'])){
 echo '<div style="display:block;clear:both;">
 <form method="post" class="form-inline">
   <select name="tahun" class="form-control">';
