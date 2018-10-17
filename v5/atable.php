@@ -128,7 +128,7 @@ class Atable {
 
 									$lblcol[$arrkey]=$vthn;
 
-    							$theatable.= (strpos($bysort, ';')!==false||($colrowv=='col')?$vthn.$kk:$kk.'<a href="javascript:void(0);" id="sortby-'.$this->atablenum.'-'.$bysort.'" class="sortby">'.$iconsort.'&nbsp;'.$vthn.'</a>');
+    							$theatable.= (strpos($bysort, ';')!==false||($colrowv=='col')?$vthn.$kk:$kk.'<a href="javascript:void(0);" id="sortby-'.$this->atablenum.'-'.$bysort.'" class="sortby" onclick="sortedby(this);">'.$iconsort.'&nbsp;'.$vthn.'</a>');
     							$theatable.= '</th>';
 									$arrkey++;
     						}
@@ -153,7 +153,7 @@ class Atable {
 									$iconsort = '';
 								}
 							$lblcol[$key]=$acolv;
-    						$theatable.= (strpos($bysort, ';')!==false?$acolv:'<a href="javascript:void(0);" id="sortby-'.$this->atablenum.'-'.$bysort.'" class="sortby">'.$iconsort.'&nbsp;'.$acolv.'</a>');
+    						$theatable.= (strpos($bysort, ';')!==false?$acolv:'<a href="javascript:void(0);" id="sortby-'.$this->atablenum.'-'.$bysort.'" class="sortby" onclick="sortedby(this);">'.$iconsort.'&nbsp;'.$acolv.'</a>');
     						$theatable.= '</th>';
     					}
     				}
@@ -320,27 +320,27 @@ class Atable {
 		($this->datainfo==TRUE?
 		((($i-1)==0?0:((($halaman-1) * $per_page)+1))." to ".($i-1)." of ".$datarecord." data").
 		'&nbsp;&nbsp;
-		<a href="javascript:void(0);" id="showall-'.$this->atablenum.'" class="showall">Show All</a>
-		<a href="javascript:void(0);" id="showless-'.$this->atablenum.'" class="showless" style="display:none;">Show Less</a>':'').'
+		<a href="javascript:void(0);" id="showall-'.$this->atablenum.'" class="showall" onclick="showall(this);">Show All</a>
+		<a href="javascript:void(0);" id="showless-'.$this->atablenum.'" class="showless" style="display:none;" onclick="showless(this);">Show Less</a>':'').'
 		</div>
 		<!-- paging -->
 		<div class="paggingfield" '.($this->paging==TRUE?'':'style="display:none;"').'>
 			<ul class="pagination">';
 			if($halaman>1){
-				$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.($halaman-1).'-'.$this->atablenum.'" class="halaman">&laquo;</a></li>';
+				$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.($halaman-1).'-'.$this->atablenum.'" class="halaman" onclick="halaman(this);">&laquo;</a></li>';
 			}
 			for($page = 1;$page <= $jml_halaman;$page++){
 				$page == $halaman ? $class='class="active"' : $class="";
 				if((($page >= $halaman-2) && ($page <= $halaman +2)) || ($page==1) || ($page==$jml_halaman)){
 					if(($showpg==1)&&($page !=2 )){$theatable.= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';}
-					if(($showpg!=($jml_halaman-1))&&($page == $jml_halaman)){$theatable.= '<li><a href="#" class="gapdot">...</a></li>';}
-					if($page == $halaman){$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.$page.'-'.$this->atablenum.'">'.$page.'</a></li>';}
-					else{$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.$page.'-'.$this->atablenum.'" class="halaman">'.$page.'</a></li>';}
+					if(($showpg!=($jml_halaman-1))&&($page == $jml_halaman)){$theatable.= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';}
+					if($page == $halaman){$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.$page.'-'.$this->atablenum.'" onclick="halaman(this);">'.$page.'</a></li>';}
+					else{$theatable.= '<li '.$class.'><a href="javascript:void(this);" id="'.$page.'-'.$this->atablenum.'" class="halaman" onclick="halaman(this);">'.$page.'</a></li>';}
 					$showpg=$page;
 				}
 			}
 			if($halaman<$jml_halaman){
-				$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.($halaman+1).'-'.$this->atablenum.'" class="halaman">&raquo;</a></li>';
+				$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.($halaman+1).'-'.$this->atablenum.'" class="halaman" onclick="halaman(this);">&raquo;</a></li>';
 			}
 			$theatable.= '</ul>
 		</div>';
@@ -546,101 +546,6 @@ function atable_init(){
 				atable[i].insertAdjacentHTML("afterEnd","");
 			});
 
-			$(".halaman").live("click", function(){
-				xhr.abort();
-				var vid = this.id.split("-");
-				document.getElementById("atablepreloader"+vid[1]).style.display="block";
-
-				var tbpage = Object.assign({}, datapost);
-				tbpage.h=vid[0];
-				tbpage["atabledata"+vid[1]]=true;
-				tbpage["sortby"]=sortby[vid[1]];
-				tbpage["colshowhide"]=colshowhide[vid[1]];
-				tbpage["fromatable"]=true;
-				//alert(tbpage.toSource());
-				xhr = $.ajax({
-					type: "POST",
-					url: thepage,
-					data: tbpage,
-					success: function(data){
-						document.getElementById("atablepreloader"+vid[1]).style.display="none";
-						var atableno=[];
-						var htmldata = "<div>"+rbline(data)+"</div>";
-						$(htmldata).find(".dtatable").each(function(i, obj){
-							atableno[i]=this.innerHTML;
-						});
-
-						forEach.call(atable, function (el, i) {
-							if(i==vid[1]){
-								atable[i].innerHTML=atableno[i];
-							}
-						});
-						atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
-					}
-				});
-			});
-
-			$(".showall").live("click", function(){
-				var vid = this.id.split("-");
-				var v_afind = $("#txtcari-"+vid[1]).val();
-				document.getElementById("atablepreloader"+vid[1]).style.display="block";
-
-				var tbpage = Object.assign({}, datapost);
-				tbpage.showall=true;
-				tbpage["atabledata"+vid[1]]=true;
-				tbpage["sortby"]=sortby[vid[1]];
-				tbpage["colshowhide"]=colshowhide[vid[1]];
-				tbpage["fromatable"]=true;
-				tbpage.afind=v_afind;
-				//alert(tbpage.toSource());
-				$.post(thepage, tbpage ,function(data) {
-					document.getElementById("atablepreloader"+vid[1]).style.display="none";
-					var atableno=[];
-					var htmldata = "<div>"+rbline(data)+"</div>";
-					$(htmldata).find(".dtatable").each(function(i, obj){
-						atableno[i]=this.innerHTML;
-					});
-
-					forEach.call(atable, function (el, i) {
-						if(i==vid[1]){
-							atable[i].innerHTML=atableno[i];
-						}
-					});
-					document.getElementById("showless-"+vid[1]).style.display="inline-block";
-					document.getElementById("showall-"+vid[1]).style.display="none";
-					atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
-				});
-			});
-
-			$(".showless").live("click", function(){
-				var vid = this.id.split("-");
-				document.getElementById("atablepreloader"+vid[1]).style.display="block";
-
-				var tbpage = Object.assign({}, datapost);
-				tbpage["atabledata"+vid[1]]=true;
-				tbpage["sortby"]=sortby[vid[1]];
-				tbpage["colshowhide"]=colshowhide[vid[1]];
-				tbpage["fromatable"]=true;
-				//alert(tbpage.toSource());
-				$.post(thepage, tbpage ,function(data) {
-					document.getElementById("atablepreloader"+vid[1]).style.display="none";
-					var atableno=[];
-					var htmldata = "<div>"+rbline(data)+"</div>";
-					$(htmldata).find(".dtatable").each(function(i, obj){
-						atableno[i]=this.innerHTML;
-					});
-
-					forEach.call(atable, function (el, i) {
-						if(i==vid[1]){
-							atable[i].innerHTML=atableno[i];
-						}
-					});
-					document.getElementById("showless-"+vid[1]).style.display="none";
-					document.getElementById("showall-"+vid[1]).style.display="inline-block";
-					atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
-				});
-			});
-
 			$(".txtcari").keyup(function(event){
 				//if(event.which == 13){
 					xhr.abort();
@@ -681,46 +586,143 @@ function atable_init(){
 				//}
 			});
 
-			$(".sortby").live("click", function(){
-				var vid = this.id.split("-");
-				document.getElementById("atablepreloader"+vid[1]).style.display="block";
-				if(ascdsc[vid[1]]==""){
-					sortby[vid[1]] = vid[2]+" ASC";
-					ascdsc[vid[1]]="ASC";
-				}else if(ascdsc[vid[1]]=="ASC"){
-					sortby[vid[1]] = vid[2]+" DESC";
-					ascdsc[vid[1]]="DESC";
-				}else{
-					sortby[vid[1]] = vid[2]+" ASC";
-					ascdsc[vid[1]]="ASC";
-				}
-
-				var tbpage = Object.assign({}, datapost);
-				tbpage["atabledata"+vid[1]]=true;
-				tbpage["sortby"]=sortby[vid[1]];
-				tbpage["colshowhide"]=colshowhide[vid[1]];
-				tbpage["fromatable"]=true;
-				//alert(tbpage.toSource());
-				$.post(thepage, tbpage ,function(data) {
-					document.getElementById("atablepreloader"+vid[1]).style.display="none";
-					var atableno=[];
-					var htmldata = "<div>"+rbline(data)+"</div>";
-					$(htmldata).find(".dtatable").each(function(i, obj){
-						atableno[i]=this.innerHTML;
-					});
-
-					forEach.call(atable, function (el, i) {
-						if(i==vid[1]){
-							atable[i].innerHTML=atableno[i];
-						}
-					});
-					document.getElementById("showless-"+vid[1]).style.display="none";
-					document.getElementById("showall-"+vid[1]).style.display="inline-block";
-				});
-			});
-
 		});
 	}) (jQuery);
+
+
+
+	function halaman(me){
+		xhr.abort();
+		var vid = me.id.split("-");
+		document.getElementById("atablepreloader"+vid[1]).style.display="block";
+
+		var tbpage = Object.assign({}, datapost);
+		tbpage.h=vid[0];
+		tbpage["atabledata"+vid[1]]=true;
+		tbpage["sortby"]=sortby[vid[1]];
+		tbpage["colshowhide"]=colshowhide[vid[1]];
+		tbpage["fromatable"]=true;
+		//alert(tbpage.toSource());
+		xhr = $.ajax({
+			type: "POST",
+			url: thepage,
+			data: tbpage,
+			success: function(data){
+				document.getElementById("atablepreloader"+vid[1]).style.display="none";
+				var atableno=[];
+				var htmldata = "<div>"+rbline(data)+"</div>";
+				$(htmldata).find(".dtatable").each(function(i, obj){
+					atableno[i]=this.innerHTML;
+				});
+
+				forEach.call(atable, function (el, i) {
+					if(i==vid[1]){
+						atable[i].innerHTML=atableno[i];
+					}
+				});
+				atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+			}
+		});
+	};
+
+	function showall(me){
+		var vid = me.id.split("-");
+		var v_afind = $("#txtcari-"+vid[1]).val();
+		document.getElementById("atablepreloader"+vid[1]).style.display="block";
+
+		var tbpage = Object.assign({}, datapost);
+		tbpage.showall=true;
+		tbpage["atabledata"+vid[1]]=true;
+		tbpage["sortby"]=sortby[vid[1]];
+		tbpage["colshowhide"]=colshowhide[vid[1]];
+		tbpage["fromatable"]=true;
+		tbpage.afind=v_afind;
+		//alert(tbpage.toSource());
+		$.post(thepage, tbpage ,function(data) {
+			document.getElementById("atablepreloader"+vid[1]).style.display="none";
+			var atableno=[];
+			var htmldata = "<div>"+rbline(data)+"</div>";
+			$(htmldata).find(".dtatable").each(function(i, obj){
+				atableno[i]=this.innerHTML;
+			});
+
+			forEach.call(atable, function (el, i) {
+				if(i==vid[1]){
+					atable[i].innerHTML=atableno[i];
+				}
+			});
+			document.getElementById("showless-"+vid[1]).style.display="inline-block";
+			document.getElementById("showall-"+vid[1]).style.display="none";
+			atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+		});
+	};
+
+	function showless(me){
+		var vid = me.id.split("-");
+		document.getElementById("atablepreloader"+vid[1]).style.display="block";
+
+		var tbpage = Object.assign({}, datapost);
+		tbpage["atabledata"+vid[1]]=true;
+		tbpage["sortby"]=sortby[vid[1]];
+		tbpage["colshowhide"]=colshowhide[vid[1]];
+		tbpage["fromatable"]=true;
+		//alert(tbpage.toSource());
+		$.post(thepage, tbpage ,function(data) {
+			document.getElementById("atablepreloader"+vid[1]).style.display="none";
+			var atableno=[];
+			var htmldata = "<div>"+rbline(data)+"</div>";
+			$(htmldata).find(".dtatable").each(function(i, obj){
+				atableno[i]=this.innerHTML;
+			});
+
+			forEach.call(atable, function (el, i) {
+				if(i==vid[1]){
+					atable[i].innerHTML=atableno[i];
+				}
+			});
+			document.getElementById("showless-"+vid[1]).style.display="none";
+			document.getElementById("showall-"+vid[1]).style.display="inline-block";
+			atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+		});
+	};
+
+	function sortedby(me){
+		var vid = me.id.split("-");
+		document.getElementById("atablepreloader"+vid[1]).style.display="block";
+		if(ascdsc[vid[1]]==""){
+			sortby[vid[1]] = vid[2]+" ASC";
+			ascdsc[vid[1]]="ASC";
+		}else if(ascdsc[vid[1]]=="ASC"){
+			sortby[vid[1]] = vid[2]+" DESC";
+			ascdsc[vid[1]]="DESC";
+		}else{
+			sortby[vid[1]] = vid[2]+" ASC";
+			ascdsc[vid[1]]="ASC";
+		}
+
+		var tbpage = Object.assign({}, datapost);
+		tbpage["atabledata"+vid[1]]=true;
+		tbpage["sortby"]=sortby[vid[1]];
+		tbpage["colshowhide"]=colshowhide[vid[1]];
+		tbpage["fromatable"]=true;
+		//alert(tbpage.toSource());
+		$.post(thepage, tbpage ,function(data) {
+			document.getElementById("atablepreloader"+vid[1]).style.display="none";
+			var atableno=[];
+			var htmldata = "<div>"+rbline(data)+"</div>";
+			$(htmldata).find(".dtatable").each(function(i, obj){
+				atableno[i]=this.innerHTML;
+			});
+
+			forEach.call(atable, function (el, i) {
+				if(i==vid[1]){
+					atable[i].innerHTML=atableno[i];
+				}
+			});
+			document.getElementById("showless-"+vid[1]).style.display="none";
+			document.getElementById("showall-"+vid[1]).style.display="inline-block";
+		});
+	};
 
 	function load_atable(curpage,post){
 		thepage = curpage;
@@ -888,5 +890,4 @@ function atable_init(){
 	echo "<script>$(document).ready(function(e) {load_atable('".$this_page."','".json_encode($_POST)."');});</script>";
 	}
 }
-// Hangsbreaker
 ?>
