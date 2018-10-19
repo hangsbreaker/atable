@@ -8,6 +8,8 @@ aTable.table = function(){
 		this.tableId = this.id+'Rec';
 		this.tbdata = this.p.data;
 		this.columnSet = [];
+		this.colshowhide=[];
+		this.lblcol=[];
 		if(this.p.colnumber==undefined){this.p.colnumber=true;}
 		if(this.p.limit==undefined){
 			this.dtlimit=10;
@@ -16,6 +18,8 @@ aTable.table = function(){
 			}
 		}else{this.dtlimit=this.p.limit;}
 		if(this.p.style==undefined){this.p.style='';}
+		if(this.p.collist==undefined){this.collist=false;}else{this.collist=this.p.collist;}
+		if(this.p.xls==undefined){this.xls=false;}else{this.xls=this.p.xls;}
 
 		this.pagen = 1;
 		$('#'+this.id).html('<div class="atable"><div class="atablepreloader" id="atablepreloader'+this.tableId+'">Loading ....</div><table id="'+this.tableId+'" class="'+this.p.style+'">'+(this.p.caption!=undefined?'<caption>'+this.p.caption+'</caption>':'')+'</table><div id="info'+this.tableId+'"></div></div>');
@@ -42,9 +46,9 @@ aTable.table = function(){
 					if(this.p.colv==undefined){
 						if(this.sortfield==key){
 							if(this.sorttype=='asc'){
-								iconsort = '<span class="icon-chevron-down" aria-hidden="true"></span>';
+								iconsort = '<span class="icon-chevron-down" aria-hidden="true"></span>&nbsp;';
 							}else{
-								iconsort = '<span class="icon-chevron-up" aria-hidden="true"></span>';
+								iconsort = '<span class="icon-chevron-up" aria-hidden="true"></span>&nbsp;';
 							}
 						}else{
 							iconsort = '';
@@ -62,13 +66,14 @@ aTable.table = function(){
 						var trparam=csize+calign;
 						if(chide){trparam=' style="display:none;"';}
 
-						var hname = '<a href="javascript:the_atable[\''+this.id+'\'].sorts(\''+key+'\')">'+iconsort+'&nbsp;'+key+'</a>';
+						var hname = '<a href="javascript:the_atable[\''+this.id+'\'].sorts(\''+key+'\')">'+iconsort+key+'</a>';
 						if(this.p.sort!=undefined){
 						  if(this.p.sort[nocol]=='F'){
 						    hname = key;
 						  }
 						}
 						headerTr$.append($('<th'+trparam+'/>').html(hname));
+						this.lblcol[nocol]=hname;
 						nocol++;
 					}
 				}
@@ -79,9 +84,9 @@ aTable.table = function(){
 				for (var i = 0 ; i < this.columnSet.length ; i++) {
 					if(this.sortfield==this.columnSet[i]){
 						if(this.sorttype=='asc'){
-							iconsort = '<span class="icon-chevron-down" aria-hidden="true"></span>';
+							iconsort = '<span class="icon-chevron-down" aria-hidden="true"></span>&nbsp;';
 						}else{
-							iconsort = '<span class="icon-chevron-up" aria-hidden="true"></span>';
+							iconsort = '<span class="icon-chevron-up" aria-hidden="true"></span>&nbsp;';
 						}
 					}else{
 						iconsort = '';
@@ -99,13 +104,14 @@ aTable.table = function(){
 					var trparam=csize+calign;
 					if(chide){trparam=' style="display:none;"';}
 
-					var hname = '<a href="javascript:the_atable[\''+this.id+'\'].sorts(\''+this.columnSet[i]+'\')">'+iconsort+'&nbsp;'+this.columnSet[i]+'</a>';
+					var hname = '<a href="javascript:the_atable[\''+this.id+'\'].sorts(\''+this.columnSet[i]+'\')">'+iconsort+this.columnSet[i]+'</a>';
 					if(this.p.sort!=undefined){
 						if(this.p.sort[nocol]=='F'){
 							hname = this.columnSet[i];
 						}
 					}
 					headerTr$.append($('<th'+trparam+'/>').html(hname));
+					this.lblcol[nocol]=hname;
 					nocol++;
 				}
 			}
@@ -116,9 +122,9 @@ aTable.table = function(){
 			for (var i = 0 ; i < this.p.colv.length ; i++) {
 				if(this.sortfield==this.columnSet[i]){
 					if(this.sorttype=='asc'){
-						iconsort = '<span class="icon-chevron-down" aria-hidden="true"></span>';
+						iconsort = '<span class="icon-chevron-down" aria-hidden="true"></span>&nbsp;';
 					}else{
-						iconsort = '<span class="icon-chevron-up" aria-hidden="true"></span>';
+						iconsort = '<span class="icon-chevron-up" aria-hidden="true"></span>&nbsp;';
 					}
 				}else{
 					iconsort = '';
@@ -136,13 +142,14 @@ aTable.table = function(){
 				var trparam=csize+calign;
 				if(chide){trparam=' style="display:none;"';}
 
-				var hname = '<a href="javascript:the_atable[\''+this.id+'\'].sorts(\''+this.columnSet[i]+'\')">'+iconsort+'&nbsp;'+this.p.colv[i]+'</a>';
+				var hname = '<a href="javascript:the_atable[\''+this.id+'\'].sorts(\''+this.columnSet[i]+'\')">'+iconsort+this.p.colv[i]+'</a>';
 				if(this.p.sort!=undefined){
 				  if(this.p.sort[i]=='F'){
 				    hname = this.p.colv[i];
 				  }
 				}
 				headerTr$.append($('<th'+trparam+'/>').html(hname));
+				this.lblcol[i]=hname;
 			}
 		}
 		tHead$.append(headerTr$);
@@ -221,7 +228,28 @@ aTable.table = function(){
 		}
 		pagination += '</ul></div>';
 
-		$("#info"+this.tableId).html('<div class="datainfo">'+(((this.pagen-1)*this.dtlimit)+1)+' to '+maxnum+' of '+this.tbdata.length+' data&nbsp;&nbsp;<a href="javascript:the_atable[\''+this.id+'\'].showall();" id="jshowall" class="jshowall">Show All</a><a href="javascript:the_atable[\''+this.id+'\'].showaless();" id="jshowless" class="jshowless" style="display:none;">Show Less</a></div>'+pagination);
+		var colhide='<div class="colhide" id="colhide'+this.tableId+'"><div style="margin-bottom:6px;"><select multiple="multiple" style="width:250px;min-height:83px;max-height:120px;" id="slctmltp'+this.tableId+'" class="form-control">';
+		if(this.p.colnumber){
+			colhide = colhide+'<option value="0" selected="selected">No</option>';
+		}
+		for(var nk=0;nk<this.lblcol.length;nk++){
+			colhide = colhide+'<option value="'+(this.p.colnumber?nk+1:nk)+'" selected="selected">'+this.lblcol[nk]+'</option>';
+		}
+
+		colhide = colhide+'</select></div><button type="button" class="btn btn-default btn-sm" id="colhidecancel" style="float:right" onclick="the_atable[\''+this.id+'\'].showhide(\'colhide'+this.tableId+'\');">Cancel</button><button type="button" onclick="the_atable[\''+this.id+'\'].atable_hidecol(\''+this.tableId+'\',the_atable[\''+this.id+'\'].getSelectMultiValues(\'slctmltp'+this.tableId+'\'),\''+this.tableId+'\');the_atable[\''+this.id+'\'].showhide(\'colhide'+this.tableId+'\');" class="btn btn-default btn-sm" id="colhideok" style="float:right">Ok</button></div>';
+
+
+		var btncollist='';var btnxls='';
+		if(this.collist){
+			btncollist='<button type="button" onclick="the_atable[\''+this.id+'\'].showhide(\'colhide'+this.tableId+'\');" class="btn btn-default btn-xs" title="Column" id="dtlist" style="font-size:18px;height:30px;">&#8862;</button>&nbsp;';
+		}
+		if(this.xls){
+			btnxls='<button type="button" onclick="atable_toexcel(\''+this.tableId+'\',\''+this.p.caption.replace(/ /g, '_')+'\')" class="btn btn-success btn-sm" title="Export to Excel" id="dtxls">xls</button>&nbsp;';
+		}
+
+		$("#info"+this.tableId).html(colhide+'<div class="datainfo">'+btncollist+btnxls+(((this.pagen-1)*this.dtlimit)+1)+' to '+maxnum+' of '+this.tbdata.length+' data&nbsp;&nbsp;<a href="javascript:the_atable[\''+this.id+'\'].showall();" id="jshowall" class="jshowall">Show All</a><a href="javascript:the_atable[\''+this.id+'\'].showaless();" id="jshowless" class="jshowless" style="display:none;">Show Less</a></div>'+pagination);
+
+		this.atable_hidecol(this.tableId,this.colshowhide,this.tableId);
 	};
 	tdata.prototype.search=function(c){
 		var q = $('#'+c.id).val();
@@ -308,10 +336,59 @@ aTable.table = function(){
 		$("#info"+this.tableId+" > .datainfo > #jshowless").css('display','none');
 		$("#info"+this.tableId+" > .datainfo > #jshowall").css('display','inline-block');
 	};
+
 	tdata.prototype.move=function(n){
 		this.pagen=n;
 		this.tbody();
 	};
+
+
+		tdata.prototype.atable_hidecol=function(tblid,arcol,atablenum="") {
+		var cols = arcol;
+		if(cols.length < 0){
+			console.log("Invalid");
+			return;
+		}else{
+			var tbl = document.getElementById(tblid);
+			var slctmltp = document.getElementById("slctmltp"+atablenum);
+			console.log("slctmltp"+atablenum+"\n"+arcol);
+			if (tbl != null) {
+				for (var i = 0; i < tbl.rows.length; i++) {
+					var ncc=0;
+					for (var j = 0; j < tbl.rows[i].cells.length; j++) {
+						tbl.rows[i].cells[j].style.display = "";
+						colspan = tbl.rows[i].cells[j].getAttribute("colspan");
+						if(colspan>0){
+							 ncc = ncc+parseInt(colspan)-1;
+						}
+						slctmltp.options[ncc].selected = true;
+						if(cols.includes(ncc)){
+							tbl.rows[i].cells[j].style.display = "none";
+	 						slctmltp.options[ncc].selected = false;
+						}
+						ncc++;
+					}
+				}
+			}
+		}
+		this.colshowhide=arcol;
+	}
+	tdata.prototype.getSelectMultiValues=function(select) {
+		var result = [];
+		var options = document.getElementById(select);
+		for (var i=0, iLen=options.length; i<iLen; i++) {
+			if (!options[i].selected) {result.push(parseInt(options[i].value) || parseInt(options[i].text) || 0);}
+		}
+		return result;
+	}
+	tdata.prototype.showhide=function(meid=""){
+		var tag = document.getElementById(meid);
+		if(tag.style.display === "block"){
+			tag.style.display = "none";
+		}else{
+			tag.style.display = "block";
+		}
+	}
 
 	tdata.prototype.datarow=function(tr){
 		var rows=[];
@@ -327,5 +404,40 @@ var the_atable = [];
 function atable_build(table,param){
 	the_atable[table] = new aTable.table.tdata('tdata['+table+']',table,param);
 }
+
+
+
+function atable_toexcel(tableID = "", filename = ""){
+	var downloadLink;
+	var dataType = "application/vnd.ms-excel";
+	var tableSelect = document.getElementById(tableID);
+	var tableHTML = remHiddenTag(tableSelect.outerHTML,"none").replace(/ /g,"%20").replace(/<\/?a[^>]*>/g,"").replace('border="0"','border="1"');
+	filename = filename?filename+".xls":"excel_data.xls";
+	downloadLink = document.createElement("a");
+
+	document.body.appendChild(downloadLink);
+
+	if(navigator.msSaveOrOpenBlob){
+		var blob = new Blob(["\ufeff", tableHTML], {
+		type: dataType
+		});
+		navigator.msSaveOrOpenBlob(blob, filename);
+	}else{
+		downloadLink.href = "data:"+dataType+", "+tableHTML;
+		downloadLink.onclick = atabledestroyClickedElement;
+		downloadLink.download = filename;
+		downloadLink.click();
+	}
+}
+
+function atabledestroyClickedElement(event){document.body.removeChild(event.target);}
+
+function remHiddenTag(html, match) {
+    var container = document.createElement("span");
+    container.innerHTML = html;
+    Array.from(container.querySelectorAll("[style*="+CSS.escape(match)+"]"))
+        .forEach( link => link.parentNode.removeChild(link));
+    return container.innerHTML;
+}
 // END JSON aTable ==============================================================
-/** Atable v4 Copyright @ 2018 Rachmadany **/
+/** Atable Copyright @ Hangsbreaker **/
