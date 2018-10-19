@@ -160,45 +160,56 @@
 	border-color: #ccc;
 }
 .atable .btn-sm {
-    padding: 5px 10px;
-    font-size: 12px;
-    line-height: 1.5;
-    border-radius: 3px;
+	padding: 5px 10px;
+	font-size: 12px;
+	line-height: 1.5;
+	border-radius: 3px;
 }
 .atable .btn-xs {
-    padding: 1px 5px;
-    font-size: 12px;
-    line-height: 1.5;
-    border-radius: 3px;
+	padding: 1px 5px;
+	font-size: 12px;
+	line-height: 1.5;
+	border-radius: 3px;
 }
 .atable .btn-success {
-    color: #fff;
-    background-color: #5cb85c;
-    border-color: #4cae4c;
+	color: #fff;
+	background-color: #5cb85c;
+	border-color: #4cae4c;
 }
 .atable .btn-info {
-    color: #fff;
-    background-color: #5bc0de;
-    border-color: #46b8da;
+	color: #fff;
+	background-color: #5bc0de;
+	border-color: #46b8da;
 }
 
 .atable .form-control {
-    display: block;
-    width: 100%;
-    height: 34px;
-    padding: 6px 12px;
-    font-size: 14px;
-    line-height: 1.42857143;
-    color: #495057;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-    transition-property: border-color, box-shadow;
-    transition-duration: 0.15s, 0.15s;
-    transition-timing-function: ease-in-out, ease-in-out;
-    transition-delay: 0s, 0s;
+	display: block;
+	width: 100%;
+	height: 34px;
+	padding: 6px 12px;
+	font-size: 14px;
+	line-height: 1.42857143;
+	color: #495057;
+	background-color: #fff;
+	background-clip: padding-box;
+	border: 1px solid #ced4da;
+	border-radius: 4px;
+	transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+	transition-property: border-color, box-shadow;
+	transition-duration: 0.15s, 0.15s;
+	transition-timing-function: ease-in-out, ease-in-out;
+	transition-delay: 0s, 0s;
+}
+.atable .colhide{
+	display:none;
+	position: absolute;
+	z-index: 2;
+	margin-top: -115px;
+	margin-left: 20px;
+	background: #fff;
+	padding: 10px;
+	border-radius: 5px;
+	box-shadow: 0px 0px 5px 0px #333;
 }
 @media screen and (max-width: 550px) {
 	.atable table{
@@ -248,4 +259,4 @@
 		padding: 4px 4px;
 	}
 }
-/** Atable v4 Copyright @ 2018 Rachmadany **/
+/** Atable Copyright @ Hangsbreaker **/
