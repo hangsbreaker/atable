@@ -721,6 +721,7 @@ function atable_init(){
 			});
 			document.getElementById("showless-"+vid[1]).style.display="none";
 			document.getElementById("showall-"+vid[1]).style.display="inline-block";
+			atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
 		});
 	};
 
