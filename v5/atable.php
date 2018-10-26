@@ -559,10 +559,10 @@ function atable_init(){
 
 					var tbpage = Object.assign({}, datapost);
 					tbpage["atabledata"+vid[1]]=true;
-					tbpage.afind=v_afind;
 					tbpage["sortby"]=sortby[vid[1]];
 					tbpage["colshowhide"]=colshowhide[vid[1]];
 					tbpage["fromatable"]=true;
+					tbpage.afind=v_afind;
 
 					xhr = $.ajax({
 						type: "POST",
@@ -595,6 +595,7 @@ function atable_init(){
 	function halaman(me){
 		xhr.abort();
 		var vid = me.id.split("-");
+		var v_afind = $("#txtcari-"+vid[1]).val();
 		document.getElementById("atablepreloader"+vid[1]).style.display="block";
 
 		var tbpage = Object.assign({}, datapost);
@@ -603,6 +604,7 @@ function atable_init(){
 		tbpage["sortby"]=sortby[vid[1]];
 		tbpage["colshowhide"]=colshowhide[vid[1]];
 		tbpage["fromatable"]=true;
+		tbpage.afind=v_afind;
 		//alert(tbpage.toSource());
 		xhr = $.ajax({
 			type: "POST",
@@ -660,6 +662,7 @@ function atable_init(){
 
 	function showless(me){
 		var vid = me.id.split("-");
+		var v_afind = $("#txtcari-"+vid[1]).val();
 		document.getElementById("atablepreloader"+vid[1]).style.display="block";
 
 		var tbpage = Object.assign({}, datapost);
@@ -667,6 +670,7 @@ function atable_init(){
 		tbpage["sortby"]=sortby[vid[1]];
 		tbpage["colshowhide"]=colshowhide[vid[1]];
 		tbpage["fromatable"]=true;
+		tbpage.afind=v_afind;
 		//alert(tbpage.toSource());
 		$.post(thepage, tbpage ,function(data) {
 			document.getElementById("atablepreloader"+vid[1]).style.display="none";
@@ -689,6 +693,7 @@ function atable_init(){
 
 	function sortedby(me){
 		var vid = me.id.split("-");
+		var v_afind = $("#txtcari-"+vid[1]).val();
 		document.getElementById("atablepreloader"+vid[1]).style.display="block";
 		if(ascdsc[vid[1]]==""){
 			sortby[vid[1]] = vid[2]+" ASC";
@@ -706,6 +711,7 @@ function atable_init(){
 		tbpage["sortby"]=sortby[vid[1]];
 		tbpage["colshowhide"]=colshowhide[vid[1]];
 		tbpage["fromatable"]=true;
+		tbpage.afind=v_afind;
 		//alert(tbpage.toSource());
 		$.post(thepage, tbpage ,function(data) {
 			document.getElementById("atablepreloader"+vid[1]).style.display="none";
@@ -779,10 +785,10 @@ function atable_init(){
 
 			var tbpage = Object.assign({}, datapost);
 			tbpage["atabledata"+vid]=true;
-			tbpage.afind=v_afind;
 			tbpage["sortby"]=sortby[vid];
 			tbpage["colshowhide"]=colshowhide[vid[1]];
 			tbpage["fromatable"]=true;
+			tbpage.afind=v_afind;
 
 			xhr = $.ajax({
 				type: "POST",
