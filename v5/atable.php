@@ -71,7 +71,8 @@ class Atable {
 			if(!empty($orderby)){$orderby='ORDER BY '.$orderby;}
 			if(!empty($groupby)){$groupby='GROUP BY '.$groupby;}else{if($getcoltable!=' * '){$groupby='GROUP BY '.$getcoltable;}}
 			if(!empty($where)){$where='HAVING '.$where;}
-			$theatable.= '<table class="'.$style.'" id="dtblatable'.$this->atablenum.'" border="0">
+			$theatable.= '<div class="atablewrap" id="atablewrap'.$this->atablenum.'">
+						<table class="'.$style.'" id="dtblatable'.$this->atablenum.'" border="0">
     				<caption>'.$caption.'</caption>
     				<thead>';
     				$atr=0;
@@ -294,7 +295,7 @@ class Atable {
 
 		if(!empty($addlastrow)){eval('$theatable.='.$addlastrow);}
 		$theatable.= '</tbody>
-		</table>';
+		</table></div>';
 
 		$showpg=0;$class="";//$lblcol
 		$theatable.= '<!-- datainfo -->
