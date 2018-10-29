@@ -35,18 +35,21 @@ atable_build("aTableData",{
 	caption:"Data Table",
 	colv:["NAME","AGE","HOBBY", "AKSI", "AKSI2"],
 	addcol:[
-			['AKSI','<button type="button" class="btn">Button</button>'],
-			['AKSI2','<button type="button" class="btn">Button</button>']
+			['AKSI','<button type="button" class="btn" id="btn1">Button</button>'],
+			['AKSI2','<button type="button" class="btn" id="btn2">Button</button>']
 		],
 	colsize:["10px","","30px","40px","50px","30pz","30px"],
-	colhide:[0],
+	colhide:[2,4],
 	colalign:['R','L','C','','','C'],
+	sort:['T','F','F','T'],
+	collist:true,
+	xls:true,
 	style:"table table-hover"
 });
 
 $('#aTableData').on('click', 'button', function(e){
 	var data = the_atable["aTableData"].datarow(this);
-	alert(data[0]);
+	alert(this.id+' | '+data[1]);
 });
 </script>
 </body>
