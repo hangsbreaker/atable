@@ -216,9 +216,9 @@ aTable.table = function(){
 		for(var page = 1;page <= this.numpage;page++){
 			pgclass = ((page == this.pagen)?pgclass='class="active"':pgclass='');
 			if(((page >= this.pagen-2) && (page <= this.pagen +2)) || (page==1) || (page==this.numpage)){
-				if((showpg==1)&&(page !=2 )){pagination+= '<li><a href="#!" class="gapdot">...</a></li>';}
-				if((showpg!=(this.numpage-1))&&(page == this.numpage)){pagination+= '<li><a href="#" class="gapdot">...</a></li>';}
-				if(page == this.pagen){pagination+= '<li '+pgclass+'><a href="#!" id="'+page+'" onclick="">'+page+'</a></li>';}
+				if((showpg==1)&&(page !=2 )){pagination+= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';}
+				if((showpg!=(this.numpage-1))&&(page == this.numpage)){pagination+= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';}
+				if(page == this.pagen){pagination+= '<li '+pgclass+'><a href="javascript:void(0);" id="'+page+'" onclick="">'+page+'</a></li>';}
 				else{pagination+= '<li '+pgclass+'><a href="javascript:the_atable[\''+this.id+'\'].move('+page+');" id="'+page+'" class="jhalaman" onclick="">'+page+'</a></li>';}
 				showpg=page;
 			}
@@ -288,7 +288,7 @@ aTable.table = function(){
 	tdata.prototype.sort_by = function(field, ascdsc){
 		var reverse = false;
 		if(ascdsc=='desc'){var reverse = true;}
-		var primer = function(a){a=a===undefined?' ':a;return a === parseInt(a, 10)?parseInt:a.toUpperCase();};
+		var primer = function(a){a=a===undefined || a==null?' ':a;return a === parseInt(a,10)?parseInt(a):a.toUpperCase();};
 		var key = primer ?
 		function(x) {return primer(x[field])} :
 		function(x) {return x[field]};
@@ -304,7 +304,7 @@ aTable.table = function(){
 		}else if(this.sorttype=='desc'){
 			this.sorttype = 'asc';
 		}
-		console.log(field);
+
 		if(field!=undefined && field!=''){
 			this.thead();
 			this.tbdata.sort(this.sort_by(this.sortfield, this.sorttype));
@@ -351,7 +351,6 @@ aTable.table = function(){
 		}else{
 			var tbl = document.getElementById(tblid);
 			var slctmltp = document.getElementById("slctmltp"+atablenum);
-			console.log("slctmltp"+atablenum+"\n"+arcol);
 			if (tbl != null) {
 				for (var i = 0; i < tbl.rows.length; i++) {
 					var ncc=0;
@@ -361,7 +360,9 @@ aTable.table = function(){
 						if(colspan>0){
 							 ncc = ncc+parseInt(colspan)-1;
 						}
+
 						slctmltp.options[ncc].selected = true;
+						if(this.p.colhide!=undefined){if(this.p.colhide.indexOf(ncc)>-1){slctmltp.options[ncc].selected=false;cols.push(ncc);}}
 						if(cols.includes(ncc)){
 							tbl.rows[i].cells[j].style.display = "none";
 	 						slctmltp.options[ncc].selected = false;
@@ -440,4 +441,4 @@ function remHiddenTag(html, match) {
     return container.innerHTML;
 }
 // END JSON aTable ==============================================================
-/** Atable Copyright @ Hangsbreaker **/
+/** Atable Copyright @ 2018 Hangsbreaker **/
