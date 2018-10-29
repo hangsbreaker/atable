@@ -401,13 +401,6 @@ aTable.table = function(){
 	return{tdata:tdata}
 }();
 
-var the_atable = [];
-function atable_build(table,param){
-	the_atable[table] = new aTable.table.tdata('tdata['+table+']',table,param);
-}
-
-
-
 function atable_toexcel(tableID = "", filename = ""){
 	var downloadLink;
 	var dataType = "application/vnd.ms-excel";
@@ -439,6 +432,12 @@ function remHiddenTag(html, match) {
     Array.from(container.querySelectorAll("[style*="+CSS.escape(match)+"]"))
         .forEach( link => link.parentNode.removeChild(link));
     return container.innerHTML;
+}
+
+
+var the_atable = [];
+function atable_build(table,param){
+	the_atable[table] = new aTable.table.tdata('tdata['+table+']',table,param);
 }
 // END JSON aTable ==============================================================
 /** Atable Copyright @ 2018 Hangsbreaker **/
