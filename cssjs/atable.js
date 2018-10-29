@@ -22,8 +22,8 @@ aTable.table = function(){
 		if(this.p.xls==undefined){this.xls=false;}else{this.xls=this.p.xls;}
 
 		this.pagen = 1;
-		$('#'+this.id).html('<div class="atable"><div class="atablepreloader" id="atablepreloader'+this.tableId+'">Loading ....</div><table id="'+this.tableId+'" class="'+this.p.style+'">'+(this.p.caption!=undefined?'<caption>'+this.p.caption+'</caption>':'')+'</table><div id="info'+this.tableId+'"></div></div>');
-		$("#"+this.tableId).before('<div class="col-xs-2 findfield" style="margin-bottom: 10px;padding:0px 5px;min-width:200px;"><div class="input-group"><input type="text" class="jtxtcari form-control" name="cari" placeholder="Find" id="cari'+this.tableId+'" onkeyup="the_atable[\''+this.id+'\'].search(this);"><span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span></div></div>');
+		$('#'+this.id).html('<div class="atable"><div class="atablepreloader" id="atablepreloader'+this.tableId+'">Loading ....</div><div class="dtatable" id="dtatable'+this.tableId+'"><div class="atablewrap" id="atablewrap'+this.tableId+'"><table id="'+this.tableId+'" class="'+this.p.style+'">'+(this.p.caption!=undefined?'<caption>'+this.p.caption+'</caption>':'')+'</table></div></div><div id="info'+this.tableId+'"></div></div>');
+		$("#dtatable"+this.tableId).before('<div class="col-xs-2 findfield" style="margin-bottom: 10px;padding:0px 5px;min-width:200px;"><div class="input-group"><input type="text" class="jtxtcari form-control" name="cari" placeholder="Find" id="cari'+this.tableId+'" onkeyup="the_atable[\''+this.id+'\'].search(this);"><span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span></div></div>');
 		this.thead();
 	};
 	tdata.prototype.thead=function(){
