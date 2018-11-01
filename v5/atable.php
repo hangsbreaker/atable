@@ -501,7 +501,6 @@ function atable_init(){
 			margin-bottom: .625em;
 		}
 		.atable table td {
-			width:100% !important;
 			border-top: 0px solid #ddd;
 			display: block;
 			font-size: .8em;
