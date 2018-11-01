@@ -282,7 +282,7 @@ class Atable {
     							if(strpos($acol, ';')!==false){
     								eval('$theatable.='.$acol);
     							}else{
-    								$theatable.= $row->$acol;
+    								$theatable.= $row->$acol!=""?$row->$acol:"&nbsp;";
     							}
     						$theatable.= '</td>';
     						$nocols++;
