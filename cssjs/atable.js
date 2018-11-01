@@ -23,7 +23,7 @@ aTable.table = function(){
 
 		this.pagen = 1;
 		$('#'+this.id).html('<div class="atable"><div class="atablepreloader" id="atablepreloader'+this.tableId+'">Loading ....</div><div class="dtatable" id="dtatable'+this.tableId+'"><div class="atablewrap" id="atablewrap'+this.tableId+'"><table id="'+this.tableId+'" class="'+this.p.style+'">'+(this.p.caption!=undefined?'<caption>'+this.p.caption+'</caption>':'')+'</table></div></div><div id="info'+this.tableId+'"></div></div>');
-		$("#dtatable"+this.tableId).before('<div class="col-xs-2 findfield" style="margin-bottom: 10px;padding:0px 5px;min-width:200px;"><div class="input-group"><input type="text" class="jtxtcari form-control" name="cari" placeholder="Find" id="cari'+this.tableId+'" onkeyup="the_atable[\''+this.id+'\'].search(this);"><span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span></div></div>');
+		$("#dtatable"+this.tableId).before('<div class="col-xs-2 findfield" style="margin-bottom: 10px;padding:0px 5px;min-width:200px;"><div class="input-group"><input type="text" class="txtfind form-control" name="find" placeholder="Find" id="find'+this.tableId+'" onkeyup="the_atable[\''+this.id+'\'].searching(this);"><span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span></div></div>');
 		this.thead();
 	};
 	tdata.prototype.thead=function(){
@@ -211,7 +211,7 @@ aTable.table = function(){
 		this.numpage = Math.ceil(this.tbdata.length/this.dtlimit);
 		var pagination = '<div class="paggingfield"><ul class="pagination">';
 		if(this.pagen>1){
-			pagination+= '<li '+pgclass+'><a href="javascript:the_atable[\''+this.id+'\'].move('+this.pagen+'-1);" id="'+(this.pagen-1)+'" class="jhalaman">&laquo;</a></li>';
+			pagination+= '<li '+pgclass+'><a href="javascript:the_atable[\''+this.id+'\'].move('+this.pagen+'-1);" id="'+(this.pagen-1)+'" class="jpages">&laquo;</a></li>';
 		}
 		for(var page = 1;page <= this.numpage;page++){
 			pgclass = ((page == this.pagen)?pgclass='class="active"':pgclass='');
@@ -219,12 +219,12 @@ aTable.table = function(){
 				if((showpg==1)&&(page !=2 )){pagination+= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';}
 				if((showpg!=(this.numpage-1))&&(page == this.numpage)){pagination+= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';}
 				if(page == this.pagen){pagination+= '<li '+pgclass+'><a href="javascript:void(0);" id="'+page+'" onclick="">'+page+'</a></li>';}
-				else{pagination+= '<li '+pgclass+'><a href="javascript:the_atable[\''+this.id+'\'].move('+page+');" id="'+page+'" class="jhalaman" onclick="">'+page+'</a></li>';}
+				else{pagination+= '<li '+pgclass+'><a href="javascript:the_atable[\''+this.id+'\'].move('+page+');" id="'+page+'" class="jpages" onclick="">'+page+'</a></li>';}
 				showpg=page;
 			}
 		}
 		if(this.pagen<this.numpage){
-			pagination+= '<li '+pgclass+'><a href="javascript:the_atable[\''+this.id+'\'].move('+this.pagen+'+1);" id="'+this.pagen+'" class="jhalaman">&raquo;</a></li>';
+			pagination+= '<li '+pgclass+'><a href="javascript:the_atable[\''+this.id+'\'].move('+this.pagen+'+1);" id="'+this.pagen+'" class="jpages">&raquo;</a></li>';
 		}
 		pagination += '</ul></div>';
 
@@ -251,8 +251,10 @@ aTable.table = function(){
 
 		this.atable_hidecol(this.tableId,this.colshowhide,this.tableId);
 	};
-	tdata.prototype.search=function(c){
-		var q = $('#'+c.id).val();
+	tdata.prototype.searching=function(c){
+		this.search($('#'+c.id).val());
+	};
+	tdata.prototype.search=function(q=''){
 		var threshold = 1;
 		if(this.p.data.length>500){threshold = 3;}
 		if(q.length>=threshold || q.length==0){
@@ -343,7 +345,7 @@ aTable.table = function(){
 	};
 
 
-		tdata.prototype.atable_hidecol=function(tblid,arcol,atablenum="") {
+	tdata.prototype.atable_hidecol=function(tblid,arcol,atablenum="") {
 		var cols = arcol;
 		if(cols.length < 0){
 			console.log("Invalid");
