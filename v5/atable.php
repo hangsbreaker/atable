@@ -110,7 +110,6 @@ class Atable {
     							$theatable.= '<th'.$colsz.$colalgn.$colrow.'>';
 									$arrkey=($colrowv[$key-1]=='col' && $key>0?$key+$colrown[$key-1]-1:$arrkey);
 									$nmcol= str_replace('$','',str_replace(';','',$atablecol[$arrkey]));
-									//$nmcol= str_replace('$','',str_replace(';','',$atablecol[$key+($colrowv[$key]=='row'?$colrown[$key]:0)]));
 									$existcol= $this->GetBetween($qrytable,"select","from");
 									if(strpos($existcol,$nmcol)!==false){
 										$bysort = $nmcol;
@@ -129,7 +128,7 @@ class Atable {
 
 									$lblcol[$arrkey]=$vthn;
 
-    							$theatable.= (strpos($bysort, ';')!==false||($colrowv=='col')?$vthn.$kk:$kk.'<a href="javascript:void(0);" id="sortby-'.$this->atablenum.'-'.$bysort.'" class="sortby" onclick="sortedby(this);">'.$iconsort.'&nbsp;'.$vthn.'</a>');
+    							$theatable.= (strpos($bysort, ';')!==false||($colrowv=='col')?$vthn.$kk:$kk.'<a href="javascript:void(0);" id="sortby-'.$this->atablenum.'-'.$bysort.'" class="sortby" onclick="atable_sortedby(this);">'.$iconsort.'&nbsp;'.$vthn.'</a>');
     							$theatable.= '</th>';
 									$arrkey++;
     						}
@@ -154,7 +153,7 @@ class Atable {
 									$iconsort = '';
 								}
 							$lblcol[$key]=$acolv;
-    						$theatable.= (strpos($bysort, ';')!==false?$acolv:'<a href="javascript:void(0);" id="sortby-'.$this->atablenum.'-'.$bysort.'" class="sortby" onclick="sortedby(this);">'.$iconsort.'&nbsp;'.$acolv.'</a>');
+    						$theatable.= (strpos($bysort, ';')!==false?$acolv:'<a href="javascript:void(0);" id="sortby-'.$this->atablenum.'-'.$bysort.'" class="sortby" onclick="atable_sortedby(this);">'.$iconsort.'&nbsp;'.$acolv.'</a>');
     						$theatable.= '</th>';
     					}
     				}
@@ -166,13 +165,13 @@ class Atable {
     	$i = 1;
     	$per_page = $limit;
     	$datarecord = $this->db_num_rows($this->db_query($qrytable." ".$groupby." ".$where));
-    	$jml_halaman = ceil($datarecord/$per_page);
-    	$halaman = 1;
+    	$jml_pages = ceil($datarecord/$per_page);
+    	$pages = 1;
 
     	// get page
     	if(isset($_POST['h'])) {
-    		$halaman = $_POST['h'];
-    		$i=$i+(($halaman-1)*$per_page);
+    		$pages = $_POST['h'];
+    		$i=$i+(($pages-1)*$per_page);
     	}
 
     	if(isset($_POST['afind'])){
@@ -180,9 +179,9 @@ class Atable {
     			$per_page = $limit;
     			if(isset($_POST['showall'])){
     				$forlimit = "";
-    				$jml_halaman = 1;
+    				$jml_pages = 1;
     			}else{
-    				$forlimit = " LIMIT $per_page OFFSET ".($halaman-1) * $per_page;
+    				$forlimit = " LIMIT $per_page OFFSET ".($pages-1) * $per_page;
     			}
     			$this->querysql = $qrytable." ".$groupby." ".$where." ".$orderby.$forlimit;
     			$qry = $this->db_query($this->querysql);
@@ -205,7 +204,7 @@ class Atable {
     			if(isset($_POST['showall'])){
     				$forlimit = "";
     			}else{
-    				$forlimit = " LIMIT $per_page OFFSET ".($halaman-1) * $per_page;
+    				$forlimit = " LIMIT $per_page OFFSET ".($pages-1) * $per_page;
     			}
 
     			$columnwhere="";
@@ -244,15 +243,15 @@ class Atable {
     				}
     			}
 
-    			$jml_halaman = 1;
+    			$jml_pages = 1;
     		}
     	}else{
     		if(isset($_POST['showall'])){
     			$this->querysql = $qrytable." ".$groupby." ".$where." ".$orderby;
     			$qry = $this->db_query($this->querysql);
-    			$jml_halaman = 1;
+    			$jml_pages = 1;
     		}else{
-    			$this->querysql = $qrytable." ".$groupby." ".$where." ".$orderby." LIMIT $per_page OFFSET ".($halaman-1) * $per_page;
+    			$this->querysql = $qrytable." ".$groupby." ".$where." ".$orderby." LIMIT $per_page OFFSET ".($pages-1) * $per_page;
     			$qry = $this->db_query($this->querysql);
     		}
 
@@ -319,29 +318,29 @@ class Atable {
 		($this->xls==TRUE?
 		  '<button type="button" onclick="atable_toexcel(\'dtblatable'.$this->atablenum.'\',\''.str_replace(" ","_",$caption).'\')" class="btn btn-success btn-sm" title="Export to Excel" id="dtxls">xls</button>&nbsp;':'').
 		($this->datainfo==TRUE?
-		((($i-1)==0?0:((($halaman-1) * $per_page)+1))." to ".($i-1)." of ".$datarecord." data").
+		((($i-1)==0?0:((($pages-1) * $per_page)+1))." to ".($i-1)." of ".$datarecord." data").
 		'&nbsp;&nbsp;
-		<a href="javascript:void(0);" id="showall-'.$this->atablenum.'" class="showall" onclick="showall(this);">Show All</a>
-		<a href="javascript:void(0);" id="showless-'.$this->atablenum.'" class="showless" style="display:none;" onclick="showless(this);">Show Less</a>':'').'
+		<a href="javascript:void(0);" id="showall-'.$this->atablenum.'" class="showall" onclick="atable_showall(this);">Show All</a>
+		<a href="javascript:void(0);" id="showless-'.$this->atablenum.'" class="showless" style="display:none;" onclick="atable_showless(this);">Show Less</a>':'').'
 		</div>
 		<!-- paging -->
 		<div class="paggingfield" '.($this->paging==TRUE?'':'style="display:none;"').'>
 			<ul class="pagination">';
-			if($halaman>1){
-				$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.($halaman-1).'-'.$this->atablenum.'" class="halaman" onclick="halaman(this);">&laquo;</a></li>';
+			if($pages>1){
+				$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.($pages-1).'-'.$this->atablenum.'" class="pages" onclick="atable_pages(\''.($pages-1).'-'.$this->atablenum.'\');">&laquo;</a></li>';
 			}
-			for($page = 1;$page <= $jml_halaman;$page++){
-				$page == $halaman ? $class='class="active"' : $class="";
-				if((($page >= $halaman-2) && ($page <= $halaman +2)) || ($page==1) || ($page==$jml_halaman)){
+			for($page = 1;$page <= $jml_pages;$page++){
+				$page == $pages ? $class='class="active"' : $class="";
+				if((($page >= $pages-2) && ($page <= $pages +2)) || ($page==1) || ($page==$jml_pages)){
 					if(($showpg==1)&&($page !=2 )){$theatable.= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';}
-					if(($showpg!=($jml_halaman-1))&&($page == $jml_halaman)){$theatable.= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';}
-					if($page == $halaman){$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.$page.'-'.$this->atablenum.'" onclick="halaman(this);">'.$page.'</a></li>';}
-					else{$theatable.= '<li '.$class.'><a href="javascript:void(this);" id="'.$page.'-'.$this->atablenum.'" class="halaman" onclick="halaman(this);">'.$page.'</a></li>';}
+					if(($showpg!=($jml_pages-1))&&($page == $jml_pages)){$theatable.= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';}
+					if($page == $pages){$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.$page.'-'.$this->atablenum.'" onclick="atable_pages(\''.$page.'-'.$this->atablenum.'\');">'.$page.'</a></li>';}
+					else{$theatable.= '<li '.$class.'><a href="javascript:void(this);" id="'.$page.'-'.$this->atablenum.'" class="pages" onclick="atable_pages(\''.$page.'-'.$this->atablenum.'\');">'.$page.'</a></li>';}
 					$showpg=$page;
 				}
 			}
-			if($halaman<$jml_halaman){
-				$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.($halaman+1).'-'.$this->atablenum.'" class="halaman" onclick="halaman(this);">&raquo;</a></li>';
+			if($pages<$jml_pages){
+				$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.($pages+1).'-'.$this->atablenum.'" class="pages" onclick="atable_pages(\''.($pages+1).'-'.$this->atablenum.'\');">&raquo;</a></li>';
 			}
 			$theatable.= '</ul>
 		</div>';
@@ -543,16 +542,16 @@ function atable_init(){
 			atable = document.querySelectorAll(".dtatable");
 			forEach = [].forEach;
 			forEach.call(atable, function (el, i) {
-				atable[i].insertAdjacentHTML("beforeBegin","<div class=\'col-xs-2 findfield\' style=\'margin-bottom: 10px;padding:0px 5px;min-width:200px;\'><div class=\'input-group\'><input type=\'text\' class=\'txtcari form-control\' name=\'cari\' placeholder=\'Find\' id=\'txtcari-"+i+"\'><span class=\'input-group-addon\' id=\'basic-addon\'><span class=\'glyphicon glyphicon-search\' aria-hidden=\'true\'></span></span></div></div>");
+				atable[i].insertAdjacentHTML("beforeBegin","<div class=\'col-xs-2 findfield\' style=\'margin-bottom: 10px;padding:0px 5px;min-width:200px;\'><div class=\'input-group\'><input type=\'text\' class=\'txtfind form-control\' name=\'cari\' placeholder=\'Find\' id=\'txtfind-"+i+"\'><span class=\'input-group-addon\' id=\'basic-addon\'><span class=\'glyphicon glyphicon-search\' aria-hidden=\'true\'></span></span></div></div>");
 				atable[i].insertAdjacentHTML("afterEnd","");
 			});
 
-			$(".txtcari").keyup(function(event){
+			$(".txtfind").keyup(function(event){
 				//if(event.which == 13){
 					xhr.abort();
 					var vid = this.id.split("-");
 
-					var v_afind = $("#txtcari-"+vid[1]).val();
+					var v_afind = $("#txtfind-"+vid[1]).val();
 					document.getElementById("atablepreloader"+vid[1]).style.display="block";
 					document.getElementById("showless-"+vid[1]).style.display="none";
 					document.getElementById("showall-"+vid[1]).style.display="inline-block";
@@ -592,10 +591,10 @@ function atable_init(){
 
 
 
-	function halaman(me){
+	function atable_pages(val){
 		xhr.abort();
-		var vid = me.id.split("-");
-		var v_afind = $("#txtcari-"+vid[1]).val();
+		var vid = val.split("-");
+		var v_afind = $("#txtfind-"+vid[1]).val();
 		document.getElementById("atablepreloader"+vid[1]).style.display="block";
 
 		var tbpage = Object.assign({}, datapost);
@@ -628,9 +627,33 @@ function atable_init(){
 		});
 	};
 
-	function showall(me){
+	function atable_topage(natbl,page){
+		var fn=0;
+		atable_pages(page+"-"+natbl);
+		$(document).ajaxStop(function(){
+		  if(fn==0){
+				atable_pages(page+"-"+natbl);
+		    fn++;
+		  }
+		});
+	}
+
+	function atable_find(natbl,str){
+		var fn=0;
+		$("#txtfind-"+natbl).val(str);
+		$("#txtfind-"+natbl).keyup();
+		$(document).ajaxStop(function(){
+		  if(fn==0){
+		    $("#txtfind-"+natbl).val(str);
+		    $("#txtfind-"+natbl).keyup();
+		    fn++;
+		  }
+		});
+	}
+
+	function atable_showall(me){
 		var vid = me.id.split("-");
-		var v_afind = $("#txtcari-"+vid[1]).val();
+		var v_afind = $("#txtfind-"+vid[1]).val();
 		document.getElementById("atablepreloader"+vid[1]).style.display="block";
 
 		var tbpage = Object.assign({}, datapost);
@@ -660,9 +683,9 @@ function atable_init(){
 		});
 	};
 
-	function showless(me){
+	function atable_showless(me){
 		var vid = me.id.split("-");
-		var v_afind = $("#txtcari-"+vid[1]).val();
+		var v_afind = $("#txtfind-"+vid[1]).val();
 		document.getElementById("atablepreloader"+vid[1]).style.display="block";
 
 		var tbpage = Object.assign({}, datapost);
@@ -691,9 +714,9 @@ function atable_init(){
 		});
 	};
 
-	function sortedby(me){
+	function atable_sortedby(me){
 		var vid = me.id.split("-");
-		var v_afind = $("#txtcari-"+vid[1]).val();
+		var v_afind = $("#txtfind-"+vid[1]).val();
 		document.getElementById("atablepreloader"+vid[1]).style.display="block";
 		if(ascdsc[vid[1]]==""){
 			sortby[vid[1]] = vid[2]+" ASC";
@@ -778,7 +801,7 @@ function atable_init(){
 	  var myEle = document.getElementById("atablepreloader"+vid);
 	  if(myEle){
 		xhr.abort();
-			var v_afind = $("#txtcari-"+vid).val();
+			var v_afind = $("#txtfind-"+vid).val();
 			document.getElementById("atablepreloader"+vid).style.display="block";
 			document.getElementById("showless-"+vid).style.display="none";
 			document.getElementById("showall-"+vid).style.display="inline-block";
