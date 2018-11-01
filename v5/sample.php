@@ -8,7 +8,7 @@ include "atable.php";
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width"/>
 <link href="dist/css/bootstrap.min.css" rel="stylesheet" media="screen">
-<script src="dist/js/jquery-1.8.3.min.js" type="text/javascript"></script>
+<script src="dist/js/jquery.1.12.4.min.js" type="text/javascript"></script>
 <script src="dist/js/bootstrap.min.js"></script>
 <?php atable_init();?>
 </head>
@@ -46,7 +46,7 @@ $atable->colalign = '["R","C",""]';
 $atable->colsize = '["110px", "10px", "20px"]';
 //$atable->showsql = TRUE;
 //$atable->database = 'pgsql';
-$atable->param = '$param1="From field 5: ".$row->tbl_field5;
+$atable->param = '$param1="From field 5: ".$row["tbl_field5"];
                   $param2="<a href=\"#\" class=\"btn btn-default\" onclick=\'return confirm(\"Click!\");\'>Clikc</a>";';
 $atable->style = 'table table-hover table-striped table-bordered';
 $atable->colnumber = FALSE;
@@ -58,6 +58,14 @@ $atable->xls=TRUE;
 
 echo $atable->load();
 ?>
+<script>
+//Skip to page
+//atable_topage(0,11);
+
+
+//push search
+//atable_find(0,"rachmadany");
+</script>
 <br>
 
 <table border="1" id="tablenew" width="100%">
