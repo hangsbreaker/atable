@@ -652,6 +652,7 @@ function atable_init(){
 	}
 
 	function atable_showall(me){
+		xhr.abort();
 		var vid = me.id.split("-");
 		var v_afind = $("#txtfind-"+vid[1]).val();
 		document.getElementById("atablepreloader"+vid[1]).style.display="block";
@@ -664,26 +665,32 @@ function atable_init(){
 		tbpage["fromatable"]=true;
 		tbpage.afind=v_afind;
 		//alert(tbpage.toSource());
-		$.post(thepage, tbpage ,function(data) {
-			document.getElementById("atablepreloader"+vid[1]).style.display="none";
-			var atableno=[];
-			var htmldata = "<div>"+rbline(data)+"</div>";
-			$(htmldata).find(".dtatable").each(function(i, obj){
-				atableno[i]=this.innerHTML;
-			});
+		xhr = $.ajax({
+			type: "POST",
+			url: thepage,
+			data: tbpage,
+			success: function(data){
+				document.getElementById("atablepreloader"+vid[1]).style.display="none";
+				var atableno=[];
+				var htmldata = "<div>"+rbline(data)+"</div>";
+				$(htmldata).find(".dtatable").each(function(i, obj){
+					atableno[i]=this.innerHTML;
+				});
 
-			forEach.call(atable, function (el, i) {
-				if(i==vid[1]){
-					atable[i].innerHTML=atableno[i];
-				}
-			});
-			document.getElementById("showless-"+vid[1]).style.display="inline-block";
-			document.getElementById("showall-"+vid[1]).style.display="none";
-			atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+				forEach.call(atable, function (el, i) {
+					if(i==vid[1]){
+						atable[i].innerHTML=atableno[i];
+					}
+				});
+				document.getElementById("showless-"+vid[1]).style.display="inline-block";
+				document.getElementById("showall-"+vid[1]).style.display="none";
+				atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+			}
 		});
 	};
 
 	function atable_showless(me){
+		xhr.abort();
 		var vid = me.id.split("-");
 		var v_afind = $("#txtfind-"+vid[1]).val();
 		document.getElementById("atablepreloader"+vid[1]).style.display="block";
@@ -695,26 +702,32 @@ function atable_init(){
 		tbpage["fromatable"]=true;
 		tbpage.afind=v_afind;
 		//alert(tbpage.toSource());
-		$.post(thepage, tbpage ,function(data) {
-			document.getElementById("atablepreloader"+vid[1]).style.display="none";
-			var atableno=[];
-			var htmldata = "<div>"+rbline(data)+"</div>";
-			$(htmldata).find(".dtatable").each(function(i, obj){
-				atableno[i]=this.innerHTML;
-			});
+		xhr = $.ajax({
+			type: "POST",
+			url: thepage,
+			data: tbpage,
+			success: function(data){
+				document.getElementById("atablepreloader"+vid[1]).style.display="none";
+				var atableno=[];
+				var htmldata = "<div>"+rbline(data)+"</div>";
+				$(htmldata).find(".dtatable").each(function(i, obj){
+					atableno[i]=this.innerHTML;
+				});
 
-			forEach.call(atable, function (el, i) {
-				if(i==vid[1]){
-					atable[i].innerHTML=atableno[i];
-				}
-			});
-			document.getElementById("showless-"+vid[1]).style.display="none";
-			document.getElementById("showall-"+vid[1]).style.display="inline-block";
-			atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+				forEach.call(atable, function (el, i) {
+					if(i==vid[1]){
+						atable[i].innerHTML=atableno[i];
+					}
+				});
+				document.getElementById("showless-"+vid[1]).style.display="none";
+				document.getElementById("showall-"+vid[1]).style.display="inline-block";
+				atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+			}
 		});
 	};
 
 	function atable_sortedby(me){
+		xhr.abort();
 		var vid = me.id.split("-");
 		var v_afind = $("#txtfind-"+vid[1]).val();
 		document.getElementById("atablepreloader"+vid[1]).style.display="block";
@@ -736,22 +749,27 @@ function atable_init(){
 		tbpage["fromatable"]=true;
 		tbpage.afind=v_afind;
 		//alert(tbpage.toSource());
-		$.post(thepage, tbpage ,function(data) {
-			document.getElementById("atablepreloader"+vid[1]).style.display="none";
-			var atableno=[];
-			var htmldata = "<div>"+rbline(data)+"</div>";
-			$(htmldata).find(".dtatable").each(function(i, obj){
-				atableno[i]=this.innerHTML;
-			});
+		xhr = $.ajax({
+			type: "POST",
+			url: thepage,
+			data: tbpage,
+			success: function(data){
+				document.getElementById("atablepreloader"+vid[1]).style.display="none";
+				var atableno=[];
+				var htmldata = "<div>"+rbline(data)+"</div>";
+				$(htmldata).find(".dtatable").each(function(i, obj){
+					atableno[i]=this.innerHTML;
+				});
 
-			forEach.call(atable, function (el, i) {
-				if(i==vid[1]){
-					atable[i].innerHTML=atableno[i];
-				}
-			});
-			document.getElementById("showless-"+vid[1]).style.display="none";
-			document.getElementById("showall-"+vid[1]).style.display="inline-block";
-			atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+				forEach.call(atable, function (el, i) {
+					if(i==vid[1]){
+						atable[i].innerHTML=atableno[i];
+					}
+				});
+				document.getElementById("showless-"+vid[1]).style.display="none";
+				document.getElementById("showall-"+vid[1]).style.display="inline-block";
+				atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+			}
 		});
 	};
 
