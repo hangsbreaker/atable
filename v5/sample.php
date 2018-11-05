@@ -62,6 +62,8 @@ echo $atable->load();
 //Skip to page
 //atable_topage(0,11);
 
+//push search
+//atable_getpage(0);
 
 //push search
 //atable_find(0,"rachmadany");
