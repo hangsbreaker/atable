@@ -531,6 +531,7 @@ function atable_init(){
 	var datapost={};
 	var sortby=[];
 	var ascdsc=[];
+	var numpage=[];
 	var colshowhide=[];
 	var atable;
 	var forEach;
@@ -556,6 +557,7 @@ function atable_init(){
 					document.getElementById("showall-"+vid[1]).style.display="inline-block";
 
 					var tbpage = Object.assign({}, datapost);
+					numpage[vid[1]]=1;
 					tbpage["atabledata"+vid[1]]=true;
 					tbpage["sortby"]=sortby[vid[1]];
 					tbpage["colshowhide"]=colshowhide[vid[1]];
@@ -597,7 +599,7 @@ function atable_init(){
 		document.getElementById("atablepreloader"+vid[1]).style.display="block";
 
 		var tbpage = Object.assign({}, datapost);
-		tbpage.h=vid[0];
+		tbpage.h=vid[0];numpage[vid[1]]=vid[0];
 		tbpage["atabledata"+vid[1]]=true;
 		tbpage["sortby"]=sortby[vid[1]];
 		tbpage["colshowhide"]=colshowhide[vid[1]];
@@ -626,9 +628,17 @@ function atable_init(){
 		});
 	};
 
+	function atable_getpage(tableID){
+		if(numpage[tableID]==undefined){
+			numpage[tableID]=1;
+		}
+		return numpage[tableID];
+	}
+
 	function atable_topage(natbl,page){
 		var fn=0;
 		atable_pages(page+"-"+natbl);
+		numpage[natbl]=page;
 		$(document).ajaxStop(function(){
 		  if(fn==0){
 				atable_pages(page+"-"+natbl);
@@ -658,6 +668,7 @@ function atable_init(){
 
 		var tbpage = Object.assign({}, datapost);
 		tbpage.showall=true;
+		numpage[vid[1]]=1;
 		tbpage["atabledata"+vid[1]]=true;
 		tbpage["sortby"]=sortby[vid[1]];
 		tbpage["colshowhide"]=colshowhide[vid[1]];
@@ -695,6 +706,7 @@ function atable_init(){
 		document.getElementById("atablepreloader"+vid[1]).style.display="block";
 
 		var tbpage = Object.assign({}, datapost);
+		numpage[vid[1]]=1;
 		tbpage["atabledata"+vid[1]]=true;
 		tbpage["sortby"]=sortby[vid[1]];
 		tbpage["colshowhide"]=colshowhide[vid[1]];
@@ -782,6 +794,7 @@ function atable_init(){
 		var atable = document.querySelectorAll(".dtatable");
 		var forEach = [].forEach;
 		forEach.call(atable, function (el, i) {
+			numpage[i]=1;
 			sortby[i]="";
 			colshowhide[i]=[];
 			ascdsc[i]="";
@@ -889,18 +902,20 @@ function atable_init(){
 			if (tbl != null) {
 				for (var i = 0; i < tbl.rows.length; i++) {
 					var ncc=0;
-					for (var j = 0; j < tbl.rows[i].cells.length; j++) {
-						tbl.rows[i].cells[j].style.display = "";
-						colspan = tbl.rows[i].cells[j].getAttribute("colspan");
-						if(colspan>0){
-							 ncc = ncc+parseInt(colspan)-1;
+					if(tbl.rows[i].cells.length>1){
+						for (var j = 0; j < tbl.rows[i].cells.length; j++) {
+							tbl.rows[i].cells[j].style.display = "";
+							colspan = tbl.rows[i].cells[j].getAttribute("colspan");
+							if(colspan>0){
+								 ncc = ncc+parseInt(colspan)-1;
+							}
+							slctmltp.options[ncc].selected = true;
+							if(cols.includes(ncc)){
+								tbl.rows[i].cells[j].style.display = "none";
+		 						slctmltp.options[ncc].selected = false;
+							}
+							ncc++;
 						}
-						slctmltp.options[ncc].selected = true;
-						if(cols.includes(ncc)){
-							tbl.rows[i].cells[j].style.display = "none";
-	 						slctmltp.options[ncc].selected = false;
-						}
-						ncc++;
 					}
 				}
 			}
