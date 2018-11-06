@@ -1,5 +1,5 @@
 <?php
-$atablenum=0;
+$GLOBALS['atablenum']=0;
 class Atable {
 	// ==== param init
 	var $query; var $col; var $colv; var $limit; var $limitfind; var $orderby; var $groupby; var $where; var $addvar; var $param; var $addlastrow; var $colsize; var $colalign; var $showsql; var $caption; var $style;
@@ -7,7 +7,6 @@ class Atable {
 	var $searchbar=TRUE; var $datainfo=TRUE; var $paging=TRUE;
 	var $reload=FALSE; var $collist=FALSE; var $xls=FALSE;
 	var $querysql;
-	//var $atablenum=0;
 	var $database;
 	var $linkDB="";var $dbcon="";
 
