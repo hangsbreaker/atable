@@ -1,4 +1,5 @@
 <?php
+$atablenum=0;
 class Atable {
 	// ==== param init
 	var $query; var $col; var $colv; var $limit; var $limitfind; var $orderby; var $groupby; var $where; var $addvar; var $param; var $addlastrow; var $colsize; var $colalign; var $showsql; var $caption; var $style;
@@ -6,7 +7,7 @@ class Atable {
 	var $searchbar=TRUE; var $datainfo=TRUE; var $paging=TRUE;
 	var $reload=FALSE; var $collist=FALSE; var $xls=FALSE;
 	var $querysql;
-	var $atablenum=0;
+	//var $atablenum=0;
 	var $database;
 	var $linkDB="";var $dbcon="";
 
@@ -57,9 +58,10 @@ class Atable {
 		// ===============================
 
 
-		$theatable= '<div class="atable">'.($this->linkDB == ''?'<div class="warningdb">Atable Unknown Database connection.</div>':'').'<div class="atablepreloader" id="atablepreloader'.$this->atablenum.'">Loading ....</div>
-			<div class="dtatable" id="dtatable'.$this->atablenum.'">';
-		if(isset($_POST['atabledata'.$this->atablenum]) && isset($_POST['fromatable'])){
+		$theatable= '<div class="atable">'.($this->linkDB == ''?'<div class="warningdb">Atable Unknown Database connection.</div>':'').'<div class="atablepreloader" id="atablepreloader'.$GLOBALS['atablenum'].'">Loading ....</div>
+		<div class="col-xs-2 findfield" style="margin-bottom: 10px;padding:0px 5px;min-width:200px;"><div class="input-group"><input type="text" class="txtfind form-control" name="cari" placeholder="Find" id="txtfind-'.$GLOBALS['atablenum'].'"><span class="input-group-addon" id="basic-addon"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span></div></div>
+			<div class="dtatable" id="dtatable'.$GLOBALS['atablenum'].'">';
+		if(isset($_POST['atabledata'.$GLOBALS['atablenum']]) && isset($_POST['fromatable'])){
 			if(isset($_POST['sortby'])){
 				if($_POST['sortby']!=""){
 					$orderby=$_POST['sortby'];
@@ -71,8 +73,8 @@ class Atable {
 			if(!empty($orderby)){$orderby='ORDER BY '.$orderby;}
 			if(!empty($groupby)){$groupby='GROUP BY '.$groupby;}else{if($getcoltable!=' * '){$groupby='GROUP BY '.$getcoltable;}}
 			if(!empty($where)){$where='HAVING '.$where;}
-			$theatable.= '<div class="atablewrap" id="atablewrap'.$this->atablenum.'">
-						<table class="'.$style.'" id="dtblatable'.$this->atablenum.'" border="0">
+			$theatable.= '<div class="atablewrap" id="atablewrap'.$GLOBALS['atablenum'].'">
+						<table class="'.$style.'" id="dtblatable'.$GLOBALS['atablenum'].'" border="0">
     				<caption>'.$caption.'</caption>
     				<thead>';
     				$atr=0;
@@ -128,7 +130,7 @@ class Atable {
 
 									$lblcol[$arrkey]=$vthn;
 
-    							$theatable.= (strpos($bysort, ';')!==false||($colrowv=='col')?$vthn.$kk:$kk.'<a href="javascript:void(0);" id="sortby-'.$this->atablenum.'-'.$bysort.'" class="sortby" onclick="atable_sortedby(this);">'.$iconsort.'&nbsp;'.$vthn.'</a>');
+    							$theatable.= (strpos($bysort, ';')!==false||($colrowv=='col')?$vthn.$kk:$kk.'<a href="javascript:void(0);" id="sortby-'.$GLOBALS['atablenum'].'-'.$bysort.'" class="sortby" onclick="atable_sortedby(this);">'.$iconsort.'&nbsp;'.$vthn.'</a>');
     							$theatable.= '</th>';
 									$arrkey++;
     						}
@@ -153,7 +155,7 @@ class Atable {
 									$iconsort = '';
 								}
 							$lblcol[$key]=$acolv;
-    						$theatable.= (strpos($bysort, ';')!==false?$acolv:'<a href="javascript:void(0);" id="sortby-'.$this->atablenum.'-'.$bysort.'" class="sortby" onclick="atable_sortedby(this);">'.$iconsort.'&nbsp;'.$acolv.'</a>');
+    						$theatable.= (strpos($bysort, ';')!==false?$acolv:'<a href="javascript:void(0);" id="sortby-'.$GLOBALS['atablenum'].'-'.$bysort.'" class="sortby" onclick="atable_sortedby(this);">'.$iconsort.'&nbsp;'.$acolv.'</a>');
     						$theatable.= '</th>';
     					}
     				}
@@ -298,8 +300,8 @@ class Atable {
 
 		$showpg=0;$class="";//$lblcol
 		$theatable.= '<!-- datainfo -->
-		<div class="colhide" id="colhide'.$this->atablenum.'">
-		<div style="margin-bottom:6px;"><select multiple="multiple" style="width:250px;min-height:83px;max-height:120px;" id="slctmltp'.$this->atablenum.'" class="form-control">';
+		<div class="colhide" id="colhide'.$GLOBALS['atablenum'].'">
+		<div style="margin-bottom:6px;"><select multiple="multiple" style="width:250px;min-height:83px;max-height:120px;" id="slctmltp'.$GLOBALS['atablenum'].'" class="form-control">';
 			if($this->colnumber){
 				$theatable.= '<option value="0" selected="selected">No</option>';
 			}
@@ -307,47 +309,47 @@ class Atable {
 				$theatable.= '<option value="'.($this->colnumber?$key+1:$key).'" selected="selected">'.$lbl.'</option>';
 			}
 		$theatable.= '</select></div>
-		<button type="button" class="btn btn-default btn-sm" id="colhidecancel" style="float:right" onclick="showhide(\'colhide'.$this->atablenum.'\')">Cancel</button>
-		<button type="button" onclick="atable_hidecol(\'dtblatable'.$this->atablenum.'\',getSelectMultiValues(\'slctmltp'.$this->atablenum.'\'),'.$this->atablenum.');showhide(\'colhide'.$this->atablenum.'\')" class="btn btn-default btn-sm" id="colhideok" style="float:right">Ok</button>
+		<button type="button" class="btn btn-default btn-sm" id="colhidecancel" style="float:right" onclick="showhide(\'colhide'.$GLOBALS['atablenum'].'\')">Cancel</button>
+		<button type="button" onclick="atable_hidecol(\'dtblatable'.$GLOBALS['atablenum'].'\',getSelectMultiValues(\'slctmltp'.$GLOBALS['atablenum'].'\'),'.$GLOBALS['atablenum'].');showhide(\'colhide'.$GLOBALS['atablenum'].'\')" class="btn btn-default btn-sm" id="colhideok" style="float:right">Ok</button>
 		</div>
 		<div class="datainfo">'.
 		($this->reload==TRUE?
-		  '<button type="button" onclick="atable_reload('.$this->atablenum.')" class="btn btn-info btn-xs" title="Reload" id="dtreload" style="font-size:18px;height:30px;">&#8635;</button>&nbsp;':'').
+		  '<button type="button" onclick="atable_reload('.$GLOBALS['atablenum'].')" class="btn btn-info btn-xs" title="Reload" id="dtreload" style="font-size:18px;height:30px;">&#8635;</button>&nbsp;':'').
 		($this->collist==TRUE?
-		  '<button type="button" onclick="showhide(\'colhide'.$this->atablenum.'\')" class="btn btn-default btn-xs" title="Column" id="dtlist" style="font-size:18px;height:30px;">&#8862;</button>&nbsp;':'').
+		  '<button type="button" onclick="showhide(\'colhide'.$GLOBALS['atablenum'].'\')" class="btn btn-default btn-xs" title="Column" id="dtlist" style="font-size:18px;height:30px;">&#8862;</button>&nbsp;':'').
 		($this->xls==TRUE?
-		  '<button type="button" onclick="atable_toexcel(\'dtblatable'.$this->atablenum.'\',\''.str_replace(" ","_",$caption).'\')" class="btn btn-success btn-sm" title="Export to Excel" id="dtxls">xls</button>&nbsp;':'').
+		  '<button type="button" onclick="atable_toxls(\'dtblatable'.$GLOBALS['atablenum'].'\',\''.str_replace(" ","_",$caption).'\')" class="btn btn-success btn-sm" title="Export to Excel" id="dtxls">xls</button>&nbsp;':'').
 		($this->datainfo==TRUE?
 		((($i-1)==0?0:((($pages-1) * $per_page)+1))." to ".($i-1)." of ".$datarecord." data").
 		'&nbsp;&nbsp;
-		<a href="javascript:void(0);" id="showall-'.$this->atablenum.'" class="showall" onclick="atable_showall(this);">Show All</a>
-		<a href="javascript:void(0);" id="showless-'.$this->atablenum.'" class="showless" style="display:none;" onclick="atable_showless(this);">Show Less</a>':'').'
+		<a href="javascript:void(0);" id="showall-'.$GLOBALS['atablenum'].'" class="showall" onclick="atable_showall(this);">Show All</a>
+		<a href="javascript:void(0);" id="showless-'.$GLOBALS['atablenum'].'" class="showless" style="display:none;" onclick="atable_showless(this);">Show Less</a>':'').'
 		</div>
 		<!-- paging -->
 		<div class="paggingfield" '.($this->paging==TRUE?'':'style="display:none;"').'>
 			<ul class="pagination">';
 			if($pages>1){
-				$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.($pages-1).'-'.$this->atablenum.'" class="pages" onclick="atable_pages(\''.($pages-1).'-'.$this->atablenum.'\');">&laquo;</a></li>';
+				$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.($pages-1).'-'.$GLOBALS['atablenum'].'" class="pages" onclick="atable_pages(\''.($pages-1).'-'.$GLOBALS['atablenum'].'\');">&laquo;</a></li>';
 			}
 			for($page = 1;$page <= $jml_pages;$page++){
 				$page == $pages ? $class='class="active"' : $class="";
 				if((($page >= $pages-2) && ($page <= $pages +2)) || ($page==1) || ($page==$jml_pages)){
 					if(($showpg==1)&&($page !=2 )){$theatable.= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';}
 					if(($showpg!=($jml_pages-1))&&($page == $jml_pages)){$theatable.= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';}
-					if($page == $pages){$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.$page.'-'.$this->atablenum.'" onclick="atable_pages(\''.$page.'-'.$this->atablenum.'\');">'.$page.'</a></li>';}
-					else{$theatable.= '<li '.$class.'><a href="javascript:void(this);" id="'.$page.'-'.$this->atablenum.'" class="pages" onclick="atable_pages(\''.$page.'-'.$this->atablenum.'\');">'.$page.'</a></li>';}
+					if($page == $pages){$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.$page.'-'.$GLOBALS['atablenum'].'" onclick="atable_pages(\''.$page.'-'.$GLOBALS['atablenum'].'\');">'.$page.'</a></li>';}
+					else{$theatable.= '<li '.$class.'><a href="javascript:void(this);" id="'.$page.'-'.$GLOBALS['atablenum'].'" class="pages" onclick="atable_pages(\''.$page.'-'.$GLOBALS['atablenum'].'\');">'.$page.'</a></li>';}
 					$showpg=$page;
 				}
 			}
 			if($pages<$jml_pages){
-				$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.($pages+1).'-'.$this->atablenum.'" class="pages" onclick="atable_pages(\''.($pages+1).'-'.$this->atablenum.'\');">&raquo;</a></li>';
+				$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.($pages+1).'-'.$GLOBALS['atablenum'].'" class="pages" onclick="atable_pages(\''.($pages+1).'-'.$GLOBALS['atablenum'].'\');">&raquo;</a></li>';
 			}
 			$theatable.= '</ul>
 		</div>';
 
 		}// end post
 		$theatable.= "</div></div>";
-		$this->atablenum++;
+		$GLOBALS['atablenum']++;
 		return $theatable;
 	}// end function
 
@@ -538,11 +540,11 @@ function atable_init(){
 	(function($) {
 		$(window).load(function() {});
 		$(document).ready(function(e) {
-
+			//declare
 			atable = document.querySelectorAll(".dtatable");
 			forEach = [].forEach;
 			forEach.call(atable, function (el, i) {
-				atable[i].insertAdjacentHTML("beforeBegin","<div class=\'col-xs-2 findfield\' style=\'margin-bottom: 10px;padding:0px 5px;min-width:200px;\'><div class=\'input-group\'><input type=\'text\' class=\'txtfind form-control\' name=\'cari\' placeholder=\'Find\' id=\'txtfind-"+i+"\'><span class=\'input-group-addon\' id=\'basic-addon\'><span class=\'glyphicon glyphicon-search\' aria-hidden=\'true\'></span></span></div></div>");
+				atable[i].insertAdjacentHTML("beforeBegin","");
 				atable[i].insertAdjacentHTML("afterEnd","");
 			});
 
@@ -867,7 +869,7 @@ function atable_init(){
 	  }
 	}
 
-	function atable_toexcel(tableID, filename = ""){
+	function atable_toxls(tableID, filename = ""){
 		var downloadLink;
 		var dataType = "application/vnd.ms-excel";
 		var tableSelect = document.getElementById(tableID);

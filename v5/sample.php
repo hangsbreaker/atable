@@ -82,7 +82,7 @@ echo $atable->load();
 		<td>3</td>
 	</tr>
 </table>
-<button type="button" onclick="atable_toexcel('tablenew');" class="btn btn-default">Create xls</button>
+<button type="button" onclick="atable_toxls('tablenew');" class="btn btn-default">Create xls</button>
 <!--
 <button type="button" onclick="atable_reload(0);" class="btn btn-default">Reload</button>
 -->
