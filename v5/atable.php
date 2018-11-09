@@ -384,7 +384,7 @@ class Atable {
   		}
   	}else if($this->linkDB=="ci"){
 			$this->CI = & get_instance();
-			$database=$this->database;
+			$database=!empty($this->database)?$this->database:"db";
   		$res = $this->CI->$database->query($qry);
   		if(!$res){
   			$res = $this->CI->$database->_error_message();
@@ -401,7 +401,8 @@ class Atable {
   	}else if($this->linkDB=="pgsql"){
   		$res = pg_fetch_object($qry);
   	}else if($this->linkDB=="ci"){
-  		$res = $qry->_fetch_object();
+			//$res = $qry->_fetch_object();
+  		$res = $qry->unbuffered_row();
   	}
   	return $res;
   }

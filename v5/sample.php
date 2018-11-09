@@ -34,7 +34,6 @@ require "database_connection.php";
 $atable = new Atable();
 $atable->limit = 5;
 $atable->caption = "TABLE CAPTION";
-//$atable->databases = 'pgsql';
 $atable->query = "SELECT tbl_field1, tbl_field2, tbl_field3, tbl_field4, tbl_field5, year FROM data_table";
 $atable->where = "year='$year'";
 $atable->col = '["tbl_field1", "tbl_field2", "tbl_field3", "tbl_field4", "$param1;", "$param2;"]';
@@ -46,8 +45,8 @@ $atable->colalign = '["R","C",""]';
 $atable->colsize = '["110px", "10px", "20px"]';
 //$atable->showsql = TRUE;
 //$atable->database = 'pgsql';
-$atable->param = '$param1="From field 5: ".$row["tbl_field5"];
-                  $param2="<a href=\"#\" class=\"btn btn-default\" onclick=\'return confirm(\"Click!\");\'>Clikc</a>";';
+$atable->param = '$param1="From field 5: ".$row->tbl_field5;
+									extract(params($row));';
 $atable->style = 'table table-hover table-striped table-bordered';
 $atable->colnumber = FALSE;
 //$atable->reload=TRUE;
@@ -57,6 +56,11 @@ $atable->collist=TRUE;
 $atable->xls=TRUE;
 
 echo $atable->load();
+
+function params($row){
+	$data['param2']='<a href="#" class="btn btn-default" onclick="return confirm(\'Click!\');">Clikc '.$row->year.'</a>';
+	return $data;
+}
 ?>
 <script>
 //Skip to page

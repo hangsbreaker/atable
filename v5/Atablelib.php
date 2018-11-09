@@ -15,5 +15,3 @@ class Atablelib{
 		return new atable();
 	}
 }
-
-//for codeigniter
