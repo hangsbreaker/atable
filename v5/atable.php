@@ -401,7 +401,7 @@ class Atable {
   	}else if($this->linkDB=="pgsql"){
   		$res = pg_fetch_object($qry);
   	}else if($this->linkDB=="ci"){
-		//$res = $qry->_fetch_object();
+			//$res = $qry->_fetch_object();
   		$res = $qry->unbuffered_row();
   	}
   	return $res;
