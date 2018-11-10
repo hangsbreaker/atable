@@ -58,13 +58,13 @@ aTable.table = function(){
 						var calign='';
 						if(this.p.colalign!=undefined){
 							if(this.p.colalign[nocol]!=''){
-								calign=' style="text-align:'+(this.p.colalign[nocol]=='R'?'right':(this.p.colalign[nocol]=='C'?'center':'left'))+';"';
+								calign='text-align:'+(this.p.colalign[nocol]=='R'?'right':(this.p.colalign[nocol]=='C'?'center':'left'))+';';
 							}
 						}
 						var chide=false;
 						if(this.p.colhide!=undefined){if(this.p.colhide.indexOf(nocol)>-1){chide=true;}}
-						var trparam=csize+calign;
-						if(chide){trparam=' style="display:none;"';}
+						var tcolhide="";
+						if(chide){tcolhide='display:none;';}
 
 						var hname = '<a href="javascript:the_atable[\''+this.id+'\'].sorts(\''+key+'\')">'+iconsort+key+'</a>';
 						if(this.p.sort!=undefined){
@@ -72,7 +72,11 @@ aTable.table = function(){
 						    hname = key;
 						  }
 						}
-						headerTr$.append($('<th'+trparam+'/>').html(hname));
+						var trparam="";
+						if(calign!='' || tcolhide!=''){
+							trparam=' style="'+calign+tcolhide+'"';
+						}
+						headerTr$.append($('<th'+trparam+csize+'/>').html(hname));
 						this.lblcol[nocol]=hname;
 						nocol++;
 					}
@@ -96,13 +100,13 @@ aTable.table = function(){
 					var calign='';
 					if(this.p.colalign!=undefined){
 						if(this.p.colalign[nocol]!=''){
-							calign=' style="text-align:'+(this.p.colalign[nocol]=='R'?'right':(this.p.colalign[nocol]=='C'?'center':'left'))+';"';
+							calign='text-align:'+(this.p.colalign[nocol]=='R'?'right':(this.p.colalign[nocol]=='C'?'center':'left'))+';';
 						}
 					}
 					var chide=false;
 					if(this.p.colhide!=undefined){if(this.p.colhide.indexOf(nocol)>-1){chide=true;}}
-					var trparam=csize+calign;
-					if(chide){trparam=' style="display:none;"';}
+					var tcolhide="";
+					if(chide){tcolhide='display:none;';}
 
 					var hname = '<a href="javascript:the_atable[\''+this.id+'\'].sorts(\''+this.columnSet[i]+'\')">'+iconsort+this.columnSet[i]+'</a>';
 					if(this.p.sort!=undefined){
@@ -110,7 +114,11 @@ aTable.table = function(){
 							hname = this.columnSet[i];
 						}
 					}
-					headerTr$.append($('<th'+trparam+'/>').html(hname));
+					var trparam="";
+					if(calign!='' || tcolhide!='' || csize!=''){
+						trparam=' style="'+calign+tcolhide+'"';
+					}
+					headerTr$.append($('<th'+trparam+csize+'/>').html(hname));
 					this.lblcol[nocol]=hname;
 					nocol++;
 				}
@@ -134,13 +142,13 @@ aTable.table = function(){
 				var calign='';
 				if(this.p.colalign!=undefined){
 					if(this.p.colalign[i]!=''){
-						calign=' style="text-align:'+(this.p.colalign[i]=='R'?'right':(this.p.colalign[i]=='C'?'center':'left'))+';"';
+						calign='text-align:'+(this.p.colalign[i]=='R'?'right':(this.p.colalign[i]=='C'?'center':'left'))+';';
 					}
 				}
 				var chide=false;
 				if(this.p.colhide!=undefined){if(this.p.colhide.indexOf(i)>-1){chide=true;}}
-				var trparam=csize+calign;
-				if(chide){trparam=' style="display:none;"';}
+				var tcolhide="";
+				if(chide){tcolhide='display:none;';}
 
 				var hname = '<a href="javascript:the_atable[\''+this.id+'\'].sorts(\''+this.columnSet[i]+'\')">'+iconsort+this.p.colv[i]+'</a>';
 				if(this.p.sort!=undefined){
@@ -148,7 +156,11 @@ aTable.table = function(){
 				    hname = this.p.colv[i];
 				  }
 				}
-				headerTr$.append($('<th'+trparam+'/>').html(hname));
+				var trparam="";
+				if(calign!='' || tcolhide!='' || csize!=''){
+					trparam=' style="'+calign+tcolhide+'"';
+				}
+				headerTr$.append($('<th'+trparam+csize+'/>').html(hname));
 				this.lblcol[i]=hname;
 			}
 		}
@@ -184,11 +196,14 @@ aTable.table = function(){
 				var calign='';
 				if(this.p.colalign!=undefined){
 					if(this.p.colalign[colIndex]!=''){
-						calign=' style="text-align:'+(this.p.colalign[colIndex]=='R'?'right':(this.p.colalign[colIndex]=='C'?'center':'left'))+';"';
+						calign='text-align:'+(this.p.colalign[colIndex]=='R'?'right':(this.p.colalign[colIndex]=='C'?'center':'left'))+';';
 					}
 				}
-				var trparam=calign;
-				if(chide){trparam=' style="display:none;"';}
+				var tcolhide="";
+				if(chide){tcolhide='display:none;';}
+				if(calign!='' || tcolhide!=''){
+					var trparam=' style="'+calign+tcolhide+'"';
+				}
 				row$.append($('<td data-label="'+collabel[colIndex]+'"'+trparam+'/>').html(typeof(cellValue)=='object'?JSON.stringify(cellValue):cellValue));
 			}
 			// add column
