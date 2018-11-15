@@ -401,8 +401,8 @@ class Atable {
   	}else if($this->linkDB=="pgsql"){
   		$res = pg_fetch_object($qry);
   	}else if($this->linkDB=="ci"){
-		//$res = $qry->_fetch_object();
-  		$res = $qry->unbuffered_row();
+			//$res = $qry->_fetch_object();
+			$res = $qry->unbuffered_row();
   	}
   	return $res;
   }
@@ -531,12 +531,8 @@ function atable_init(){
 	var xhr;
 	var thepage="";
 	var datapost={};
-	var sortby=[];
-	var ascdsc=[];
-	var numpage=[];
-	var colshowhide=[];
-	var atable;
-	var forEach;
+	var sortby=[];var ascdsc=[];var numpage=[];var colshowhide=[];
+	var atable;var forEach;var atablests=[];
 	(function($) {
 		$(window).load(function() {});
 		$(document).ready(function(e) {
@@ -546,6 +542,7 @@ function atable_init(){
 			forEach.call(atable, function (el, i) {
 				atable[i].insertAdjacentHTML("beforeBegin","");
 				atable[i].insertAdjacentHTML("afterEnd","");
+				atablests[i]=false;
 			});
 
 			$(".txtfind").keyup(function(event){
@@ -639,8 +636,10 @@ function atable_init(){
 
 	function atable_topage(natbl,page){
 		var fn=0;
-		atable_pages(page+"-"+natbl);
-		numpage[natbl]=page;
+		if(atablests[natbl]){
+			atable_pages(page+"-"+natbl);
+			numpage[natbl]=page;
+		}
 		$(document).ajaxStop(function(){
 		  if(fn==0){
 				atable_pages(page+"-"+natbl);
@@ -651,8 +650,10 @@ function atable_init(){
 
 	function atable_find(natbl,str){
 		var fn=0;
-		$("#txtfind-"+natbl).val(str);
-		$("#txtfind-"+natbl).keyup();
+		if(atablests[natbl]){
+			$("#txtfind-"+natbl).val(str);
+			$("#txtfind-"+natbl).keyup();
+		}
 		$(document).ajaxStop(function(){
 		  if(fn==0){
 		    $("#txtfind-"+natbl).val(str);
@@ -822,6 +823,7 @@ function atable_init(){
 				forEach.call(atable, function (el, i) {
 					if(data!=""){
 						atable[i].innerHTML=atableno[i];
+						atablests[i]=true;
 					}
 					document.getElementById("atablepreloader"+i).style.display="none";
 				});
