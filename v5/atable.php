@@ -178,7 +178,8 @@ class Atable {
     	}
 
     	if(isset($_POST['afind'])){
-    		if($_POST['afind']==''){
+				$afind = $_POST['afind'];
+    		if($afind==''){
     			$per_page = $limit;
     			if(isset($_POST['showall'])){
     				$forlimit = "";
@@ -192,9 +193,9 @@ class Atable {
     				$theatable.= '<tr><td colspan="'.(count($atablecol)+1).'" style="font-weight:bold;text-align:center;">No Data.</td><tr>';
     			}
     		}else{
-    			$afind=str_replace(' ','%',$_POST['afind']);
-    			if(strpos(strtolower($_POST['afind']), '"')!==false){
-    				$afind=str_replace('"','',preg_replace('/(?| *(".*?") *| *(\'.*?\') *)| +/s', '%$1', $_POST['afind']));
+    			$afind=str_replace(' ','%',str_replace("'", "''", $afind));
+    			if(strpos(strtolower($afind), '"')!==false){
+    				$afind=str_replace('"','',preg_replace('/(?| *(".*?") *| *(\'.*?\') *)| +/s', '%$1', $afind));
     			}
     			$per_page = $limitfind;
 
