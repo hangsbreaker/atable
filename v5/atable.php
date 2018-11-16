@@ -2,8 +2,8 @@
 $GLOBALS['atablenum']=0;
 class Atable {
 	// ==== param init
-	var $query; var $col; var $colv; var $limit; var $limitfind; var $orderby; var $groupby; var $where; var $addvar; var $param; var $addlastrow; var $colsize; var $colalign; var $showsql; var $caption; var $style;
-	var $colnumber=TRUE;
+	var $query; var $col; var $colv; var $limit; var $limitfind; var $orderby; var $groupby; var $where; var $addvar; var $param; var $addlastrow; var $colsize; var $colalign; var $caption; var $style; var $showsql;
+	var $debug=TRUE; var $colnumber=TRUE;
 	var $searchbar=TRUE; var $datainfo=TRUE; var $paging=TRUE;
 	var $reload=FALSE; var $collist=FALSE; var $xls=FALSE;
 	var $querysql;
@@ -12,19 +12,21 @@ class Atable {
 
 	function load(){
 		if(empty($this->database)){
-			foreach(array_reverse($GLOBALS) as $variable){
-				if(is_resource($variable) && get_resource_type($variable)=='mysql link'){
-					$this->linkDB = "mysql";
-					$this->dbcon=$variable;
-					break;
-				}else if(is_object($variable)  && get_class($variable)=='mysqli'){
-					$this->linkDB = "mysqli";
-					$this->dbcon=$variable;
-					break;
-				}else if(is_resource($variable) && get_resource_type($variable)=='pgsql link'){
-					$this->linkDB = "pgsql";
-					$this->dbcon=$variable;
-					break;
+			if($this->dbcon==""){
+				foreach(array_reverse($GLOBALS) as $variable){
+					if(is_resource($variable) && get_resource_type($variable)=='mysql link'){
+						$this->linkDB = "mysql";
+						$this->dbcon=$variable;
+						break;
+					}else if(is_object($variable)  && get_class($variable)=='mysqli'){
+						$this->linkDB = "mysqli";
+						$this->dbcon=$variable;
+						break;
+					}else if(is_resource($variable) && get_resource_type($variable)=='pgsql link'){
+						$this->linkDB = "pgsql";
+						$this->dbcon=$variable;
+						break;
+					}
 				}
 			}
 		}else{
@@ -58,7 +60,7 @@ class Atable {
 
 
 		$theatable= '<div class="atable">'.($this->linkDB == ''?'<div class="warningdb">Atable Unknown Database connection.</div>':'').'<div class="atablepreloader" id="atablepreloader'.$GLOBALS['atablenum'].'">Loading ....</div>
-		<div class="col-xs-2 findfield" style="margin-bottom: 10px;padding:0px 5px;min-width:200px;"><div class="input-group"><input type="text" class="txtfind form-control" name="cari" placeholder="Find" id="txtfind-'.$GLOBALS['atablenum'].'"><span class="input-group-addon" id="basic-addon"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span></div></div>
+		<div class="col-xs-2 findfield" style="margin-bottom: 10px;padding:0px 5px;min-width:200px;"><div class="input-group"><input type="text" class="txtfind form-control" name="find" placeholder="Find" id="txtfind-'.$GLOBALS['atablenum'].'"><span class="input-group-addon" id="findbutton"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span></div></div>
 			<div class="dtatable" id="dtatable'.$GLOBALS['atablenum'].'">';
 		if(isset($_POST['atabledata'.$GLOBALS['atablenum']]) && isset($_POST['fromatable'])){
 			if(isset($_POST['sortby'])){
@@ -236,7 +238,7 @@ class Atable {
     			$qry=$this->db_query($this->querysql);
 
     			if($this->db_num_rows($qry)==0){
-    				if(strpos(strtolower($qry), 'error')!==false){
+    				if(strpos(strtolower($qry), 'error')!==false && $this->debug){
     					$sqlerror = TRUE;
     					$theatable.= '<tr><td colspan="'.(count($atablecol)+1).'" style="color:#e74c3c;text-align:center;">'.$qry.'</td><tr>';
     				}else{
@@ -257,7 +259,7 @@ class Atable {
     		}
 
     		if($this->db_num_rows($qry)==0){
-    			if(strpos(strtolower($qry), 'error')!==false){
+    			if(strpos(strtolower($qry), 'error')!==false && $this->debug){
     				$sqlerror = TRUE;
     				$theatable.= '<tr><td colspan="'.(count($atablecol)+1).'" style="color:#e74c3c;text-align:center;">'.$qry.'</td><tr>';
     			}else{
@@ -378,7 +380,7 @@ class Atable {
   			$res = mysqli_errno($this->dbcon);
   		}
   	}else if($this->linkDB=="pgsql"){
-  		$res = pg_query($qry);
+  		$res = pg_query($this->dbcon,$qry);
   		if(!$res){
   			$res = pg_last_error($this->dbcon);
   		}
@@ -546,44 +548,44 @@ function atable_init(){
 			});
 
 			$(".txtfind").keyup(function(event){
-				//if(event.which == 13){
+				var vid = this.id.split("-");
+				if(atablests[vid[1]]){
 					xhr.abort();
-					var vid = this.id.split("-");
+				}
 
-					var v_afind = $("#txtfind-"+vid[1]).val();
-					document.getElementById("atablepreloader"+vid[1]).style.display="block";
-					document.getElementById("showless-"+vid[1]).style.display="none";
-					document.getElementById("showall-"+vid[1]).style.display="inline-block";
+				var v_afind = $("#txtfind-"+vid[1]).val();
+				document.getElementById("atablepreloader"+vid[1]).style.display="block";
+				document.getElementById("showless-"+vid[1]).style.display="none";
+				document.getElementById("showall-"+vid[1]).style.display="inline-block";
 
-					var tbpage = Object.assign({}, datapost);
-					numpage[vid[1]]=1;
-					tbpage["atabledata"+vid[1]]=true;
-					tbpage["sortby"]=sortby[vid[1]];
-					tbpage["colshowhide"]=colshowhide[vid[1]];
-					tbpage["fromatable"]=true;
-					tbpage.afind=v_afind;
+				var tbpage = Object.assign({}, datapost);
+				numpage[vid[1]]=1;
+				tbpage["atabledata"+vid[1]]=true;
+				tbpage["sortby"]=sortby[vid[1]];
+				tbpage["colshowhide"]=colshowhide[vid[1]];
+				tbpage["fromatable"]=true;
+				tbpage.afind=v_afind;
 
-					xhr = $.ajax({
-						type: "POST",
-						url: thepage,
-						data: tbpage,
-						success: function(data){
-							document.getElementById("atablepreloader"+vid[1]).style.display="none";
-							var atableno=[];
-							var htmldata = "<div>"+rbline(data)+"</div>";
-							$(htmldata).find(".dtatable").each(function(i, obj){
-								atableno[i]=this.innerHTML;
-							});
+				xhr = $.ajax({
+					type: "POST",
+					url: thepage,
+					data: tbpage,
+					success: function(data){
+						document.getElementById("atablepreloader"+vid[1]).style.display="none";
+						var atableno=[];
+						var htmldata = "<div>"+rbline(data)+"</div>";
+						$(htmldata).find(".dtatable").each(function(i, obj){
+							atableno[i]=this.innerHTML;
+						});
 
-							forEach.call(atable, function (el, i) {
-								if(i==vid[1]){
-									atable[i].innerHTML=atableno[i];
-								}
-							});
-							atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
-						}
-					});
-				//}
+						forEach.call(atable, function (el, i) {
+							if(i==vid[1]){
+								atable[i].innerHTML=atableno[i];
+							}
+						});
+						atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+					}
+				});
 			});
 
 		});
