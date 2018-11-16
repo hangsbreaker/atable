@@ -640,6 +640,7 @@ function atable_init(){
 
 	function atable_topage(natbl,page){
 		var fn=0;
+		if(page<0){page=0;}
 		if(atablests[natbl]){
 			atable_pages(page+"-"+natbl);
 			numpage[natbl]=page;
