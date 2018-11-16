@@ -427,7 +427,8 @@ function atable_init(){
 	if(!isset($_POST['fromatable'])){
 	echo '<style>
 	.atable{display:block;clear:both;margin-top:10px;margin-bottom:80px;}
-	.atable .dtatable .table, .atable .jdtatable .table{margin-bottom:0px;}
+	.atable .atablewrap{width:100%;}
+	.atable .dtatable .table{margin-bottom:0px;}
 	.atable .atablepreloader{
 		display:none;
 		position: absolute;
