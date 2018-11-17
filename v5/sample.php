@@ -52,6 +52,7 @@ $atable->colnumber = FALSE;
 //$atable->reload=TRUE;
 //$atable->datainfo=FALSE;
 //$atable->paging=FALSE;
+//$atable->debug=FALSE;
 $atable->collist=TRUE;
 $atable->xls=TRUE;
 
