@@ -565,7 +565,25 @@ function atable_init(){
 	.atable .paggingfield, .atable .findfield{
 		float:right;
 	}
-	.findfield {
+
+	.atable .form-control {
+		display: block;
+		padding: 6px 12px;
+		font-size: 14px;
+		line-height: 1.42857143;
+		color: #495057;
+		background-color: #fff;
+		background-clip: padding-box;
+		border: 1px solid #ced4da;
+		border-radius: 4px;
+		transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+		transition-property: border-color, box-shadow;
+		transition-duration: 0.15s, 0.15s;
+		transition-timing-function: ease-in-out, ease-in-out;
+		transition-delay: 0s, 0s;
+	}
+
+	.atable .findfield {
 		position:relative;
 		display:inline-block;
 	}
@@ -611,7 +629,7 @@ function atable_init(){
     font-size: 1em;
 		display:none;
 	}
-	.fndclear:hover {
+	.atable .fndclear:hover {
 		background: #ccc;
 		display:table;
 	}
@@ -732,23 +750,6 @@ function atable_init(){
     color: #fff;
     background-color: #f0ad4e;
     border-color: #eea236;
-	}
-
-	.atable .form-control {
-		display: block;
-		padding: 6px 12px;
-		font-size: 14px;
-		line-height: 1.42857143;
-		color: #495057;
-		background-color: #fff;
-		background-clip: padding-box;
-		border: 1px solid #ced4da;
-		border-radius: 4px;
-		transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-		transition-property: border-color, box-shadow;
-		transition-duration: 0.15s, 0.15s;
-		transition-timing-function: ease-in-out, ease-in-out;
-		transition-delay: 0s, 0s;
 	}
 
 	.atable .atform{
