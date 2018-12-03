@@ -20,9 +20,14 @@ $atable['colsize']    // column size of table as style (default empty)<br>
 $atable['colalign']   // column align table as style L(left),R(right),C(center) (default align left)<br>
 $atable['showsql']    // show query result boolean (default FALSE)<br>
 $atable['style']      // modify table css class (default using bootstrap 3)<br>
-$atable['caption']    // title of table (default empty)<br><br>
+$atable['caption']    // title of table (default empty)<br>
+// v5 using object
+$atable->reload=TRUE;
+$atable->datainfo=FALSE;
+$atable->paging=FALSE;
+$atable->debug=FALSE;
 
-Tips:<br>
+<br>Tips:<br>
 - For search can use quotation. eg: "build 23"<br>
 - Use table column as variable in param then column can be sort<br>
 
