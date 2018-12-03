@@ -10,6 +10,8 @@ class Atable {
 	var $database;
 	var $linkDB="";var $dbcon="";
 
+	var $add=FALSE;var $edit=FALSE;var $delete=FALSE;var $proctbl=FALSE;
+
 	function load(){
 		if(empty($this->database)){
 			if($this->dbcon==""){
@@ -59,8 +61,47 @@ class Atable {
 		// ===============================
 
 
-		$theatable= '<div class="atable">'.($this->linkDB == ''?'<div class="warningdb">Atable Unknown Database connection.</div>':'').'<div class="atablepreloader" id="atablepreloader'.$GLOBALS['atablenum'].'">Loading ....</div>
-		<div class="col-xs-2 findfield" style="margin-bottom: 10px;padding:0px 5px;min-width:200px;"><div class="input-group"><input type="text" class="txtfind form-control" name="find" placeholder="Find" id="txtfind-'.$GLOBALS['atablenum'].'"><span class="input-group-addon" id="findbutton"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span></div></div>
+		$tblnm= trim(str_replace("from ","",substr($qrytable,strpos($qrytable,"from"),strlen($qrytable))));
+		if(strpos($tblnm,' ') !== false){
+		  $this->proctbl=FALSE;
+		}else{$this->proctbl=TRUE;}
+		if(isset($_POST['atable_process_data'])){
+			if($GLOBALS['atablenum']==$_POST['process_table']){
+			  $npd=0;$recdt="";
+			  if($_POST['atable_process_data']=='edit'){
+			    $qryp= "update $tblnm set ";
+			    foreach ($_POST['vdata'] as $key => $value) {
+			      if($npd>0){$qryp.=',';$recdt.=' AND ';}$npd++;
+			      $qryp.=$key."='".$value."'";
+			      $recdt.=$key."='".$_POST['ndata'][$key]."'";
+			    }
+			    $qryp.=" where ".$recdt;
+			  }else if($_POST['atable_process_data']=='delete'){
+			    $qryp= "delete from $tblnm where ";
+			    foreach ($_POST['vdata'] as $key => $value) {
+			      if($npd>0){$recdt.=' AND ';}$npd++;
+			      $recdt.=$key."='".$_POST['ndata'][$key]."'";
+			    }
+			    $qryp.=$recdt;
+			  }else if($_POST['atable_process_data']=='add'){
+			    $qryp= "insert into $tblnm (";
+			    foreach ($_POST['vdata'] as $key => $value) {
+			      if($npd>0){$qryp.=',';$recdt.=', ';}$npd++;
+			      $qryp.=$key;
+			      $recdt.="'".$value."'";
+			    }
+			    $qryp.=") values (".$recdt.")";
+			  }
+			  echo $qryp;
+			  $sts=$this->db_query($qryp);
+			  if($sts){echo " atable_process_true";}else{echo " atable_process_false";}
+			  exit;
+			}
+		}
+
+		$theatable= '<div class="atable">'.($this->linkDB == ''?'<div class="warningdb">Atable Unknown Database connection.</div>':'').'<div class="atablepreloader" id="atablepreloader'.$GLOBALS['atablenum'].'"><span>Loading ....</span></div>
+		<div class="findfield" style="padding:0px 5px;min-width:200px;z-index:3;"><input type="text" class="txtfind" name="find" placeholder="Search" id="txtfind-'.$GLOBALS['atablenum'].'" onkeyup="atable_txtfind(this)"><div class="fndclear" onclick="clearsrc('.$GLOBALS['atablenum'].')">&times;</div></div>
+			<div class="atform" id="atform'.$GLOBALS['atablenum'].'"></div>
 			<div class="dtatable" id="dtatable'.$GLOBALS['atablenum'].'">';
 		if(isset($_POST['atabledata'.$GLOBALS['atablenum']]) && isset($_POST['fromatable'])){
 			if(isset($_POST['sortby'])){
@@ -78,16 +119,17 @@ class Atable {
 						<table class="'.$style.'" id="dtblatable'.$GLOBALS['atablenum'].'" border="0">
     				<caption>'.$caption.'</caption>
     				<thead>';
-    				$atr=0;
+    				$atr=0;$nrospn=0;
     				foreach ($atablecolv as $vth) {if(is_array($vth)){$atr++;}}
     				if($atr==0){$theatable.= '<tr>';$theatable.= ($colnumber==TRUE?'<th width="1px"'.($atr>0?' rowspan="'.$atr.'"':'').'>No</th>':'');}
     				$sortpost = explode(" ",$sortpost);
     				foreach($atablecolv as $key=>$acolv){
     					if(is_array($acolv)){
+								$nrospn=count($atablecolv);
     						$theatable.= '<tr>';
                 if($key==0){$theatable.= ($colnumber==TRUE?'<th width="1px"'.($atr>0?' rowspan="'.$atr.'"':'').'>No</th>':'');}
     		        $vthn=$vth[0];$colrown=array();$colrowv=array();$arrkey=0;
-    						foreach ($acolv as $key => $vth) {
+    						foreach ($acolv as $keyf => $vth) {
     				      $vthn=$vth;$colrow='';$colsz='';$colalgn='';
     				      if(is_array($vth)){
     				        $vthn=$vth[0];
@@ -102,16 +144,16 @@ class Atable {
     										}else if(strtolower($value)=='ar'){
     											$colalgn=' style="text-align:right;"';
     										}else{
-    					            $colrown[$key]=substr($value,3);
-    					            $colrowv[$key]=strtolower(substr($value,0,3));
+    					            $colrown[$keyf]=substr($value,3);
+    					            $colrowv[$keyf]=strtolower(substr($value,0,3));
     										}
-    				            $colrow.=' '.$colrowv[$key].'span="'.$colrown[$key].'"';
+    				            $colrow.=' '.$colrowv[$keyf].'span="'.$colrown[$keyf].'"';
     				          }
     				        }
     				      }
 
     							$theatable.= '<th'.$colsz.$colalgn.$colrow.'>';
-									$arrkey=($colrowv[$key-1]=='col' && $key>0?$key+$colrown[$key-1]-1:$arrkey);
+									$arrkey=($colrowv[$keyf-1]=='col' && $keyf>0?$keyf+$colrown[$keyf-1]-1:$arrkey);
 									$nmcol= str_replace('$','',str_replace(';','',$atablecol[$arrkey]));
 									$existcol= $this->GetBetween($qrytable,"select","from");
 									if(strpos($existcol,$nmcol)!==false){
@@ -121,9 +163,9 @@ class Atable {
 									}
 									if($sortpost[0]==$bysort){
 										if($sortpost[1]=='ASC'){
-											$iconsort = '<span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>';
+											$iconsort = '<span>&#9662;</span>';
 										}else{
-											$iconsort = '<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>';
+											$iconsort = '<span>&#9652;</span>';
 										}
 									}else{
 										$iconsort = '';
@@ -135,6 +177,12 @@ class Atable {
     							$theatable.= '</th>';
 									$arrkey++;
     						}
+
+								if($key==0){
+									if(($this->edit || $this->delete) && $this->proctbl){
+										$theatable.= '<th'.(isset($colsize[count($colalign)-1])?' width="'.$colsize[count($colalign)-1].'"':'').(isset($colalign)?' style="text-align:'.($colalign[count($colalign)-1]=='R'?'right':($colalign[count($colalign)-1]=='C'?'center':'left')).';"':'').' rowspan="'.$nrospn.'">Action</th>';
+									}
+								}
 								$kyrow++;
     						$theatable.= '</tr>';
     					}else{
@@ -148,20 +196,30 @@ class Atable {
 								}
 								if($sortpost[0]==$bysort){
 									if($sortpost[1]=='ASC'){
-										$iconsort = '<span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>';
+										$iconsort = '<span>&#9662;</span>';
 									}else{
-										$iconsort = '<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>';
+										$iconsort = '<span>&#9652;</span>';
 									}
 								}else{
 									$iconsort = '';
 								}
-							$lblcol[$key]=$acolv;
+								$lblcol[$key]=$acolv;
     						$theatable.= (strpos($bysort, ';')!==false?$acolv:'<a href="javascript:void(0);" id="sortby-'.$GLOBALS['atablenum'].'-'.$bysort.'" class="sortby" onclick="atable_sortedby(this);">'.$iconsort.'&nbsp;'.$acolv.'</a>');
     						$theatable.= '</th>';
     					}
     				}
-					ksort($lblcol);
-    				if($atr==0){$theatable.= '</tr>';}
+						ksort($lblcol);
+    				if($atr==0){
+							if(($this->edit || $this->delete) && $this->proctbl){
+								$theatable.= '<th'.(isset($colsize[$key+1])?' width="'.$colsize[$key+1].'"':'').(isset($colalign)?' style="text-align:'.($colalign[$key+1]=='R'?'right':($colalign[$key+1]=='C'?'center':'left')).';"':'').$colrow.'>Action</th>';
+								array_push($lblcol,'Action');
+							}
+							$theatable.= '</tr>';
+						}else{
+							if(($this->edit || $this->delete) && $this->proctbl){
+								array_push($lblcol,'Action');
+							}
+						}
     	$theatable.= '</thead>
     			<tbody>';
 
@@ -291,6 +349,12 @@ class Atable {
     						$theatable.= '</td>';
     						$nocols++;
     					}
+							if(($this->edit || $this->delete) && $this->proctbl){
+								$theatable.='<td '.(isset($colalign)?'style="text-align:'.($colalign[$nocols]=='R'?'right':($colalign[$nocols]=='C'?'center':'left')).';"':'').' data-label="'.$lblcol[count($lblcol)-1].'">';
+									if($this->edit){$theatable.='<button type="button" class="btn btn-default btn-xs" onclick=\'atable_processdata('.$GLOBALS['atablenum'].',this,"edit",'.$this->col.','.json_encode($lblcol).')\' style="font-size:18px;height:30px;">&#9998;</button>';}
+									if($this->delete){$theatable.='<button type="button" class="btn btn-default btn-xs" onclick=\'atable_processdata('.$GLOBALS['atablenum'].',this,"delete",'.$this->col.','.json_encode($lblcol).')\' style="font-size:18px;height:30px;">&#9923;</button>';}
+								$theatable.='</td>';
+							}
     			$theatable.= '</tr>';
     			$i++;
     		}
@@ -315,6 +379,8 @@ class Atable {
 		<button type="button" onclick="atable_hidecol(\'dtblatable'.$GLOBALS['atablenum'].'\',getSelectMultiValues(\'slctmltp'.$GLOBALS['atablenum'].'\'),'.$GLOBALS['atablenum'].');showhide(\'colhide'.$GLOBALS['atablenum'].'\')" class="btn btn-default btn-sm" id="colhideok" style="float:right">Ok</button>
 		</div>
 		<div class="datainfo">'.
+		($this->add==TRUE && $this->proctbl?
+		  '<button type="button" onclick=\'atable_processdata('.$GLOBALS['atablenum'].',this,"add",'.$this->col.','.json_encode($lblcol).')\' class="btn btn-primary btn-xs" title="Add Data" id="dtreload" style="font-size:18px;height:30px;"><b>+</b></button>&nbsp;':'').
 		($this->reload==TRUE?
 		  '<button type="button" onclick="atable_reload('.$GLOBALS['atablenum'].')" class="btn btn-info btn-xs" title="Reload" id="dtreload" style="font-size:18px;height:30px;">&#8635;</button>&nbsp;':'').
 		($this->collist==TRUE?
@@ -338,7 +404,7 @@ class Atable {
 				if((($page >= $pages-2) && ($page <= $pages +2)) || ($page==1) || ($page==$jml_pages)){
 					if(($showpg==1)&&($page !=2 )){$theatable.= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';}
 					if(($showpg!=($jml_pages-1))&&($page == $jml_pages)){$theatable.= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';}
-					if($page == $pages){$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.$page.'-'.$GLOBALS['atablenum'].'" onclick="atable_pages(\''.$page.'-'.$GLOBALS['atablenum'].'\');">'.$page.'</a></li>';}
+					if($page == $pages){$theatable.= '<li '.$class.'><a href="javascript:void(this);" id="'.$page.'-'.$GLOBALS['atablenum'].'" onclick="atable_pages(\''.$page.'-'.$GLOBALS['atablenum'].'\');">'.$page.'</a></li>';}
 					else{$theatable.= '<li '.$class.'><a href="javascript:void(this);" id="'.$page.'-'.$GLOBALS['atablenum'].'" class="pages" onclick="atable_pages(\''.$page.'-'.$GLOBALS['atablenum'].'\');">'.$page.'</a></li>';}
 					$showpg=$page;
 				}
@@ -376,12 +442,16 @@ class Atable {
   			$res = mysql_error();
   		}
   	}else if($this->linkDB=="mysqli"){
-  		$res = mysqli_query($this->dbcon,$qry);
+			if($this->dbcon!=''){
+  			$res = mysqli_query($this->dbcon,$qry);
+			}else{$res = mysqli_query($qry);}
   		if(!$res){
   			$res = mysqli_errno($this->dbcon);
   		}
   	}else if($this->linkDB=="pgsql"){
-  		$res = pg_query($this->dbcon,$qry);
+			if($this->dbcon!=''){
+	  		$res = pg_query($this->dbcon,$qry);
+			}else{$res = pg_query($qry);}
   		if(!$res){
   			$res = pg_last_error($this->dbcon);
   		}
@@ -404,8 +474,12 @@ class Atable {
   	}else if($this->linkDB=="pgsql"){
   		$res = pg_fetch_object($qry);
   	}else if($this->linkDB=="ci"){
-  		//$res = $qry->_fetch_object();
-  		$res = $qry->unbuffered_row();
+			$civer=explode(".",CI_VERSION);
+			if($civer[0]=="2"){
+  			$res = $qry->_fetch_object();
+			}else{
+  			$res = $qry->unbuffered_row();
+			}
   	}
   	return $res;
   }
@@ -423,19 +497,24 @@ class Atable {
   	return $res;
   }
 }
+
 function atable_init(){
 	if(!isset($_POST['fromatable'])){
-	echo '<style>
-	.atable{display:block;clear:both;margin-top:10px;margin-bottom:80px;}
+	echo '<style>*{margin:0;padding:0;box-sizing: border-box;}
+	.atable{font-family:Arial;font-size:14px;color:#333;display:list-item;list-style:none;clear:both;margin-top:10px;margin-bottom:80px;position:relative;}
 	.atable .atablewrap{width:100%;}
 	.atable .dtatable .table{margin-bottom:0px;}
 	.atable .atablepreloader{
+		position:absolute;
+		width:100%;
+		height:100%;
 		display:none;
-		position: absolute;
+    justify-content: center;
+    align-items: center;
+		z-index:2;
+	}
+	.atable .atablepreloader span{
 		width: 200px;
-		margin-top: 120px;
-		margin-left: -100px;
-		left: 50%;
 		background: #337AB7;
 		color:#ffffff;
 		padding: 15px;
@@ -443,15 +522,35 @@ function atable_init(){
 		font-weight: bold;
 		border: 3px solid #337AB7;
 		border-radius: 3px;
-		z-index:9;
 	}
-	.atable .paggingfield{
-		margin:0px 5px;
+	.atable a{color:#337ab7;text-decoration:none;}
+
+	/* ======= table ============= */
+	.atable .table{width:100%;border-collapse: collapse;}
+	.atable .table>thead>tr>th, .atable .table>tbody>tr>th, .atable .table>tfoot>tr>th{
+		padding: 8px;
+		line-height: 1.37;
+		vertical-align: bottom;
+		text-align: left;
 	}
+	.atable .table>thead>tr>td, .atable .table>tbody>tr>td, .atable .table>tfoot>tr>td{
+		padding: 8px;
+		line-height: 1.37;
+		vertical-align: top;
+	}
+	.atable .table>thead>tr>th {
+		border-bottom: 2px solid #ddd;
+	}
+	.atable .table>tbody>tr>td {
+		border-top: 1px solid #ddd;
+	}
+	.atable .dtatable .table, .atable .jdtatable .table{margin-bottom:0px;}
+	/* ======= end table ============= */
+
 	.atable .datainfo{
 		left:0px;
 		display:block;clear:both;float:left;
-		right:0px;margin:20px 5px;position:relative;padding:10px 5px;
+		right:0px;margin-top: 23px;margin-left: 5px;position:relative;
 	}
 	.atable .warningdb{
 		position:absolute;
@@ -466,6 +565,56 @@ function atable_init(){
 	.atable .paggingfield, .atable .findfield{
 		float:right;
 	}
+	.findfield {
+		position:relative;
+		display:inline-block;
+	}
+	.atable .txtfind{
+		background-image: url(\'data:image/svg+xml;utf8,<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 250.313 250.313" style="enable-background:new 0 0 250.313 250.313;" xml:space="preserve" height="15px" width="15px"><g id="Search"><path style="fill-rule:evenodd;clip-rule:evenodd;fill:gray" d="M244.186,214.604l-54.379-54.378c-0.289-0.289-0.628-0.491-0.93-0.76 c10.7-16.231,16.945-35.66,16.945-56.554C205.822,46.075,159.747,0,102.911,0S0,46.075,0,102.911 c0,56.835,46.074,102.911,102.91,102.911c20.895,0,40.323-6.245,56.554-16.945c0.269,0.301,0.47,0.64,0.759,0.929l54.38,54.38 c8.169,8.168,21.413,8.168,29.583,0C252.354,236.017,252.354,222.773,244.186,214.604z M102.911,170.146 c-37.134,0-67.236-30.102-67.236-67.235c0-37.134,30.103-67.236,67.236-67.236c37.132,0,67.235,30.103,67.235,67.236 C170.146,140.044,140.043,170.146,102.911,170.146z"/></g></svg>\');
+    background-position: 6px center;
+    background-repeat: no-repeat;
+
+		outline: none;
+    height: 34px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 26px;
+    padding-right: 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+	}
+	.txtfind:focus:not(:placeholder-shown) + div{display:table;}
+	.txtfind:not(:placeholder-shown):hover + div{display:table;}
+	.atable .fndclear{
+		position: absolute;
+		user-select: none;
+    float: right;
+    top: 23%;
+    right: 10px;
+    width: 16px;
+    height: 18px;
+    border-radius: 6px;
+    background: #f1f1f1;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    font-size: 1em;
+		display:none;
+	}
+	.fndclear:hover {
+		background: #ccc;
+		display:table;
+	}
 	.atable .colhide{
 		display:none;
 		position: absolute;
@@ -477,21 +626,163 @@ function atable_init(){
 		border-radius: 5px;
 		box-shadow: 0px 0px 5px 0px #333;
 	}
-	.atable table caption {
+	.atable .table caption {
 		color:#000;
 		font-size: 1.5em;
 		text-align: center;
 	}
+	.atable .paggingfield{
+		margin:0px 5px;
+	}
+	.atable .paggingfield .pagination{
+		display: inline-block;
+		padding-left: 0;
+		margin: 20px 0;
+		border-radius: 4px;
+	}
+	.atable .paggingfield .pagination>ul{list-style-type: disc;}
+	.atable .paggingfield .pagination>li{display: inline;}
+	.atable .paggingfield .pagination>li:first-child>a{
+	    border-top-left-radius: 4px;
+	    border-bottom-left-radius: 4px;
+	}
+	.atable .paggingfield .pagination>li:last-child>a{
+		border-top-right-radius: 4px;
+		border-bottom-right-radius: 4px;
+	}
+	.atable .paggingfield .pagination>.active>a{
+		color: #fff;
+		cursor: default;
+		background-color: #337ab7;
+		border-color: #337ab7;
+	}
+	.atable .paggingfield .pagination>li>a{
+		position: relative;
+		float: left;
+		padding: 6px 12px;
+		margin-left: -1px;
+		line-height: 1.42857143;
+		color: #337ab7;
+		text-decoration: none;
+		background-color: #fff;
+		border: 1px solid #ddd;
+	}
+	.atable .table caption {
+		color:#000;
+		font-size: 1.5em;
+		text-align: center;
+	}
+	.atable .btn{
+		display: inline-block;
+		padding: 6px 12px;
+		margin-bottom: 0;
+		font-size: 14px;
+		font-weight: 400;
+		line-height: 1.42857143;
+		text-align: center;
+		white-space: nowrap;
+		vertical-align: middle;
+		-ms-touch-action: manipulation;
+		touch-action: manipulation;
+		cursor: pointer;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		background-image: none;
+		border: 1px solid transparent;
+		border-radius: 4px;
+		color: #333;
+		background-color: #fff;
+		border-color: #ccc;
+	}
+	.atable .btn-sm {
+		padding: 5px 10px;
+		font-size: 12px;
+		line-height: 1.5;
+		border-radius: 3px;
+	}
+	.atable .btn-xs {
+		padding: 1px 5px;
+		font-size: 12px;
+		line-height: 1.5;
+		border-radius: 3px;
+	}
+	.atable .btn-success {
+		color: #fff;
+		background-color: #5cb85c;
+		border-color: #4cae4c;
+	}
+	.atable .btn-danger {
+		color: #fff;
+		background-color: #d9534f;
+		border-color: #d43f3a;
+	}
+	.atable .btn-info {
+		color: #fff;
+		background-color: #5bc0de;
+		border-color: #46b8da;
+	}
+	.atable .btn-primary {
+    color: #fff;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+	}
+	.atable .btn-warning {
+    color: #fff;
+    background-color: #f0ad4e;
+    border-color: #eea236;
+	}
+
+	.atable .form-control {
+		display: block;
+		padding: 6px 12px;
+		font-size: 14px;
+		line-height: 1.42857143;
+		color: #495057;
+		background-color: #fff;
+		background-clip: padding-box;
+		border: 1px solid #ced4da;
+		border-radius: 4px;
+		transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+		transition-property: border-color, box-shadow;
+		transition-duration: 0.15s, 0.15s;
+		transition-timing-function: ease-in-out, ease-in-out;
+		transition-delay: 0s, 0s;
+	}
+
+	.atable .atform{
+	  position: absolute;
+	  width: 100%;
+	  height: 100%;
+	  align-items: center;
+	  justify-content: center;
+	  display: none;
+	}
+	.atable .atform div{
+	  margin: 0 auto;
+	  display: table;
+	  background: #fff;
+	  box-shadow: 0px 0px 5px #333;
+	  padding: 10px;
+	  border-radius: 5px;
+	}
+	.atable .atform span{
+	  font-weight: bold;
+	}
+	.atable .atform .atble{
+	  margin-bottom: 10px;
+	}
 	@media screen and (max-width: 550px) {
-		.atable table{
+		.atable .table{
 			border-collapse: collapse;
 			table-layout: fixed;
 			border: 0;
 		}
-		.atable table caption {
+		.atable .table caption {
 			font-size: 1.3em;
 		}
-		.atable table thead {
+		.atable .table thead {
 			border: none;
 			clip: rect(0 0 0 0);
 			height: 1px;
@@ -501,23 +792,23 @@ function atable_init(){
 			position: absolute;
 			width: 1px;
 		}
-		.atable table tr {
+		.atable .table tr {
 			border-bottom: 3px solid #ddd;
 			display: block;
 			margin-bottom: .625em;
 		}
-		.atable table td {
+		.atable .table td {
 			border-top: 0px solid #ddd;
 			display: block;
 			font-size: .8em;
 			text-align: right !important;
 		}
-		.atable table td:before {
+		.atable .table td:before {
 			content: attr(data-label);
 			float: left;
 			font-weight: bold;
 		}
-		.atable table td:last-child {
+		.atable .table td:last-child {
 			border-bottom: 0;
 		}
 		.atable .paggingfield {
@@ -549,57 +840,55 @@ function atable_init(){
 				atablests[i]=false;
 			});
 
-			$(".txtfind").keyup(function(event){
-				var vid = this.id.split("-");
-				if(atablests[vid[1]]){
-					xhr.abort();
-				}
-
-				var v_afind = $("#txtfind-"+vid[1]).val();
-				document.getElementById("atablepreloader"+vid[1]).style.display="block";
-				document.getElementById("showless-"+vid[1]).style.display="none";
-				document.getElementById("showall-"+vid[1]).style.display="inline-block";
-
-				var tbpage = Object.assign({}, datapost);
-				numpage[vid[1]]=1;
-				tbpage["atabledata"+vid[1]]=true;
-				tbpage["sortby"]=sortby[vid[1]];
-				tbpage["colshowhide"]=colshowhide[vid[1]];
-				tbpage["fromatable"]=true;
-				tbpage.afind=v_afind;
-
-				xhr = $.ajax({
-					type: "POST",
-					url: thepage,
-					data: tbpage,
-					success: function(data){
-						document.getElementById("atablepreloader"+vid[1]).style.display="none";
-						var atableno=[];
-						var htmldata = "<div>"+rbline(data)+"</div>";
-						$(htmldata).find(".dtatable").each(function(i, obj){
-							atableno[i]=this.innerHTML;
-						});
-
-						forEach.call(atable, function (el, i) {
-							if(i==vid[1]){
-								atable[i].innerHTML=atableno[i];
-							}
-						});
-						atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
-					}
-				});
-			});
-
 		});
 	}) (jQuery);
 
+	function atable_txtfind(me){
+		var vid = me.id.split("-");
+		if(atablests[vid[1]]){
+			xhr.abort();
+		}
 
+		var v_afind = $("#txtfind-"+vid[1]).val();
+		document.getElementById("atablepreloader"+vid[1]).style.display="flex";
+		document.getElementById("showless-"+vid[1]).style.display="none";
+		document.getElementById("showall-"+vid[1]).style.display="inline-block";
+
+		var tbpage = Object.assign({}, datapost);
+		numpage[vid[1]]=1;
+		tbpage["atabledata"+vid[1]]=true;
+		tbpage["sortby"]=sortby[vid[1]];
+		tbpage["colshowhide"]=colshowhide[vid[1]];
+		tbpage["fromatable"]=true;
+		tbpage.afind=v_afind;
+
+		xhr = $.ajax({
+			type: "POST",
+			url: thepage,
+			data: tbpage,
+			success: function(data){
+				document.getElementById("atablepreloader"+vid[1]).style.display="none";
+				var atableno=[];
+				var htmldata = "<div>"+rbline(data)+"</div>";
+				$(htmldata).find(".dtatable").each(function(i, obj){
+					atableno[i]=this.innerHTML;
+				});
+
+				forEach.call(atable, function (el, i) {
+					if(i==vid[1]){
+						atable[i].innerHTML=atableno[i];
+					}
+				});
+				atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+			}
+		});
+	}
 
 	function atable_pages(val){
 		xhr.abort();
 		var vid = val.split("-");
 		var v_afind = $("#txtfind-"+vid[1]).val();
-		document.getElementById("atablepreloader"+vid[1]).style.display="block";
+		document.getElementById("atablepreloader"+vid[1]).style.display="flex";
 
 		var tbpage = Object.assign({}, datapost);
 		tbpage.h=vid[0];numpage[vid[1]]=vid[0];
@@ -668,11 +957,13 @@ function atable_init(){
 		});
 	}
 
+	function clearsrc(natbl){$("#txtfind-"+natbl).val("");$("#txtfind-"+natbl).keyup();$("#txtfind-"+natbl).focus();}
+
 	function atable_showall(me){
 		xhr.abort();
 		var vid = me.id.split("-");
 		var v_afind = $("#txtfind-"+vid[1]).val();
-		document.getElementById("atablepreloader"+vid[1]).style.display="block";
+		document.getElementById("atablepreloader"+vid[1]).style.display="flex";
 
 		var tbpage = Object.assign({}, datapost);
 		tbpage.showall=true;
@@ -711,7 +1002,7 @@ function atable_init(){
 		xhr.abort();
 		var vid = me.id.split("-");
 		var v_afind = $("#txtfind-"+vid[1]).val();
-		document.getElementById("atablepreloader"+vid[1]).style.display="block";
+		document.getElementById("atablepreloader"+vid[1]).style.display="flex";
 
 		var tbpage = Object.assign({}, datapost);
 		numpage[vid[1]]=1;
@@ -749,7 +1040,7 @@ function atable_init(){
 		xhr.abort();
 		var vid = me.id.split("-");
 		var v_afind = $("#txtfind-"+vid[1]).val();
-		document.getElementById("atablepreloader"+vid[1]).style.display="block";
+		document.getElementById("atablepreloader"+vid[1]).style.display="flex";
 		if(ascdsc[vid[1]]==""){
 			sortby[vid[1]] = vid[2]+" ASC";
 			ascdsc[vid[1]]="ASC";
@@ -807,7 +1098,7 @@ function atable_init(){
 			colshowhide[i]=[];
 			ascdsc[i]="";
 			loadtable["atabledata"+i]=true;
-			document.getElementById("atablepreloader"+i).style.display="block";
+			document.getElementById("atablepreloader"+i).style.display="flex";
 		});
 
 		loadtable.fromatable=true;
@@ -841,7 +1132,7 @@ function atable_init(){
 	  if(myEle){
 		xhr.abort();
 			var v_afind = $("#txtfind-"+vid).val();
-			document.getElementById("atablepreloader"+vid).style.display="block";
+			document.getElementById("atablepreloader"+vid).style.display="flex";
 			document.getElementById("showless-"+vid).style.display="none";
 			document.getElementById("showall-"+vid).style.display="inline-block";
 
@@ -956,6 +1247,106 @@ function atable_init(){
 	    return container.innerHTML;
 	}
 	function rbline(str){var text=str;text = text.replace(/(\r\n|\n|\r)/gm," ");text = text.replace(/\s{2,}/g, " ");return text;}
+
+
+	function atable_processdata(ntbl,me,prc,cols,colsv){
+	  var rows=[];
+	  $(me).parents("tr").each(function( i ) {
+	    $("td", this).each(function( j ) {rows.push($(this).html());});
+	  });
+
+	  var frm=document.getElementById("atform"+ntbl);
+	  frm.style.display="flex";
+	  frm.innerHTML="";
+	  if(prc=="add"){
+	    rows=colsv;
+	  }
+
+	  var dv = document.createElement("div");
+	  var table=document.createElement("table");
+	  table.setAttribute("class", "atble");
+	  var rowCount=table.rows.length;
+		for(var i=0;i<rows.length-1;i++){
+	    var row=table.insertRow(i);
+	    var sp = document.createElement("span");
+	    sp.innerHTML=colsv[i];
+
+	    var inp = document.createElement("input");
+	    inp.setAttribute("type", "text");
+	    inp.setAttribute("id", cols[i]+"-"+ntbl);
+	    inp.setAttribute("class", "form-control");
+	    if(prc=="delete"){
+	      inp.setAttribute("readonly", "readonly");
+	      inp.setAttribute("style", "margin-bottom:5px;background:#ffffff");
+	    }else{
+	      inp.setAttribute("style", "margin-bottom:5px;");
+	    }
+
+	    if(prc!="add"){
+	      inp.value=rows[i];
+	    }
+
+	    var newcell=row.insertCell(0);
+	    newcell.appendChild(sp);
+	    newcell=row.insertCell(1);
+	    newcell.innerHTML="&nbsp;&nbsp;&nbsp;";
+	    newcell=row.insertCell(2);
+	    newcell.appendChild(inp);
+	  }
+
+	  var cn = document.createElement("button");
+	  cn.setAttribute("type", "button");
+	  cn.setAttribute("class", "btn btn-default btn-xs");
+	  cn.setAttribute("style", "font-size:18px;height:30px;float:right;");
+	  cn.innerHTML="&#10060;";
+	  var sv = document.createElement("button");
+	  sv.setAttribute("type", "button");
+	  sv.setAttribute("style", "font-size:18px;height:30px;float:right;margin-right:5px;");
+	  if(prc=="delete"){
+	    sv.setAttribute("class", "btn btn-danger btn-xs");
+	    sv.innerHTML="&#9923;";
+	  }else{
+	    sv.setAttribute("class", "btn btn-info btn-xs");
+	    sv.innerHTML="&#128426;";
+	  }
+	  $(cn).on("click",function(e){frm.style.display="none";});
+	  $(sv).on("click",function(e){
+	    var vdata={};var ndata={};
+
+	    for (var i = 0; i < rows.length-1; i++) {
+	      vdata[cols[i]]=$("#"+cols[i]+"-"+ntbl).val();
+	      ndata[cols[i]]=rows[i];
+	    }
+
+	    $.post(thepage,{process_table:ntbl,vdata:vdata, ndata:ndata, atable_process_data:prc},function(data){
+	      if(data.includes("atable_process_true")){
+	        for (var i = 0; i < rows.length-1; i++) {
+	          rows[i]=$("#"+cols[i]+"-"+ntbl).val();
+	        }
+	        if(prc=="delete" || prc=="add"){frm.style.display="none";}
+	        if(prc!="add"){
+	          atable_topage(ntbl,atable_getpage(ntbl));
+	        }else{
+	          atable_reload(ntbl);
+	        }
+	      }else{
+					console.log("Process Failed.")
+				}
+	    });
+	  });
+
+	  if(prc=="delete"){
+	    dv.innerHTML=\'<h4>Delete Data?</h4><hr style="margin-top: 5px;margin-bottom: 10px;">\';
+	  }else if(prc=="add"){
+	    dv.innerHTML=\'<h4>Add Data</h4><hr style="margin-top: 5px;margin-bottom: 10px;">\';
+	  }else{
+	    dv.innerHTML=\'<h4>Edit Data</h4><hr style="margin-top: 5px;margin-bottom: 10px;">\';
+	  }
+	  dv.appendChild(table);
+	  dv.appendChild(cn);
+	  dv.appendChild(sv);
+	  frm.appendChild(dv);
+	}
 	</script>';
 	$http_s = isset($_SERVER['HTTPS'])?"https://":"http://";
 	$this_page = $http_s.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];

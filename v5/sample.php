@@ -56,6 +56,10 @@ $atable->colnumber = FALSE;
 $atable->collist=TRUE;
 $atable->xls=TRUE;
 
+//$atable->add=TRUE;
+//$atable->edit=TRUE;
+//$atable->delete=TRUE;
+
 echo $atable->load();
 
 function params($row){
