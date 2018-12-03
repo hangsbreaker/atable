@@ -119,7 +119,7 @@ class Atable {
 						<table class="'.$style.'" id="dtblatable'.$GLOBALS['atablenum'].'" border="0">
     				<caption>'.$caption.'</caption>
     				<thead>';
-    				$atr=0;$nrospn=0;
+    				$atr=0;$nrospn=0;$colsrown=array();
     				foreach ($atablecolv as $vth) {if(is_array($vth)){$atr++;}}
     				if($atr==0){$theatable.= '<tr>';$theatable.= ($colnumber==TRUE?'<th width="1px"'.($atr>0?' rowspan="'.$atr.'"':'').'>No</th>':'');}
     				$sortpost = explode(" ",$sortpost);
@@ -128,7 +128,7 @@ class Atable {
 								$nrospn=count($atablecolv);
     						$theatable.= '<tr>';
                 if($key==0){$theatable.= ($colnumber==TRUE?'<th width="1px"'.($atr>0?' rowspan="'.$atr.'"':'').'>No</th>':'');}
-    		        $vthn=$vth[0];$colrown=array();$colrowv=array();$arrkey=0;
+    		        $vthn=$vth[0];$colrown=array();$colrowv=array();$arrkey=0;$ncolss=0;
     						foreach ($acolv as $keyf => $vth) {
     				      $vthn=$vth;$colrow='';$colsz='';$colalgn='';
     				      if(is_array($vth)){
@@ -146,6 +146,13 @@ class Atable {
     										}else{
     					            $colrown[$keyf]=substr($value,3);
     					            $colrowv[$keyf]=strtolower(substr($value,0,3));
+
+							            if($colrowv[$keyf]=='col'){$ncolss=$ncolss+$colrown[$keyf];$arrn=$ncolss;}
+							            if($colrowv[$keyf]=='row'){
+							              if($colrowv[$keyf-1]!='row'){$arrn++;}
+							              $ncolss++;
+							              $colsrown[$key][$arrn-1]++;
+							            }
     										}
     				            $colrow.=' '.$colrowv[$keyf].'span="'.$colrown[$keyf].'"';
     				          }
@@ -153,7 +160,10 @@ class Atable {
     				      }
 
     							$theatable.= '<th'.$colsz.$colalgn.$colrow.'>';
-									$arrkey=($colrowv[$keyf-1]=='col' && $keyf>0?$keyf+$colrown[$keyf-1]-1:$arrkey);
+									//$arrkey=($colrowv[$keyf-1]=='col' && $keyf>0?$keyf+$colrown[$keyf-1]-1:$arrkey);
+
+									$arrkey=($colrowv[$keyf-1]=='col' && $keyf>0?$arrkey+$colrown[$keyf-1]-1:$arrkey);
+
 									$nmcol= str_replace('$','',str_replace(';','',$atablecol[$arrkey]));
 									$existcol= $this->GetBetween($qrytable,"select","from");
 									if(strpos($existcol,$nmcol)!==false){
@@ -171,7 +181,13 @@ class Atable {
 										$iconsort = '';
 									}
 
-									$lblcol[$arrkey]=$vthn;
+									//$lblcol[$arrkey]=$vthn;
+									if(array_key_exists($arrkey,$colsrown[$key-1])){
+										$arrkey+=$colsrown[$key-1][$arrkey];
+										$lblcol[$arrkey]=$vthn;
+									}else{
+										$lblcol[$arrkey]=$vthn;
+									}
 
     							$theatable.= (strpos($bysort, ';')!==false||($colrowv=='col')?$vthn.$kk:$kk.'<a href="javascript:void(0);" id="sortby-'.$GLOBALS['atablenum'].'-'.$bysort.'" class="sortby" onclick="atable_sortedby(this);">'.$iconsort.'&nbsp;'.$vthn.'</a>');
     							$theatable.= '</th>';
@@ -375,8 +391,8 @@ class Atable {
 				$theatable.= '<option value="'.($this->colnumber?$key+1:$key).'" selected="selected">'.$lbl.'</option>';
 			}
 		$theatable.= '</select></div>
-		<button type="button" class="btn btn-default btn-sm" id="colhidecancel" style="float:right" onclick="showhide(\'colhide'.$GLOBALS['atablenum'].'\')">Cancel</button>
-		<button type="button" onclick="atable_hidecol(\'dtblatable'.$GLOBALS['atablenum'].'\',getSelectMultiValues(\'slctmltp'.$GLOBALS['atablenum'].'\'),'.$GLOBALS['atablenum'].');showhide(\'colhide'.$GLOBALS['atablenum'].'\')" class="btn btn-default btn-sm" id="colhideok" style="float:right">Ok</button>
+		<button type="button" class="btn btn-default btn-sm" id="colhidecancel" style="float:right" onclick="atable_showhide(\'colhide'.$GLOBALS['atablenum'].'\')">Cancel</button>
+		<button type="button" onclick="atable_hidecol(\'dtblatable'.$GLOBALS['atablenum'].'\',getSelectMultiValues(\'slctmltp'.$GLOBALS['atablenum'].'\'),'.$GLOBALS['atablenum'].');atable_showhide(\'colhide'.$GLOBALS['atablenum'].'\')" class="btn btn-default btn-sm" id="colhideok" style="float:right">Ok</button>
 		</div>
 		<div class="datainfo">'.
 		($this->add==TRUE && $this->proctbl?
@@ -384,7 +400,7 @@ class Atable {
 		($this->reload==TRUE?
 		  '<button type="button" onclick="atable_reload('.$GLOBALS['atablenum'].')" class="btn btn-info btn-xs" title="Reload" id="dtreload" style="font-size:18px;height:30px;">&#8635;</button>&nbsp;':'').
 		($this->collist==TRUE?
-		  '<button type="button" onclick="showhide(\'colhide'.$GLOBALS['atablenum'].'\')" class="btn btn-default btn-xs" title="Column" id="dtlist" style="font-size:18px;height:30px;">&#8862;</button>&nbsp;':'').
+		  '<button type="button" onclick="atable_showhide(\'colhide'.$GLOBALS['atablenum'].'\')" class="btn btn-default btn-xs" title="Column" id="dtlist" style="font-size:18px;height:30px;">&#8862;</button>&nbsp;':'').
 		($this->xls==TRUE?
 		  '<button type="button" onclick="atable_toxls(\'dtblatable'.$GLOBALS['atablenum'].'\',\''.str_replace(" ","_",$caption).'\')" class="btn btn-success btn-sm" title="Export to Excel" id="dtxls">xls</button>&nbsp;':'').
 		($this->datainfo==TRUE?
@@ -1232,7 +1248,7 @@ function atable_init(){
 		}
 		return result;
 	}
-	function showhide(meid=""){
+	function atable_showhide(meid=""){
 		var tag = document.getElementById(meid);
 		if(tag.style.display === "block"){
 			tag.style.display = "none";
