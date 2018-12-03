@@ -23,7 +23,7 @@ aTable.table = function(){
 
 		this.pagen = 1;
 		$('#'+this.id).html('<div class="atable"><div class="atablepreloader" id="atablepreloader'+this.tableId+'">Loading ....</div><div class="dtatable" id="dtatable'+this.tableId+'"><div class="atablewrap" id="atablewrap'+this.tableId+'"><table id="'+this.tableId+'" class="'+this.p.style+'">'+(this.p.caption!=undefined?'<caption>'+this.p.caption+'</caption>':'')+'</table></div></div><div id="info'+this.tableId+'"></div></div>');
-		$("#dtatable"+this.tableId).before('<div class="col-xs-2 findfield" style="margin-bottom: 10px;padding:0px 5px;min-width:200px;"><div class="input-group"><input type="text" class="txtfind form-control" name="find" placeholder="Find" id="find'+this.tableId+'" onkeyup="the_atable[\''+this.id+'\'].searching(this);"><span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span></div></div>');
+		$("#dtatable"+this.tableId).before('<div class="col-xs-2 findfield" style="margin-bottom: 10px;padding:0px 5px;min-width:200px;"><div class="input-group"><input type="text" class="txtfind form-control" name="find" placeholder="Search" id="txtfind-'+this.tableId+'" onkeyup="the_atable[\''+this.id+'\'].searching(this);"><div class="fndclear" onclick="the_atable[\''+this.id+'\'].clearsrc(\''+this.tableId+'\')">&times;</div></div></div>');
 		this.thead();
 	};
 	tdata.prototype.thead=function(){
@@ -301,6 +301,8 @@ aTable.table = function(){
 			this.tbody();
 		}
 	};
+
+	tdata.prototype.clearsrc =function(natbl){$("#txtfind-"+natbl).val("");$("#txtfind-"+natbl).keyup();$("#txtfind-"+natbl).focus();}
 
 	tdata.prototype.sort_by = function(field, ascdsc){
 		var reverse = false;
