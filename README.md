@@ -21,10 +21,10 @@ $atable['colalign']   // column align table as style L(left),R(right),C(center) 
 $atable['showsql']    // show query result boolean (default FALSE)<br>
 $atable['style']      // modify table css class (default using bootstrap 3)<br>
 $atable['caption']    // title of table (default empty)<br>
-// v5 using object
-$atable->reload=TRUE;
-$atable->datainfo=FALSE;
-$atable->paging=FALSE;
+// v5 using object<br>
+$atable->reload=TRUE;<br>
+$atable->datainfo=FALSE;<br>
+$atable->paging=FALSE;<br>
 $atable->debug=FALSE;
 
 <br>Tips:<br>
