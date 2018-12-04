@@ -367,8 +367,8 @@ class Atable {
     					}
 							if(($this->edit || $this->delete) && $this->proctbl){
 								$theatable.='<td '.(isset($colalign)?'style="text-align:'.($colalign[$nocols]=='R'?'right':($colalign[$nocols]=='C'?'center':'left')).';"':'').' data-label="'.$lblcol[count($lblcol)-1].'">';
-									if($this->edit){$theatable.='<button type="button" class="btn btn-default btn-xs" onclick=\'atable_processdata('.$GLOBALS['atablenum'].',this,"edit",'.$this->col.','.json_encode($lblcol).')\' style="font-size:18px;height:30px;">&#9998;</button>';}
-									if($this->delete){$theatable.='<button type="button" class="btn btn-default btn-xs" onclick=\'atable_processdata('.$GLOBALS['atablenum'].',this,"delete",'.$this->col.','.json_encode($lblcol).')\' style="font-size:18px;height:30px;">&#9923;</button>';}
+									if($this->edit){$theatable.='<button type="button" class="btn btn-default btn-xs" onclick=\'atable_processdata('.$GLOBALS['atablenum'].',this,"edit",'.$this->col.','.json_encode($lblcol).','.$colnumber.')\' style="font-size:18px;height:30px;">&#9998;</button>';}
+									if($this->delete){$theatable.='<button type="button" class="btn btn-default btn-xs" onclick=\'atable_processdata('.$GLOBALS['atablenum'].',this,"delete",'.$this->col.','.json_encode($lblcol).','.$colnumber.')\' style="font-size:18px;height:30px;">&#9923;</button>';}
 								$theatable.='</td>';
 							}
     			$theatable.= '</tr>';
@@ -396,7 +396,7 @@ class Atable {
 		</div>
 		<div class="datainfo">'.
 		($this->add==TRUE && $this->proctbl?
-		  '<button type="button" onclick=\'atable_processdata('.$GLOBALS['atablenum'].',this,"add",'.$this->col.','.json_encode($lblcol).')\' class="btn btn-primary btn-xs" title="Add Data" id="dtreload" style="font-size:18px;height:30px;"><b>+</b></button>&nbsp;':'').
+		  '<button type="button" onclick=\'atable_processdata('.$GLOBALS['atablenum'].',this,"add",'.$this->col.','.json_encode($lblcol).','.$colnumber.')\' class="btn btn-primary btn-xs" title="Add Data" id="dtreload" style="font-size:18px;height:30px;"><b>+</b></button>&nbsp;':'').
 		($this->reload==TRUE?
 		  '<button type="button" onclick="atable_reload('.$GLOBALS['atablenum'].')" class="btn btn-info btn-xs" title="Reload" id="dtreload" style="font-size:18px;height:30px;">&#8635;</button>&nbsp;':'').
 		($this->collist==TRUE?
@@ -777,7 +777,7 @@ function atable_init(){
 	  display: none;
 	}
 	.atable .atform div{
-	  margin: 0 auto;
+	  margin: 99px auto;
 	  display: table;
 	  background: #fff;
 	  box-shadow: 0px 0px 5px #333;
@@ -840,7 +840,7 @@ function atable_init(){
 	}
 	</style>
 	<script>
-	var xhr;
+	var xhr;var timesrc;
 	var thepage="";
 	var datapost={};
 	var sortby=[];var ascdsc=[];var numpage=[];var colshowhide=[];
@@ -862,6 +862,7 @@ function atable_init(){
 
 	function atable_txtfind(me){
 		var vid = me.id.split("-");
+		clearTimeout(timesrc);
 		if(atablests[vid[1]]){
 			xhr.abort();
 		}
@@ -879,26 +880,28 @@ function atable_init(){
 		tbpage["fromatable"]=true;
 		tbpage.afind=v_afind;
 
-		xhr = $.ajax({
-			type: "POST",
-			url: thepage,
-			data: tbpage,
-			success: function(data){
-				document.getElementById("atablepreloader"+vid[1]).style.display="none";
-				var atableno=[];
-				var htmldata = "<div>"+rbline(data)+"</div>";
-				$(htmldata).find(".dtatable").each(function(i, obj){
-					atableno[i]=this.innerHTML;
-				});
+		timesrc = setTimeout(function(){
+			xhr = $.ajax({
+				type: "POST",
+				url: thepage,
+				data: tbpage,
+				success: function(data){
+					document.getElementById("atablepreloader"+vid[1]).style.display="none";
+					var atableno=[];
+					var htmldata = "<div>"+rbline(data)+"</div>";
+					$(htmldata).find(".dtatable").each(function(i, obj){
+						atableno[i]=this.innerHTML;
+					});
 
-				forEach.call(atable, function (el, i) {
-					if(i==vid[1]){
-						atable[i].innerHTML=atableno[i];
-					}
-				});
-				atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
-			}
-		});
+					forEach.call(atable, function (el, i) {
+						if(i==vid[1]){
+							atable[i].innerHTML=atableno[i];
+						}
+					});
+					atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+				}
+			});
+		}, 500);
 	}
 
 	function atable_pages(val){
@@ -1266,14 +1269,15 @@ function atable_init(){
 	function rbline(str){var text=str;text = text.replace(/(\r\n|\n|\r)/gm," ");text = text.replace(/\s{2,}/g, " ");return text;}
 
 
-	function atable_processdata(ntbl,me,prc,cols,colsv){
-	  var rows=[];
-	  $(me).parents("tr").each(function( i ) {
-	    $("td", this).each(function( j ) {rows.push($(this).html());});
+	function atable_processdata(ntbl,me,prc,cols,colsv,numb){
+	  var rows=[];var nm=0;
+		if(numb){nm=1;}
+	  $(me).parents("tr").each(function(i) {
+	    $("td", this).each(function(j){rows.push($(this).html());});
 	  });
 
 	  var frm=document.getElementById("atform"+ntbl);
-	  frm.style.display="flex";
+	  frm.style.display="block";
 	  frm.innerHTML="";
 	  if(prc=="add"){
 	    rows=colsv;
@@ -1283,7 +1287,7 @@ function atable_init(){
 	  var table=document.createElement("table");
 	  table.setAttribute("class", "atble");
 	  var rowCount=table.rows.length;
-		for(var i=0;i<rows.length-1;i++){
+		for(var i=0;i<(rows.length-1)-nm;i++){
 	    var row=table.insertRow(i);
 	    var sp = document.createElement("span");
 	    sp.innerHTML=colsv[i];
@@ -1300,7 +1304,7 @@ function atable_init(){
 	    }
 
 	    if(prc!="add"){
-	      inp.value=rows[i];
+	      inp.value=rows[i+nm];
 	    }
 
 	    var newcell=row.insertCell(0);
