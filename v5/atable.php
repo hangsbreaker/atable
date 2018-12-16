@@ -5,7 +5,7 @@ class Atable {
 	var $query; var $col; var $colv; var $limit; var $limitfind; var $orderby; var $groupby; var $where; var $addvar; var $param; var $addlastrow; var $colsize; var $colalign; var $caption; var $style; var $showsql;
 	var $debug=TRUE; var $colnumber=TRUE;
 	var $searchbar=TRUE; var $datainfo=TRUE; var $paging=TRUE;
-	var $reload=FALSE; var $collist=FALSE; var $xls=FALSE;
+	var $reload=FALSE; var $collist=FALSE; var $xls=FALSE;var $loadmore=TRUE; var $showall=FALSE;
 	var $querysql;
 	var $database;
 	var $linkDB="";var $dbcon="";
@@ -41,7 +41,7 @@ class Atable {
 		$atablecol = json_decode($this->col);
 		$atablecolv = json_decode($this->colv);
 		$limit = !empty($this->limit)?$this->limit:10;
-		$limitfind = !empty($this->limitfind)?$this->limitfind:300;
+		$limitfind = !empty($this->limitfind)?$this->limitfind:$limit;
 		$orderby = !empty($this->orderby)?$this->orderby:'';
 		$groupby = !empty($this->groupby)?$this->groupby:'';
 		$where = !empty($this->where)?$this->where:'';
@@ -73,14 +73,22 @@ class Atable {
 			    foreach ($_POST['vdata'] as $key => $value) {
 			      if($npd>0){$qryp.=',';$recdt.=' AND ';}$npd++;
 			      $qryp.=$key."='".$value."'";
-			      $recdt.=$key."='".$_POST['ndata'][$key]."'";
+						if($_POST['ndata'][$key]==""){
+				      $recdt.="(".$key."='' OR ".$key." is null)";
+						}else{
+				      $recdt.=$key."='".$_POST['ndata'][$key]."'";
+						}
 			    }
 			    $qryp.=" where ".$recdt;
 			  }else if($_POST['atable_process_data']=='delete'){
 			    $qryp= "delete from $tblnm where ";
 			    foreach ($_POST['vdata'] as $key => $value) {
 			      if($npd>0){$recdt.=' AND ';}$npd++;
-			      $recdt.=$key."='".$_POST['ndata'][$key]."'";
+						if($_POST['ndata'][$key]==""){
+				      $recdt.="(".$key."='' OR ".$key." is null)";
+						}else{
+							$recdt.=$key."='".$_POST['ndata'][$key]."'";
+						}
 			    }
 			    $qryp.=$recdt;
 			  }else if($_POST['atable_process_data']=='add'){
@@ -309,9 +317,9 @@ class Atable {
     			}else{
     				$columnwhere="lower(concat(".$colsrc.")) LIKE '%".strtolower($afind)."%'";
     			}
-    			$this->querysql = $qrytable." ".$groupby." ".$where.$iswhere.$columnwhere." "." ".$orderby.$forlimit;
-    			$qry=$this->db_query($this->querysql);
-
+    			$this->querysql = $qrytable." ".$groupby." ".$where.$iswhere.$columnwhere." "." ".$orderby;
+    			$qry=$this->db_query($this->querysql.$forlimit);
+					$datarecord=$this->db_num_rows($this->db_query($this->querysql));
     			if($this->db_num_rows($qry)==0){
     				if(strpos(strtolower($qry), 'error')!==false && $this->debug){
     					$sqlerror = TRUE;
@@ -368,8 +376,8 @@ class Atable {
 
 							if(($this->edit || $this->delete) && $this->proctbl){
 								$theatable.='<td '.(isset($colalign)?'style="text-align:'.($colalign[$nocols]=='R'?'right':($colalign[$nocols]=='C'?'center':'left')).';"':'').' data-label="'.$lblcol[count($lblcol)-1].'">';
-									if($this->edit){$theatable.='<button type="button" class="btn btn-default btn-xs" onclick=\'atable_processdata('.$GLOBALS['atablenum'].',this,"edit",'.$this->col.','.json_encode($lblcol).','.$colnumber.')\' style="font-size:18px;height:30px;">&#9998;</button>';}
-									if($this->delete){$theatable.='<button type="button" class="btn btn-default btn-xs" onclick=\'atable_processdata('.$GLOBALS['atablenum'].',this,"delete",'.$this->col.','.json_encode($lblcol).','.$colnumber.')\' style="font-size:18px;height:30px;">&#9923;</button>';}
+									if($this->edit){$theatable.='<button type="button" class="btn btn-default btn-xs atedit" onclick=\'atable_processdata('.$GLOBALS['atablenum'].',this,"edit",'.$this->col.','.json_encode($lblcol).','.$colnumber.')\' style="font-size:18px;height:30px;"><span class="ic edit"></span></button>';}
+									if($this->delete){$theatable.='<button type="button" class="btn btn-default btn-xs atdelete" onclick=\'atable_processdata('.$GLOBALS['atablenum'].',this,"delete",'.$this->col.','.json_encode($lblcol).','.$colnumber.')\' style="font-size:18px;height:30px;"><span class="ic trash"></span></button>';}
 								$theatable.='</td>';
 							}
     			$theatable.= '</tr>';
@@ -405,10 +413,13 @@ class Atable {
 		($this->xls==TRUE?
 		  '<button type="button" onclick="atable_toxls(\'dtblatable'.$GLOBALS['atablenum'].'\',\''.str_replace(" ","_",$caption).'\')" id="dtxls'.$GLOBALS['atablenum'].'" class="btn btn-success btn-sm" title="Export to Excel" id="dtxls">xls</button>&nbsp;':'').
 		($this->datainfo==TRUE?
-		((($i-1)==0?0:((($pages-1) * $per_page)+1))." to ".($i-1)." of ".$datarecord." data").
-		'&nbsp;&nbsp;
-		<a href="javascript:void(0);" id="showall-'.$GLOBALS['atablenum'].'" class="showall" onclick="atable_showall(this);">Show All</a>
-		<a href="javascript:void(0);" id="showless-'.$GLOBALS['atablenum'].'" class="showless" style="display:none;" onclick="atable_showless(this);">Show Less</a>':'').'
+		('<span class="inffrom" id="inffrom'.$GLOBALS['atablenum'].'">'.(($i-1)==0?0:((($pages-1) * $per_page)+1)).'</span> to <span class="atblinfto" id="infto'.$GLOBALS['atablenum'].'">'.($i-1)." of ".$datarecord."</span> data").
+		'&nbsp;&nbsp;'.
+		($this->loadmore==TRUE?
+		'<a href="javascript:void(0);" id="loadmore-'.$GLOBALS['atablenum'].'" class="loadmore" onclick="atable_loadmore(this);" '.(($i-1)>=$datarecord?'style="display:none;"':'').'>Load More</a>&nbsp;&nbsp;':'').
+		($this->showall==TRUE?
+		'<a href="javascript:void(0);" id="showall-'.$GLOBALS['atablenum'].'" class="showall" onclick="atable_showall(this);">Show All</a>
+		<a href="javascript:void(0);" id="showless-'.$GLOBALS['atablenum'].'" class="showless" style="display:none;" onclick="atable_showless(this);">Show Less</a>':''):'').'
 		</div>
 		<!-- paging -->
 		<div class="paggingfield" '.($this->paging==TRUE?'':'style="display:none;"').'>
@@ -529,6 +540,7 @@ function atable_init(){
     justify-content: center;
     align-items: center;
 		z-index:2;
+		top:50px;
 	}
 	.atable .atablepreloader span{
 		width: 200px;
@@ -567,7 +579,7 @@ function atable_init(){
 	.atable .datainfo{
 		left:0px;
 		display:block;clear:both;float:left;
-		right:0px;margin-top: 23px;margin-left: 5px;position:relative;
+		right:0px;margin-top: 23px;margin-left: 5px;
 	}
 	.atable .warningdb{
 		position:absolute;
@@ -578,9 +590,6 @@ function atable_init(){
 		text-align:center;
 		background:#eee;
 		z-index:7;
-	}
-	.atable .paggingfield, .atable .findfield{
-		float:right;
 	}
 
 	.atable .form-control {
@@ -601,11 +610,12 @@ function atable_init(){
 	}
 
 	.atable .findfield {
+		float:right;
 		position:relative;
 		display:inline-block;
 	}
 	.atable .txtfind{
-		background-image: url(\'data:image/svg+xml;utf8,<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 250.313 250.313" style="enable-background:new 0 0 250.313 250.313;" xml:space="preserve" height="15px" width="15px"><g id="Search"><path style="fill-rule:evenodd;clip-rule:evenodd;fill:gray" d="M244.186,214.604l-54.379-54.378c-0.289-0.289-0.628-0.491-0.93-0.76 c10.7-16.231,16.945-35.66,16.945-56.554C205.822,46.075,159.747,0,102.911,0S0,46.075,0,102.911 c0,56.835,46.074,102.911,102.91,102.911c20.895,0,40.323-6.245,56.554-16.945c0.269,0.301,0.47,0.64,0.759,0.929l54.38,54.38 c8.169,8.168,21.413,8.168,29.583,0C252.354,236.017,252.354,222.773,244.186,214.604z M102.911,170.146 c-37.134,0-67.236-30.102-67.236-67.235c0-37.134,30.103-67.236,67.236-67.236c37.132,0,67.235,30.103,67.235,67.236 C170.146,140.044,140.043,170.146,102.911,170.146z"/></g></svg>\');
+		background-image: url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 250.313 250.313" style="enable-background:new 0 0 250.313 250.313;" xml:space="preserve" height="15px" width="15px"><g id="Search"><path style="fill-rule:evenodd;clip-rule:evenodd;fill:gray" d="M244.186,214.604l-54.379-54.378c-0.289-0.289-0.628-0.491-0.93-0.76 c10.7-16.231,16.945-35.66,16.945-56.554C205.822,46.075,159.747,0,102.911,0S0,46.075,0,102.911 c0,56.835,46.074,102.911,102.91,102.911c20.895,0,40.323-6.245,56.554-16.945c0.269,0.301,0.47,0.64,0.759,0.929l54.38,54.38 c8.169,8.168,21.413,8.168,29.583,0C252.354,236.017,252.354,222.773,244.186,214.604z M102.911,170.146 c-37.134,0-67.236-30.102-67.236-67.235c0-37.134,30.103-67.236,67.236-67.236c37.132,0,67.235,30.103,67.235,67.236 C170.146,140.044,140.043,170.146,102.911,170.146z"/></g></svg>\');
     background-position: 6px center;
     background-repeat: no-repeat;
 
@@ -667,6 +677,7 @@ function atable_init(){
 		text-align: center;
 	}
 	.atable .paggingfield{
+		float:right;
 		margin:0px 5px;
 	}
 	.atable .paggingfield .pagination{
@@ -692,7 +703,7 @@ function atable_init(){
 		border-color: #337ab7;
 	}
 	.atable .paggingfield .pagination>li>a{
-		position: relative;
+		position: unset;
 		float: left;
 		padding: 6px 12px;
 		margin-left: -1px;
@@ -706,6 +717,9 @@ function atable_init(){
 		color:#000;
 		font-size: 1.5em;
 		text-align: center;
+	}
+	.atable .btn:focus{
+		outline: none;
 	}
 	.atable .btn{
 		display: inline-block;
@@ -784,6 +798,7 @@ function atable_init(){
 	  box-shadow: 0px 0px 5px #333;
 	  padding: 10px;
 	  border-radius: 5px;
+		max-width: 400px;
 	}
 	.atable .atform span{
 	  font-weight: bold;
@@ -791,11 +806,35 @@ function atable_init(){
 	.atable .atform .atble{
 	  margin-bottom: 10px;
 	}
+	.ic{
+	  padding:9px;margin-top: 4px;position:relative;
+	  background: url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="225"><defs><g id="empty"></g><g id="trash"><path d="m10.5,0.5c-0.52344,0 -1.05859,0.18359 -1.4375,0.5625c-0.37891,0.37891 -0.5625,0.91406 -0.5625,1.4375l0,1l-6,0l0,2l1,0l0,16c0,1.64453 1.35547,3 3,3l12,0c1.64453,0 3,-1.35547 3,-3l0,-16l1,0l0,-2l-6,0l0,-1c0,-0.52344 -0.18359,-1.05859 -0.5625,-1.4375c-0.37891,-0.37891 -0.91406,-0.5625 -1.4375,-0.5625l-4,0zm0,2l4,0l0,1l-4,0l0,-1zm-5,3l14,0l0,16c0,0.55469 -0.44531,1 -1,1l-12,0c-0.55469,0 -1,-0.44531 -1,-1l0,-16zm2,3l0,11l2,0l0,-11l-2,0zm4,0l0,11l2,0l0,-11l-2,0zm4,0l0,11l2,0l0,-11l-2,0z"/></g><g id="edit"><path d="m20.6483,0.73663c-0.91456,0 -1.77872,0.45368 -2.49886,1.16661l-14.95716,14.87794l-2.49886,7.48219l7.48219,-2.49167l0.15842,-0.15123l14.81314,-14.71951c0.71293,-0.72014 1.15942,-1.5843 1.15942,-2.49886c0,-0.91456 -0.44649,-1.77872 -1.15942,-2.49886c-0.72014,-0.71293 -1.5843,-1.16661 -2.49886,-1.16661zm-3.69429,4.95451l2.38364,2.39083l-12.15584,12.08384l-3.57186,1.18822l1.19543,-3.57905l12.14864,-12.08384z"/></g><g id="save"><path d="m19.72743,1.61357c-0.48519,-0.48519 -1.14376,-0.75819 -1.8295,-0.75819l-14.45486,0c-1.43617,0 -2.58769,1.16446 -2.58769,2.58769l0,18.11386c0,1.4297 1.15799,2.58769 2.58769,2.58769l18.11386,0c1.42323,0 2.58769,-1.16446 2.58769,-2.58769l0,-14.45486c0,-0.68574 -0.273,-1.34431 -0.75819,-1.8295l-3.659,-3.659zm-7.22743,19.94336c-2.14779,0 -3.88154,-1.73375 -3.88154,-3.88154s1.73375,-3.88154 3.88154,-3.88154s3.88154,1.73375 3.88154,3.88154s-1.73375,3.88154 -3.88154,3.88154zm2.58769,-12.93847l-10.35078,0c-0.7142,0 -1.29385,-0.57964 -1.29385,-1.29385l0,-2.58769c0,-0.7142 0.57964,-1.29385 1.29385,-1.29385l10.35078,0c0.7142,0 1.29385,0.57964 1.29385,1.29385l0,2.58769c0,0.7142 -0.57964,1.29385 -1.29385,1.29385z"/></g><g id="cross"><path d="m20.90875,18.89324l-2.01952,2.01575c-0.36855,0.3723 -0.97027,0.3723 -1.34258,0l-5.0469,-5.04315l-5.04314,5.04315c-0.37231,0.3723 -0.97779,0.3723 -1.34634,0l-2.0195,-2.01575c-0.37231,-0.37231 -0.37231,-0.97403 0,-1.34634l5.04314,-5.0469l-5.04314,-5.04314c-0.36856,-0.37608 -0.36856,-0.98155 0,-1.34634l2.0195,-2.0195c0.36855,-0.37231 0.97403,-0.37231 1.34634,0l5.04314,5.04689l5.0469,-5.04689c0.37231,-0.37231 0.97779,-0.37231 1.34258,0l2.01952,2.01575c0.3723,0.3723 0.3723,0.97779 0.00375,1.3501l-5.0469,5.04314l5.04315,5.0469c0.3723,0.37231 0.3723,0.97403 0,1.34634z"/></g></defs><use x="0" y="0" style="fill:white" xlink:href="%23empty"/><use x="0" y="25" style="fill:black" xlink:href="%23trash"/><use x="0" y="50" style="fill:white" xlink:href="%23trash"/><use x="0" y="75" style="fill:black" xlink:href="%23edit"/><use x="0" y="100" style="fill:white" xlink:href="%23edit"/><use x="0" y="125" style="fill:black" xlink:href="%23save"/><use x="0" y="150" style="fill:white" xlink:href="%23save"/><use x="0" y="175" style="fill:black" xlink:href="%23cross"/><use x="0" y="200" style="fill:white" xlink:href="%23cross"/></svg>\') no-repeat;
+	  background-size: cover;
+	  display: inline-block;
+	}
+
+	.trash{background-position: 50% 12.5%;}
+	.trash-white{background-position: 50% 25%;}
+	.edit{background-position: 50% 37.5%;}
+	.edit-white{background-position: 50% 50%;}
+	.save{background-position: 50% 62.5%;}
+	.save-white{background-position: 50% 75%;}
+	.cross{background-position: 50% 87.5%;}
+	.cross-white{background-position: 50% 100%;}
+
 	@media screen and (max-width: 550px) {
+		.ic{position:unset;}
 		.atable .table{
 			border-collapse: collapse;
 			table-layout: fixed;
 			border: 0;
+		}
+		.atable .findfield{
+			float:none;
+			width:100%;
+		}
+		.atable .txtfind{
+			width:100%;
 		}
 		.atable .table caption {
 			font-size: 1.3em;
@@ -863,14 +902,10 @@ function atable_init(){
 
 	function atable_txtfind(me){
 		var vid = me.id.split("-");
-		if(xhr>0){
-			xhr.abort();
-		}
+		xhr.abort();
 
 		var v_afind = $("#txtfind-"+vid[1]).val();
 		document.getElementById("atablepreloader"+vid[1]).style.display="flex";
-		document.getElementById("showless-"+vid[1]).style.display="none";
-		document.getElementById("showall-"+vid[1]).style.display="inline-block";
 
 		var tbpage = Object.assign({}, datapost);
 		numpage[vid[1]]=1;
@@ -915,22 +950,29 @@ function atable_init(){
 		tbpage["colshowhide"]=colshowhide[vid[1]];
 		tbpage["fromatable"]=true;
 		tbpage.afind=v_afind;
-		//alert(tbpage.toSource());
+		//console.log(tbpage);
 		xhr = $.ajax({
 			type: "POST",
 			url: thepage,
 			data: tbpage,
 			success: function(data){
 				document.getElementById("atablepreloader"+vid[1]).style.display="none";
-				var atableno=[];
+				var atableno=[];var atblinfto;
 				var htmldata = "<div>"+rbline(data)+"</div>";
 				$(htmldata).find(".dtatable").each(function(i, obj){
 					atableno[i]=this.innerHTML;
+				});
+				$(htmldata).find(".dtatable .atblinfto").each(function(i, obj){
+					atblinfto=this.innerHTML;
 				});
 
 				forEach.call(atable, function (el, i) {
 					if(i==vid[1]){
 						atable[i].innerHTML=atableno[i];
+						var dtinf=atblinfto.split(" of ");
+						if(dtinf[0]==dtinf[1]){
+							document.getElementById("loadmore-"+i).style.display="none";
+						}
 					}
 				});
 				atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
@@ -977,6 +1019,55 @@ function atable_init(){
 
 	function clearsrc(natbl){$("#txtfind-"+natbl).val("");$("#txtfind-"+natbl).keyup();$("#txtfind-"+natbl).focus();nxhrs=0;}
 
+	function atable_loadmore(me){
+		xhr.abort();
+		var vid = me.id.split("-");
+		var v_afind = $("#txtfind-"+vid[1]).val();
+		document.getElementById("atablepreloader"+vid[1]).style.display="flex";
+
+		var tbpage = Object.assign({}, datapost);
+		numpage[vid[1]]++;
+		tbpage.h=numpage[vid[1]];
+		tbpage["atabledata"+vid[1]]=true;
+		tbpage["sortby"]=sortby[vid[1]];
+		tbpage["colshowhide"]=colshowhide[vid[1]];
+		tbpage["fromatable"]=true;
+		tbpage.afind=v_afind;
+		//console.log(tbpage);
+		xhr = $.ajax({
+			type: "POST",
+			url: thepage,
+			data: tbpage,
+			success: function(data){
+				document.getElementById("atablepreloader"+vid[1]).style.display="none";
+				var atableno;var atblinfto;
+				var htmldata = "<div>"+rbline(data)+"</div>";
+				$(htmldata).find(".dtatable tbody").each(function(i, obj){
+					atableno=this.innerHTML;
+				});
+				$(htmldata).find(".dtatable .atblinfto").each(function(i, obj){
+					atblinfto=this.innerHTML;
+				});
+
+				forEach.call(atable, function (el, i) {
+					if(i==vid[1]){
+						atable[i].getElementsByTagName("tbody")[0].innerHTML+=atableno;
+						document.getElementById("infto"+vid[1]).innerHTML=atblinfto;
+						var dtinf=atblinfto.split(" of ");
+						if(dtinf[0]==dtinf[1]){
+							document.getElementById("loadmore-"+i).style.display="none";
+							if(document.getElementById("showall-"+i)){
+								document.getElementById("showless-"+i).style.display="inline-block";
+								document.getElementById("showall-"+i).style.display="none";
+							}
+						}
+					}
+				});
+				atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+			}
+		});
+	};
+
 	function atable_showall(me){
 		xhr.abort();
 		var vid = me.id.split("-");
@@ -991,7 +1082,6 @@ function atable_init(){
 		tbpage["colshowhide"]=colshowhide[vid[1]];
 		tbpage["fromatable"]=true;
 		tbpage.afind=v_afind;
-		//alert(tbpage.toSource());
 		xhr = $.ajax({
 			type: "POST",
 			url: thepage,
@@ -1029,7 +1119,6 @@ function atable_init(){
 		tbpage["colshowhide"]=colshowhide[vid[1]];
 		tbpage["fromatable"]=true;
 		tbpage.afind=v_afind;
-		//alert(tbpage.toSource());
 		xhr = $.ajax({
 			type: "POST",
 			url: thepage,
@@ -1076,7 +1165,6 @@ function atable_init(){
 		tbpage["colshowhide"]=colshowhide[vid[1]];
 		tbpage["fromatable"]=true;
 		tbpage.afind=v_afind;
-		//alert(tbpage.toSource());
 		xhr = $.ajax({
 			type: "POST",
 			url: thepage,
@@ -1094,8 +1182,6 @@ function atable_init(){
 						atable[i].innerHTML=atableno[i];
 					}
 				});
-				document.getElementById("showless-"+vid[1]).style.display="none";
-				document.getElementById("showall-"+vid[1]).style.display="inline-block";
 				atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
 			}
 		});
@@ -1151,8 +1237,6 @@ function atable_init(){
 		xhr.abort();
 			var v_afind = $("#txtfind-"+vid).val();
 			document.getElementById("atablepreloader"+vid).style.display="flex";
-			document.getElementById("showless-"+vid).style.display="none";
-			document.getElementById("showall-"+vid).style.display="inline-block";
 
 			var tbpage = Object.assign({}, datapost);
 			tbpage["atabledata"+vid]=true;
@@ -1271,7 +1355,11 @@ function atable_init(){
 	  var rows=[];var nm=0;
 		if(numb){nm=1;}
 	  $(me).parents("tr").each(function(i) {
-	    $("td", this).each(function(j){rows.push($(this).html());});
+	    $("td", this).each(function(j){rows.push($(this).html().replace("&nbsp;","").replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, "\"")
+      .replace(/&#039;/g, "\'"));});
 	  });
 
 	  var frm=document.getElementById("atform"+ntbl);
@@ -1284,6 +1372,7 @@ function atable_init(){
 	  var dv = document.createElement("div");
 	  var table=document.createElement("table");
 	  table.setAttribute("class", "atble");
+	  table.setAttribute("id", "atble"+ntbl);
 	  var rowCount=table.rows.length;var ni=0;var idsetf="";
 		for(var i=0;i<(rows.length-1)-nm;i++){
 			if(!cols[i].includes(";")){
@@ -1319,16 +1408,16 @@ function atable_init(){
 	  cn.setAttribute("type", "button");
 	  cn.setAttribute("class", "btn btn-default btn-xs");
 	  cn.setAttribute("style", "font-size:18px;height:30px;float:right;");
-	  cn.innerHTML="&#10060;";
+	  cn.innerHTML="<span class=\"ic cross\"></span>";
 	  var sv = document.createElement("button");
 	  sv.setAttribute("type", "button");
 	  sv.setAttribute("style", "font-size:18px;height:30px;float:right;margin-right:5px;");
 	  if(prc=="delete"){
 	    sv.setAttribute("class", "btn btn-danger btn-xs");
-	    sv.innerHTML="&#9923;";
+	    sv.innerHTML="<span class=\"ic trash-white\"></span>";
 	  }else{
 	    sv.setAttribute("class", "btn btn-info btn-xs");
-	    sv.innerHTML="&#128426;";
+	    sv.innerHTML="<span class=\"ic save-white\"></span>";
 	  }
 	  $(cn).on("click",function(e){frm.style.display="none";});
 	  $(sv).on("click",function(e){
@@ -1337,7 +1426,7 @@ function atable_init(){
 	    for (var i = 0; i < (rows.length-1)-nm; i++) {
 				if(!cols[i].includes(";")){
 		      vdata[cols[i]]=$("#"+cols[i]+"-"+ntbl).val();
-		      ndata[cols[i]]=rows[i+nm];
+		      ndata[cols[i]]=rows[i+nm].replace("&nbsp;","");
 				}
 	    }
 
@@ -1371,7 +1460,7 @@ function atable_init(){
 	  dv.appendChild(cn);
 	  dv.appendChild(sv);
 	  frm.appendChild(dv);
-		$("#"+idsetf).focus();
+		if(prc!="delete"){$("#"+idsetf).focus();}
 	}
 	</script>';
 	$http_s = isset($_SERVER['HTTPS'])?"https://":"http://";

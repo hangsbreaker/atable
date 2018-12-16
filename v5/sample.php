@@ -49,6 +49,8 @@ $atable->param = '$param1="From field 5: ".$row->tbl_field5;
 									extract(params($row));';
 $atable->style = 'table table-hover table-striped table-bordered';
 $atable->colnumber = FALSE;
+//$atbb->showall=TRUE;
+//$atbb->loadmore=FALSE;
 //$atable->reload=TRUE;
 //$atable->datainfo=FALSE;
 //$atable->paging=FALSE;
