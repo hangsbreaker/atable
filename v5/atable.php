@@ -8,7 +8,7 @@ class Atable {
 	var $reload=FALSE; var $collist=FALSE; var $xls=FALSE;var $loadmore=TRUE; var $showall=FALSE;
 	var $querysql;
 	var $database;
-	var $linkDB="";var $dbcon="";
+	var $dblink="";var $dbcon="";
 
 	var $add=FALSE;var $edit=FALSE;var $delete=FALSE;var $proctbl=FALSE;
 
@@ -17,23 +17,23 @@ class Atable {
 			if($this->dbcon==""){
 				foreach(array_reverse($GLOBALS) as $variable){
 					if(is_resource($variable) && get_resource_type($variable)=='mysql link'){
-						$this->linkDB = "mysql";
+						$this->dblink = "mysql";
 						$this->dbcon=$variable;
 						break;
 					}else if(is_object($variable)  && get_class($variable)=='mysqli'){
-						$this->linkDB = "mysqli";
+						$this->dblink = "mysqli";
 						$this->dbcon=$variable;
 						break;
 					}else if(is_resource($variable) && get_resource_type($variable)=='pgsql link'){
-						$this->linkDB = "pgsql";
+						$this->dblink = "pgsql";
 						$this->dbcon=$variable;
 						break;
 					}
 				}
 			}
 		}else{
-			if(empty($this->linkDB)){
-				$this->linkDB = $this->database;
+			if(empty($this->dblink)){
+				$this->dblink = $this->database;
 			}
 		}
 		// ==== param init
@@ -107,7 +107,7 @@ class Atable {
 			}
 		}
 
-		$theatable= '<div class="atable">'.($this->linkDB == ''?'<div class="warningdb">Atable Unknown Database connection.</div>':'').'<div class="atablepreloader" id="atablepreloader'.$GLOBALS['atablenum'].'"><span>Loading ....</span></div>
+		$theatable= '<div class="atable">'.($this->dblink == ''?'<div class="warningdb">Atable Unknown Database connection.</div>':'').'<div class="atablepreloader" id="atablepreloader'.$GLOBALS['atablenum'].'"><span>Loading ....</span></div>
 		<div class="findfield" style="padding:0px 5px;min-width:200px;z-index:3;"><input type="text" class="txtfind" name="find" placeholder="Search" id="txtfind-'.$GLOBALS['atablenum'].'" onkeyup="atable_txtfind(this)"><div class="fndclear" onclick="clearsrc('.$GLOBALS['atablenum'].')">&times;</div></div>
 			<div class="atform" id="atform'.$GLOBALS['atablenum'].'"></div>
 			<div class="dtatable" id="dtatable'.$GLOBALS['atablenum'].'">';
@@ -272,7 +272,9 @@ class Atable {
     			$this->querysql = $qrytable." ".$groupby." ".$where." ".$orderby.$forlimit;
     			$qry = $this->db_query($this->querysql);
     			if($this->db_num_rows($qry)==0){
-    				$theatable.= '<tr><td colspan="'.(count($atablecol)+1).'" style="font-weight:bold;text-align:center;">No Data.</td><tr>';
+						$edtbtn=0;
+						if(($this->edit || $this->delete) && $this->proctbl){$edtbtn=1;}
+    				$theatable.= '<tr><td colspan="'.(count($atablecol)+1+$edtbtn).'" style="font-weight:bold;text-align:center;">No Data.</td><tr>';
     			}
     		}else{
     			$afind=str_replace(' ','%',str_replace("'", "''", $afind));
@@ -346,7 +348,9 @@ class Atable {
     				$sqlerror = TRUE;
     				$theatable.= '<tr><td colspan="'.(count($atablecol)+1).'" style="color:#e74c3c;text-align:center;">'.$qry.'</td><tr>';
     			}else{
-    				$theatable.= '<tr><td colspan="'.(count($atablecol)+1).'" style="font-weight:bold;text-align:center;">No Data.</td><tr>';
+						$edtbtn=0;
+						if(($this->edit || $this->delete) && $this->proctbl){$edtbtn=1;}
+    				$theatable.= '<tr><td colspan="'.(count($atablecol)+1+$edtbtn).'" style="font-weight:bold;text-align:center;">No Data.</td><tr>';
     			}
     		}
     	}
@@ -464,26 +468,26 @@ class Atable {
 
   function db_query($qry){
   	$res = "";
-  	if($this->linkDB=="mysql"){
+  	if($this->dblink=="mysql"){
   		$res = mysql_query($qry);
   		if(!$res){
   			$res = mysql_error();
   		}
-  	}else if($this->linkDB=="mysqli"){
+  	}else if($this->dblink=="mysqli"){
 			if($this->dbcon!=''){
   			$res = mysqli_query($this->dbcon,$qry);
 			}else{$res = mysqli_query($qry);}
   		if(!$res){
   			$res = mysqli_errno($this->dbcon);
   		}
-  	}else if($this->linkDB=="pgsql"){
+  	}else if($this->dblink=="pgsql"){
 			if($this->dbcon!=''){
 	  		$res = pg_query($this->dbcon,$qry);
 			}else{$res = pg_query($qry);}
   		if(!$res){
   			$res = pg_last_error($this->dbcon);
   		}
-  	}else if($this->linkDB=="ci"){
+  	}else if($this->dblink=="ci"){
 			$this->CI = & get_instance();
 			$database=!empty($this->database)?$this->database:"db";
   		$res = $this->CI->$database->query($qry);
@@ -495,13 +499,13 @@ class Atable {
   }
   function db_fetch_object($qry){
   	$res = "";
-  	if($this->linkDB=="mysql"){
+  	if($this->dblink=="mysql"){
   		$res = mysql_fetch_object($qry);
-  	}else if($this->linkDB=="mysqli"){
+  	}else if($this->dblink=="mysqli"){
   		$res = mysqli_fetch_object($qry);
-  	}else if($this->linkDB=="pgsql"){
+  	}else if($this->dblink=="pgsql"){
   		$res = pg_fetch_object($qry);
-  	}else if($this->linkDB=="ci"){
+  	}else if($this->dblink=="ci"){
 			$civer=explode(".",CI_VERSION);
 			if($civer[0]=="2"){
   			$res = $qry->_fetch_object();
@@ -513,13 +517,13 @@ class Atable {
   }
   function db_num_rows($qry){
   	$res = "";
-  	if($this->linkDB=="mysql"){
+  	if($this->dblink=="mysql"){
   		$res = mysql_num_rows($qry);
-  	}else if($this->linkDB=="mysqli"){
+  	}else if($this->dblink=="mysqli"){
   		$res = mysqli_num_rows($qry);
-  	}else if($this->linkDB=="pgsql"){
+  	}else if($this->dblink=="pgsql"){
   		$res = pg_num_rows($qry);
-  	}else if($this->linkDB=="ci"){
+  	}else if($this->dblink=="ci"){
   		$res = $qry->num_rows();
   	}
   	return $res;
