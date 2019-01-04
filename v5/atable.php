@@ -405,7 +405,7 @@ class Atable {
 			}
 		$theatable.= '</select></div>
 		<button type="button" class="btn btn-default btn-sm" id="colhidecancel" style="float:right" onclick="atable_showhide(\'colhide'.$GLOBALS['atablenum'].'\')">Cancel</button>
-		<button type="button" onclick="atable_hidecol(\'dtblatable'.$GLOBALS['atablenum'].'\',getSelectMultiValues(\'slctmltp'.$GLOBALS['atablenum'].'\'),'.$GLOBALS['atablenum'].');atable_showhide(\'colhide'.$GLOBALS['atablenum'].'\')" class="btn btn-default btn-sm" id="colhideok" style="float:right">Ok</button>
+		<button type="button" onclick="atable_colshide(\'dtblatable'.$GLOBALS['atablenum'].'\',getSelectMultiValues(\'slctmltp'.$GLOBALS['atablenum'].'\'),'.$GLOBALS['atablenum'].');atable_showhide(\'colhide'.$GLOBALS['atablenum'].'\')" class="btn btn-default btn-sm" id="colhideok" style="float:right">Ok</button>
 		</div>
 		<div class="datainfo">'.
 		($this->add==TRUE && $this->proctbl?
@@ -936,7 +936,7 @@ function atable_init(){
 						atable[i].innerHTML=atableno[i];
 					}
 				});
-				atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+				atable_colshide("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
 			}
 		});
 	}
@@ -979,7 +979,7 @@ function atable_init(){
 						}
 					}
 				});
-				atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+				atable_colshide("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
 			}
 		});
 	};
@@ -1016,6 +1016,19 @@ function atable_init(){
 		  if(fn==0){
 		    $("#txtfind-"+natbl).val(str);
 		    $("#txtfind-"+natbl).keyup();
+		    fn++;
+		  }
+		});
+	}
+
+	function atable_colhide(natbl,str){
+		var fn=0;
+		if(atablests[natbl]){
+			atable_colshide("dtblatable"+natbl,str,natbl);
+		}
+		$(document).ajaxStop(function(){
+		  if(fn==0){
+		    atable_colshide("dtblatable"+natbl,str,natbl);
 		    fn++;
 		  }
 		});
@@ -1067,7 +1080,7 @@ function atable_init(){
 						}
 					}
 				});
-				atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+				atable_colshide("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
 			}
 		});
 	};
@@ -1105,7 +1118,7 @@ function atable_init(){
 				});
 				document.getElementById("showless-"+vid[1]).style.display="inline-block";
 				document.getElementById("showall-"+vid[1]).style.display="none";
-				atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+				atable_colshide("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
 			}
 		});
 	};
@@ -1142,7 +1155,7 @@ function atable_init(){
 				});
 				document.getElementById("showless-"+vid[1]).style.display="none";
 				document.getElementById("showall-"+vid[1]).style.display="inline-block";
-				atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+				atable_colshide("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
 			}
 		});
 	};
@@ -1186,7 +1199,7 @@ function atable_init(){
 						atable[i].innerHTML=atableno[i];
 					}
 				});
-				atable_hidecol("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
+				atable_colshide("dtblatable"+vid[1],colshowhide[vid[1]],vid[1]);
 			}
 		});
 	};
@@ -1297,7 +1310,7 @@ function atable_init(){
 	}
 	function atabledestroyClickedElement(event){document.body.removeChild(event.target);}
 
-	function atable_hidecol(tblid,arcol,atablenum="") {
+	function atable_colshide(tblid,arcol,atablenum="") {
 		var cols = arcol;
 		if(cols.length < 0){
 			console.log("Invalid");
@@ -1356,14 +1369,15 @@ function atable_init(){
 
 
 	function atable_processdata(ntbl,me,prc,cols,colsv,numb){
-	  var rows=[];var nm=0;
+	  var disp=[];var rows=[];var nm=0;
 		if(numb){nm=1;}
 	  $(me).parents("tr").each(function(i) {
 	    $("td", this).each(function(j){rows.push($(this).html().replace("&nbsp;","").replace(/&amp;/g, "&")
       .replace(/&lt;/g, "<")
       .replace(/&gt;/g, ">")
       .replace(/&quot;/g, "\"")
-      .replace(/&#039;/g, "\'"));});
+      .replace(/&#039;/g, "\'"));
+			disp.push($(this).css("display"));});
 	  });
 
 	  var frm=document.getElementById("atform"+ntbl);
@@ -1404,6 +1418,7 @@ function atable_init(){
 		    newcell.innerHTML="&nbsp;&nbsp;&nbsp;";
 		    newcell=row.insertCell(2);
 		    newcell.appendChild(inp);
+				if(disp[i]=="none"){row.style.display=disp[i];}
 				ni++;
 			}
 	  }

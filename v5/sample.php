@@ -70,14 +70,17 @@ function params($row){
 }
 ?>
 <script>
-//Skip to page
+//skip to page
 //atable_topage(0,11);
 
-//push search
+//get page
 //atable_getpage(0);
 
 //push search
 //atable_find(0,"rachmadany");
+
+//hide column
+//atable_colhide(0,[0,1]);
 </script>
 <br>
 
