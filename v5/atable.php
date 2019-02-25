@@ -795,7 +795,7 @@ function atable_init(){
 	  justify-content: center;
 	  display: none;
 	}
-	.atable .atform div{
+	.atable .atform .atfdv{
 	  margin: 99px auto;
 	  display: table;
 	  background: #fff;
@@ -804,7 +804,7 @@ function atable_init(){
 	  border-radius: 5px;
 		max-width: 400px;
 	}
-	.atable .atform span{
+	.atable .atform .atfspan{
 	  font-weight: bold;
 	}
 	.atable .atform .atble{
@@ -1388,6 +1388,7 @@ function atable_init(){
 	  }
 
 	  var dv = document.createElement("div");
+	  dv.setAttribute("class", "atfdv");
 	  var table=document.createElement("table");
 	  table.setAttribute("class", "atble");
 	  table.setAttribute("id", "atble"+ntbl);
@@ -1396,6 +1397,7 @@ function atable_init(){
 			if(!cols[i].includes(";")){
 		    var row=table.insertRow(ni);
 		    var sp = document.createElement("span");
+			  sp.setAttribute("class", "atfspan");
 		    sp.innerHTML=colsv[i];
 
 		    var inp = document.createElement("input");
