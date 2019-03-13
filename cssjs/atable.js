@@ -23,7 +23,7 @@ aTable.table = function(){
 
 		this.pagen = 1;
 		$('#'+this.id).html('<div class="atable"><div class="atablepreloader" id="atablepreloader'+this.tableId+'">Loading ....</div><div class="dtatable" id="dtatable'+this.tableId+'"><div class="atablewrap" id="atablewrap'+this.tableId+'"><table id="'+this.tableId+'" class="'+this.p.style+'">'+(this.p.caption!=undefined?'<caption>'+this.p.caption+'</caption>':'')+'</table></div></div><div id="info'+this.tableId+'"></div></div>');
-		$("#dtatable"+this.tableId).before('<div class="col-xs-2 findfield" style="margin-bottom: 10px;padding:0px 5px;min-width:200px;"><div class="input-group"><input type="text" class="txtfind form-control" name="find" placeholder="Search" id="txtfind-'+this.tableId+'" onkeyup="the_atable[\''+this.id+'\'].searching(this);"><div class="fndclear" onclick="the_atable[\''+this.id+'\'].clearsrc(\''+this.tableId+'\')">&times;</div></div></div>');
+		$("#dtatable"+this.tableId).before('<div class="findfield" style="margin-bottom: 10px;padding:0px 5px;min-width:200px;"><input type="text" class="txtfind" name="find" placeholder="Search" id="txtfind-'+this.tableId+'" onkeyup="the_atable[\''+this.id+'\'].searching(this);"><div class="fndclear" onclick="the_atable[\''+this.id+'\'].clearsrc(\''+this.tableId+'\')">&times;</div></div>');
 		this.thead();
 	};
 	tdata.prototype.thead=function(){
@@ -199,10 +199,10 @@ aTable.table = function(){
 						calign='text-align:'+(this.p.colalign[colIndex]=='R'?'right':(this.p.colalign[colIndex]=='C'?'center':'left'))+';';
 					}
 				}
-				var tcolhide="";
+				var tcolhide="";var trparam="";
 				if(chide){tcolhide='display:none;';}
 				if(calign!='' || tcolhide!=''){
-					var trparam=' style="'+calign+tcolhide+'"';
+					trparam=' style="'+calign+tcolhide+'"';
 				}
 				row$.append($('<td data-label="'+collabel[colIndex]+'"'+trparam+'/>').html(typeof(cellValue)=='object'?JSON.stringify(cellValue):cellValue));
 			}
@@ -259,7 +259,10 @@ aTable.table = function(){
 			btncollist='<button type="button" onclick="the_atable[\''+this.id+'\'].showhide(\'colhide'+this.tableId+'\');" class="btn btn-default btn-xs" title="Column" id="dtlist" style="font-size:18px;height:30px;">&#8862;</button>&nbsp;';
 		}
 		if(this.xls){
-			btnxls='<button type="button" onclick="atable_toexcel(\''+this.tableId+'\',\''+this.p.caption.replace(/ /g, '_')+'\')" class="btn btn-success btn-sm" title="Export to Excel" id="dtxls">xls</button>&nbsp;';
+			var titlexls="Data_export";
+			if(this.p.caption!=undefined){titlexls=this.p.caption.replace(/ /g, '_');}
+
+			btnxls='<button type="button" onclick="atable_toexcel(\''+this.tableId+'\',\''+titlexls+'\')" class="btn btn-success btn-sm" title="Export to Excel" id="dtxls">xls</button>&nbsp;';
 		}
 
 		$("#info"+this.tableId).html(colhide+'<div class="datainfo">'+btncollist+btnxls+(((this.pagen-1)*this.dtlimit)+1)+' to '+maxnum+' of '+this.tbdata.length+' data&nbsp;&nbsp;<a href="javascript:the_atable[\''+this.id+'\'].showall();" id="jshowall" class="jshowall">Show All</a><a href="javascript:the_atable[\''+this.id+'\'].showaless();" id="jshowless" class="jshowless" style="display:none;">Show Less</a></div>'+pagination);

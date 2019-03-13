@@ -1,5 +1,5 @@
 *{margin:0;padding:0;box-sizing: border-box;}
-.atable{font-family:Arial;font-size:14px;color:#333;display:list-item;clear:both;margin-top:10px;margin-bottom:80px;position:relative;}
+.atable{font-family:Arial;font-size:14px;color:#333;display:list-item;list-style: none;clear:both;margin-top:10px;margin-bottom:80px;position:relative;}
 .atable .atablewrap{width:100%;}
 .atable .dtatable .table{margin-bottom:0px;}
 .atable .atablepreloader{
@@ -108,7 +108,8 @@
 }
 .txtfind:focus:not(:placeholder-shown) + div{display:table;}
 .txtfind:not(:placeholder-shown):hover + div{display:table;}
-.fndclear{
+
+.atable .fndclear{
 	position: absolute;
 	user-select: none;
 	float: right;
@@ -122,10 +123,10 @@
 	font-weight: bold;
 	text-align: center;
 	cursor: pointer;
-	font-size: 15px;
+	font-size: 1em;
 	display:none;
 }
-.fndclear:hover {
+.atable .fndclear:hover {
 	background: #ccc;
 	display:table;
 }
@@ -265,6 +266,13 @@
 		border-collapse: collapse;
 		table-layout: fixed;
 		border: 0;
+	}
+	.atable .findfield{
+		float:none;
+		width:100%;
+	}
+	.atable .txtfind{
+		width:100%;
 	}
 	.atable .table caption {
 		font-size: 1.3em;
