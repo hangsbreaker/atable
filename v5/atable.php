@@ -9,9 +9,7 @@ class Atable {
 	var $querysql;
 	var $database;
 	var $dblink="";var $dbcon="";
-
 	var $add=FALSE;var $edit=FALSE;var $delete=FALSE;var $proctbl=FALSE;
-
 	function load(){
 		if(empty($this->database)){
 			if($this->dbcon==""){
@@ -59,8 +57,6 @@ class Atable {
 		$sqlerror = FALSE;
 		$getcoltable=preg_replace("/ as [\s\S]+? /"," ",preg_replace("/ as [\s\S]+?,/",",",$this->GetBetween($qrytable,"select","from")));
 		// ===============================
-
-
 		$tblnm= trim(str_replace("from ","",substr($qrytable,strpos($qrytable,"from"),strlen($qrytable))));
 		if(strpos($tblnm,' ') !== false){
 		  $this->proctbl=FALSE;
@@ -106,7 +102,6 @@ class Atable {
 			  exit;
 			}
 		}
-
 		$theatable= '<div class="atable">'.($this->dblink == ''?'<div class="warningdb">Atable Unknown Database connection.</div>':'').'<div class="atablepreloader" id="atablepreloader'.$GLOBALS['atablenum'].'"><span>Loading ....</span></div>
 		<div class="findfield" style="padding:0px 5px;min-width:200px;z-index:3;"><input type="text" class="txtfind" name="find" placeholder="Search" id="txtfind-'.$GLOBALS['atablenum'].'" onkeyup="atable_txtfind(this)"><div class="fndclear" onclick="clearsrc('.$GLOBALS['atablenum'].')">&times;</div></div>
 			<div class="atform" id="atform'.$GLOBALS['atablenum'].'"></div>
@@ -154,7 +149,6 @@ class Atable {
     										}else{
     					            $colrown[$keyf]=substr($value,3);
     					            $colrowv[$keyf]=strtolower(substr($value,0,3));
-
 							            if($colrowv[$keyf]=='col'){$ncolss=$ncolss+$colrown[$keyf];$arrn=$ncolss;}
 							            if($colrowv[$keyf]=='row'){
 							              if($colrowv[$keyf-1]!='row'){$arrn++;}
@@ -166,12 +160,9 @@ class Atable {
     				          }
     				        }
     				      }
-
     							$theatable.= '<th'.$colsz.$colalgn.$colrow.'>';
 									//$arrkey=($colrowv[$keyf-1]=='col' && $keyf>0?$keyf+$colrown[$keyf-1]-1:$arrkey);
-
 									$arrkey=($colrowv[$keyf-1]=='col' && $keyf>0?$arrkey+$colrown[$keyf-1]-1:$arrkey);
-
 									$nmcol= str_replace('$','',str_replace(';','',$atablecol[$arrkey]));
 									$existcol= $this->GetBetween($qrytable,"select","from");
 									if(strpos($existcol,$nmcol)!==false){
@@ -188,7 +179,6 @@ class Atable {
 									}else{
 										$iconsort = '';
 									}
-
 									//$lblcol[$arrkey]=$vthn;
 									if(array_key_exists($arrkey,$colsrown[$key-1])){
 										$arrkey+=$colsrown[$key-1][$arrkey];
@@ -196,12 +186,10 @@ class Atable {
 									}else{
 										$lblcol[$arrkey]=$vthn;
 									}
-
     							$theatable.= (strpos($bysort, ';')!==false||($colrowv=='col')?$vthn.$kk:$kk.'<a href="javascript:void(0);" id="sortby-'.$GLOBALS['atablenum'].'-'.$bysort.'" class="sortby" onclick="atable_sortedby(this);">'.$iconsort.'&nbsp;'.$vthn.'</a>');
     							$theatable.= '</th>';
 									$arrkey++;
     						}
-
 								if($key==0){
 									if(($this->edit || $this->delete) && $this->proctbl){
 										$theatable.= '<th'.(isset($colsize[count($colalign)-1])?' width="'.$colsize[count($colalign)-1].'"':'').(isset($colalign)?' style="text-align:'.($colalign[count($colalign)-1]=='R'?'right':($colalign[count($colalign)-1]=='C'?'center':'left')).';"':'').' rowspan="'.$nrospn.'">Action</th>';
@@ -246,19 +234,16 @@ class Atable {
 						}
     	$theatable.= '</thead>
     			<tbody>';
-
     	$i = 1;
     	$per_page = $limit;
     	$datarecord = $this->db_num_rows($this->db_query($qrytable." ".$groupby." ".$where));
     	$jml_pages = ceil($datarecord/$per_page);
     	$pages = 1;
-
     	// get page
     	if(isset($_POST['h'])) {
     		$pages = $_POST['h'];
     		$i=$i+(($pages-1)*$per_page);
     	}
-
     	if(isset($_POST['afind'])){
 				$afind = $_POST['afind'];
     		if($afind==''){
@@ -282,21 +267,19 @@ class Atable {
     				$afind=str_replace('"','',preg_replace('/(?| *(".*?") *| *(\'.*?\') *)| +/s', '%$1', $afind));
     			}
     			$per_page = $limitfind;
-
     			if($where!=""){
     				$iswhere = ' AND ';
     			}else{
     				$iswhere = ' HAVING ';
     			}
-
     			if(isset($_POST['showall'])){
     				$forlimit = "";
     			}else{
     				$forlimit = " LIMIT $per_page OFFSET ".($pages-1) * $per_page;
     			}
-
     			$columnwhere="";
-    			$colsrc=preg_replace("/,(?=[^)]*(?:[(]|$))/", ",' ',",$getcoltable);
+					if(!empty($groupby)){$colgorup=str_replace('GROUP BY ','',$groupby);}else{$colgorup=$getcoltable;}
+    			$colsrc=preg_replace("/,(?=[^)]*(?:[(]|$))/", ",' ',",$colgorup);
     			if($colsrc==" * "){$colsrc=implode(",' ',",$atablecol);}
     			$colwhere=explode(",' ',",$colsrc);
     			$lencol=count($colwhere);
@@ -305,7 +288,6 @@ class Atable {
     				$columnwhere.="(";
     				for($n=0;$n<ceil(count($colwhere)/50);$n++){
     					$arrhalf = array_slice($colwhere, $n+$i, 25*($n+1));
-
     					if($n>0){$columnwhere.=" OR ";}
     					$columnwhere.="lower(concat(";
     					foreach($arrhalf as $key => $value){
@@ -330,7 +312,6 @@ class Atable {
     					$theatable.= '<tr><td colspan="'.(count($atablecol)+1).'" style="font-weight:bold;text-align:center;">Not Found.</td><tr>';
     				}
     			}
-
     			$jml_pages = 1;
     		}
     	}else{
@@ -342,7 +323,6 @@ class Atable {
     			$this->querysql = $qrytable." ".$groupby." ".$where." ".$orderby." LIMIT $per_page OFFSET ".($pages-1) * $per_page;
     			$qry = $this->db_query($this->querysql);
     		}
-
     		if($this->db_num_rows($qry)==0){
     			if(strpos(strtolower($qry), 'error')!==false && $this->debug){
     				$sqlerror = TRUE;
@@ -354,17 +334,16 @@ class Atable {
     			}
     		}
     	}
-
     	if($showsql || $sqlerror){
     		$theatable.= '<tr><td colspan="'.(count($atablecol)+1).'" style="text-align:center !important;color:#c1a;">'.$this->querysql.'</td></tr>';
     	}
-
-    	if($qry){$continue=FALSE;$break=FALSE;
+    	if($qry){$continue=FALSE;$break=FALSE;$atabletr='';
     		while($row=$this->db_fetch_object($qry)){
     			if(!empty($param)){eval($param);}
     			if($continue){$continue=FALSE;continue;}
     			if($break){$break=FALSE;break;}
-    			$theatable.= '<tr>'.
+					$atable_tr=$atabletr!=''?' '.$atabletr:'';
+    			$theatable.= '<tr'.$atable_tr.'>'.
     					($colnumber==TRUE?'<td data-label="No">'.$i.'</td>':'');
     					$nocols=0;
     					foreach($atablecol as $key=>$acol){
@@ -377,7 +356,6 @@ class Atable {
     						$theatable.= '</td>';
     						$nocols++;
     					}
-
 							if(($this->edit || $this->delete) && $this->proctbl){
 								$theatable.='<td '.(isset($colalign)?'style="text-align:'.($colalign[$nocols]=='R'?'right':($colalign[$nocols]=='C'?'center':'left')).';"':'').' data-label="'.$lblcol[count($lblcol)-1].'">';
 									if($this->edit){$theatable.='<button type="button" class="btn btn-default btn-xs atedit" onclick=\'atable_processdata('.$GLOBALS['atablenum'].',this,"edit",'.$this->col.','.json_encode($lblcol).','.$colnumber.')\' style="font-size:18px;height:30px;"><span class="ic edit"></span></button>';}
@@ -388,11 +366,9 @@ class Atable {
     			$i++;
     		}
     	}
-
 		if(!empty($addlastrow)){eval('$theatable.='.$addlastrow);}
 		$theatable.= '</tbody>
 		</table></div>';
-
 		$showpg=0;$class="";//$lblcol
 		$theatable.= '<!-- datainfo -->
 		<div class="colhide" id="colhide'.$GLOBALS['atablenum'].'">
@@ -446,13 +422,11 @@ class Atable {
 			}
 			$theatable.= '</ul>
 		</div>';
-
 		}// end post
 		$theatable.= "</div></div>";
 		$GLOBALS['atablenum']++;
 		return $theatable;
 	}// end function
-
 	function GetBetween($pool,$var1="",$var2=""){
 		$pool=strtolower($pool);//exception
 		$temp1 = strpos($pool,$var1)+strlen($var1);
@@ -461,11 +435,8 @@ class Atable {
 		if($dd == 0){
 		  $dd = strlen($result);
 		}
-
 		return substr($result,0,$dd);
 	}
-
-
   function db_query($qry){
   	$res = "";
   	if($this->dblink=="mysql"){
@@ -529,7 +500,6 @@ class Atable {
   	return $res;
   }
 }
-
 function atable_init(){
 	if(!isset($_POST['fromatable'])){
 	echo '<style>*{margin:0;padding:0;box-sizing: border-box;}
@@ -557,7 +527,6 @@ function atable_init(){
 		border-radius: 3px;
 	}
 	.atable a{color:#337ab7;text-decoration:none;}
-
 	/* ======= table ============= */
 	.atable .table{width:100%;border-collapse: collapse;}
 	.atable .table>thead>tr>th, .atable .table>tbody>tr>th, .atable .table>tfoot>tr>th{
@@ -579,7 +548,6 @@ function atable_init(){
 	}
 	.atable .dtatable .table, .atable .jdtatable .table{margin-bottom:0px;}
 	/* ======= end table ============= */
-
 	.atable .datainfo{
 		left:0px;
 		display:block;clear:both;float:left;
@@ -595,7 +563,6 @@ function atable_init(){
 		background:#eee;
 		z-index:7;
 	}
-
 	.atable .form-control {
 		display: block;
 		padding: 6px 12px;
@@ -612,7 +579,6 @@ function atable_init(){
 		transition-timing-function: ease-in-out, ease-in-out;
 		transition-delay: 0s, 0s;
 	}
-
 	.atable .findfield {
 		float:right;
 		position:relative;
@@ -622,7 +588,6 @@ function atable_init(){
 		background-image: url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 250.313 250.313" style="enable-background:new 0 0 250.313 250.313;" xml:space="preserve" height="15px" width="15px"><g id="Search"><path style="fill-rule:evenodd;clip-rule:evenodd;fill:gray" d="M244.186,214.604l-54.379-54.378c-0.289-0.289-0.628-0.491-0.93-0.76 c10.7-16.231,16.945-35.66,16.945-56.554C205.822,46.075,159.747,0,102.911,0S0,46.075,0,102.911 c0,56.835,46.074,102.911,102.91,102.911c20.895,0,40.323-6.245,56.554-16.945c0.269,0.301,0.47,0.64,0.759,0.929l54.38,54.38 c8.169,8.168,21.413,8.168,29.583,0C252.354,236.017,252.354,222.773,244.186,214.604z M102.911,170.146 c-37.134,0-67.236-30.102-67.236-67.235c0-37.134,30.103-67.236,67.236-67.236c37.132,0,67.235,30.103,67.235,67.236 C170.146,140.044,140.043,170.146,102.911,170.146z"/></g></svg>\');
     background-position: 6px center;
     background-repeat: no-repeat;
-
 		outline: none;
     height: 34px;
     padding-top: 6px;
@@ -786,7 +751,6 @@ function atable_init(){
     background-color: #f0ad4e;
     border-color: #eea236;
 	}
-
 	.atable .atform{
 	  position: absolute;
 	  width: 100%;
@@ -816,7 +780,6 @@ function atable_init(){
 	  background-size: cover;
 	  display: inline-block;
 	}
-
 	.trash{background-position: 50% 12.5%;}
 	.trash-white{background-position: 50% 25%;}
 	.edit{background-position: 50% 37.5%;}
@@ -825,7 +788,6 @@ function atable_init(){
 	.save-white{background-position: 50% 75%;}
 	.cross{background-position: 50% 87.5%;}
 	.cross-white{background-position: 50% 100%;}
-
 	@media screen and (max-width: 550px) {
 		.ic{position:unset;}
 		.atable .table{
@@ -900,17 +862,13 @@ function atable_init(){
 				atable[i].insertAdjacentHTML("afterEnd","");
 				atablests[i]=false;
 			});
-
 		});
 	}) (jQuery);
-
 	function atable_txtfind(me){
 		var vid = me.id.split("-");
 		xhr.abort();
-
 		var v_afind = $("#txtfind-"+vid[1]).val();
 		document.getElementById("atablepreloader"+vid[1]).style.display="flex";
-
 		var tbpage = Object.assign({}, datapost);
 		numpage[vid[1]]=1;
 		tbpage["atabledata"+vid[1]]=true;
@@ -918,7 +876,6 @@ function atable_init(){
 		tbpage["colshowhide"]=colshowhide[vid[1]];
 		tbpage["fromatable"]=true;
 		tbpage.afind=v_afind;
-
 		xhr = $.ajax({
 			type: "POST",
 			url: thepage,
@@ -930,7 +887,6 @@ function atable_init(){
 				$(htmldata).find(".dtatable").each(function(i, obj){
 					atableno[i]=this.innerHTML;
 				});
-
 				forEach.call(atable, function (el, i) {
 					if(i==vid[1]){
 						atable[i].innerHTML=atableno[i];
@@ -940,13 +896,11 @@ function atable_init(){
 			}
 		});
 	}
-
 	function atable_pages(val){
 		xhr.abort();
 		var vid = val.split("-");
 		var v_afind = $("#txtfind-"+vid[1]).val();
 		document.getElementById("atablepreloader"+vid[1]).style.display="flex";
-
 		var tbpage = Object.assign({}, datapost);
 		tbpage.h=vid[0];numpage[vid[1]]=vid[0];
 		tbpage["atabledata"+vid[1]]=true;
@@ -969,7 +923,6 @@ function atable_init(){
 				$(htmldata).find(".dtatable .atblinfto").each(function(i, obj){
 					atblinfto=this.innerHTML;
 				});
-
 				forEach.call(atable, function (el, i) {
 					if(i==vid[1]){
 						atable[i].innerHTML=atableno[i];
@@ -983,14 +936,12 @@ function atable_init(){
 			}
 		});
 	};
-
 	function atable_getpage(tableID){
 		if(numpage[tableID]==undefined){
 			numpage[tableID]=1;
 		}
 		return numpage[tableID];
 	}
-
 	function atable_topage(natbl,page){
 		var fn=0;
 		if(page<=0){page=1;}
@@ -1005,7 +956,6 @@ function atable_init(){
 		  }
 		});
 	}
-
 	function atable_find(natbl,str){
 		var fn=0;
 		if(atablests[natbl]){
@@ -1020,7 +970,6 @@ function atable_init(){
 		  }
 		});
 	}
-
 	function atable_colhide(natbl,str){
 		var fn=0;
 		if(atablests[natbl]){
@@ -1033,15 +982,12 @@ function atable_init(){
 		  }
 		});
 	}
-
 	function clearsrc(natbl){$("#txtfind-"+natbl).val("");$("#txtfind-"+natbl).keyup();$("#txtfind-"+natbl).focus();nxhrs=0;}
-
 	function atable_loadmore(me){
 		xhr.abort();
 		var vid = me.id.split("-");
 		var v_afind = $("#txtfind-"+vid[1]).val();
 		document.getElementById("atablepreloader"+vid[1]).style.display="flex";
-
 		var tbpage = Object.assign({}, datapost);
 		numpage[vid[1]]++;
 		tbpage.h=numpage[vid[1]];
@@ -1065,7 +1011,6 @@ function atable_init(){
 				$(htmldata).find(".dtatable .atblinfto").each(function(i, obj){
 					atblinfto=this.innerHTML;
 				});
-
 				forEach.call(atable, function (el, i) {
 					if(i==vid[1]){
 						atable[i].getElementsByTagName("tbody")[0].innerHTML+=atableno;
@@ -1084,13 +1029,11 @@ function atable_init(){
 			}
 		});
 	};
-
 	function atable_showall(me){
 		xhr.abort();
 		var vid = me.id.split("-");
 		var v_afind = $("#txtfind-"+vid[1]).val();
 		document.getElementById("atablepreloader"+vid[1]).style.display="flex";
-
 		var tbpage = Object.assign({}, datapost);
 		tbpage.showall=true;
 		numpage[vid[1]]=1;
@@ -1110,7 +1053,6 @@ function atable_init(){
 				$(htmldata).find(".dtatable").each(function(i, obj){
 					atableno[i]=this.innerHTML;
 				});
-
 				forEach.call(atable, function (el, i) {
 					if(i==vid[1]){
 						atable[i].innerHTML=atableno[i];
@@ -1122,13 +1064,11 @@ function atable_init(){
 			}
 		});
 	};
-
 	function atable_showless(me){
 		xhr.abort();
 		var vid = me.id.split("-");
 		var v_afind = $("#txtfind-"+vid[1]).val();
 		document.getElementById("atablepreloader"+vid[1]).style.display="flex";
-
 		var tbpage = Object.assign({}, datapost);
 		numpage[vid[1]]=1;
 		tbpage["atabledata"+vid[1]]=true;
@@ -1147,7 +1087,6 @@ function atable_init(){
 				$(htmldata).find(".dtatable").each(function(i, obj){
 					atableno[i]=this.innerHTML;
 				});
-
 				forEach.call(atable, function (el, i) {
 					if(i==vid[1]){
 						atable[i].innerHTML=atableno[i];
@@ -1159,7 +1098,6 @@ function atable_init(){
 			}
 		});
 	};
-
 	function atable_sortedby(me){
 		xhr.abort();
 		var vid = me.id.split("-");
@@ -1175,7 +1113,6 @@ function atable_init(){
 			sortby[vid[1]] = vid[2]+" ASC";
 			ascdsc[vid[1]]="ASC";
 		}
-
 		var tbpage = Object.assign({}, datapost);
 		tbpage["atabledata"+vid[1]]=true;
 		tbpage["sortby"]=sortby[vid[1]];
@@ -1193,7 +1130,6 @@ function atable_init(){
 				$(htmldata).find(".dtatable").each(function(i, obj){
 					atableno[i]=this.innerHTML;
 				});
-
 				forEach.call(atable, function (el, i) {
 					if(i==vid[1]){
 						atable[i].innerHTML=atableno[i];
@@ -1203,7 +1139,6 @@ function atable_init(){
 			}
 		});
 	};
-
 	function load_atable(curpage,post){
 		thepage = curpage;
 		datapost=JSON.parse(post);
@@ -1221,9 +1156,7 @@ function atable_init(){
 			loadtable["atabledata"+i]=true;
 			document.getElementById("atablepreloader"+i).style.display="flex";
 		});
-
 		loadtable.fromatable=true;
-
 		xhr = $.ajax({
 			type: "POST",
 			url: thepage,
@@ -1234,7 +1167,6 @@ function atable_init(){
 				$(htmldata).find(".dtatable").each(function(i, obj){
 					 atableno[i]=this.innerHTML;
 				});
-
 				var atable = document.querySelectorAll(".dtatable");
 				var forEach = [].forEach;
 				forEach.call(atable, function (el, i) {
@@ -1247,21 +1179,18 @@ function atable_init(){
 			}
 		});
 	}
-
 	function atable_reload(vid){
 	  var myEle = document.getElementById("atablepreloader"+vid);
 	  if(myEle){
 		xhr.abort();
 			var v_afind = $("#txtfind-"+vid).val();
 			document.getElementById("atablepreloader"+vid).style.display="flex";
-
 			var tbpage = Object.assign({}, datapost);
 			tbpage["atabledata"+vid]=true;
 			tbpage["sortby"]=sortby[vid];
 			tbpage["colshowhide"]=colshowhide[vid[1]];
 			tbpage["fromatable"]=true;
 			tbpage.afind=v_afind;
-
 			xhr = $.ajax({
 				type: "POST",
 				url: thepage,
@@ -1273,7 +1202,6 @@ function atable_init(){
 					$(htmldata).find(".dtatable").each(function(i, obj){
 						atableno[i]=this.innerHTML;
 					});
-
 					forEach.call(atable, function (el, i) {
 						if(i==vid){
 							atable[i].innerHTML=atableno[i];
@@ -1285,7 +1213,6 @@ function atable_init(){
 			console.log("aTable "+vid+" not Exist.");
 	  }
 	}
-
 	function atable_toxls(tableID, filename = ""){
 		var downloadLink;
 		var dataType = "application/vnd.ms-excel";
@@ -1293,9 +1220,7 @@ function atable_init(){
 		var tableHTML = remHiddenTag(tableSelect.outerHTML,"none").replace(/ /g,"%20").replace(/<\/?a[^>]*>/g,"").replace(\'border="0"\',\'border="1"\');
 		filename = filename?filename+".xls":"excel_data.xls";
 		downloadLink = document.createElement("a");
-
 		document.body.appendChild(downloadLink);
-
 		if(navigator.msSaveOrOpenBlob){
 			var blob = new Blob(["\ufeff", tableHTML], {
 			type: dataType
@@ -1309,7 +1234,6 @@ function atable_init(){
 		}
 	}
 	function atabledestroyClickedElement(event){document.body.removeChild(event.target);}
-
 	function atable_colshide(tblid,arcol,atablenum="") {
 		var cols = arcol;
 		if(cols.length < 0){
@@ -1341,7 +1265,6 @@ function atable_init(){
 		}
 		colshowhide[atablenum]=arcol;
 	}
-
 	function getSelectMultiValues(select) {
 		var result = [];
 		var options = document.getElementById(select);
@@ -1366,8 +1289,6 @@ function atable_init(){
 	    return container.innerHTML;
 	}
 	function rbline(str){var text=str;text = text.replace(/(\r\n|\n|\r)/gm," ");text = text.replace(/\s{2,}/g, " ");return text;}
-
-
 	function atable_processdata(ntbl,me,prc,cols,colsv,numb){
 	  var disp=[];var rows=[];var nm=0;
 		if(numb){nm=1;}
@@ -1379,14 +1300,12 @@ function atable_init(){
       .replace(/&#039;/g, "\'"));
 			disp.push($(this).css("display"));});
 	  });
-
 	  var frm=document.getElementById("atform"+ntbl);
 	  frm.style.display="block";
 	  frm.innerHTML="";
 	  if(prc=="add"){
 	    rows=colsv;nm=0;
 	  }
-
 	  var dv = document.createElement("div");
 	  dv.setAttribute("class", "atfdv");
 	  var table=document.createElement("table");
@@ -1399,7 +1318,6 @@ function atable_init(){
 		    var sp = document.createElement("span");
 			  sp.setAttribute("class", "atfspan");
 		    sp.innerHTML=colsv[i];
-
 		    var inp = document.createElement("input");
 		    inp.setAttribute("type", "text");
 		    inp.setAttribute("id", cols[i]+"-"+ntbl);
@@ -1410,10 +1328,8 @@ function atable_init(){
 		    }else{
 		      inp.setAttribute("style", "margin-bottom:5px;");
 		    }
-
 		    if(prc!="add"){inp.value=rows[i+nm];}
 				if(ni==0){idsetf=cols[i]+"-"+ntbl;}
-
 		    var newcell=row.insertCell(0);
 		    newcell.appendChild(sp);
 		    newcell=row.insertCell(1);
@@ -1424,7 +1340,6 @@ function atable_init(){
 				ni++;
 			}
 	  }
-
 	  var cn = document.createElement("button");
 	  cn.setAttribute("type", "button");
 	  cn.setAttribute("class", "btn btn-default btn-xs");
@@ -1443,14 +1358,12 @@ function atable_init(){
 	  $(cn).on("click",function(e){frm.style.display="none";});
 	  $(sv).on("click",function(e){
 	    var vdata={};var ndata={};
-
 	    for (var i = 0; i < (rows.length-1)-nm; i++) {
 				if(!cols[i].includes(";")){
 		      vdata[cols[i]]=$("#"+cols[i]+"-"+ntbl).val();
 		      ndata[cols[i]]=rows[i+nm].replace("&nbsp;","");
 				}
 	    }
-
 	    $.post(thepage,{process_table:ntbl,vdata:vdata, ndata:ndata, atable_process_data:prc},function(data){//console.log(data);
 	      if(data.includes("atable_process_true")){
 	        if(prc=="delete" || prc=="add"){frm.style.display="none";}
@@ -1469,7 +1382,6 @@ function atable_init(){
 				}
 	    });
 	  });
-
 	  if(prc=="delete"){
 	    dv.innerHTML=\'<h4>Delete Data?</h4><hr style="margin-top: 5px;margin-bottom: 10px;">\';
 	  }else if(prc=="add"){
