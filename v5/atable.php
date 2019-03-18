@@ -1252,7 +1252,9 @@ function atable_init(){
 							if(colspan>0){
 								 ncc = ncc+parseInt(colspan)-1;
 							}
-							slctmltp.options[ncc].selected = true;
+							if("selected" in slctmltp){
+								slctmltp.options[ncc].selected = true;
+							}
 							if(cols.includes(ncc)){
 								tbl.rows[i].cells[j].style.display = "none";
 		 						slctmltp.options[ncc].selected = false;
