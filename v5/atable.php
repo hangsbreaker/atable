@@ -57,7 +57,7 @@ class Atable {
 		$sqlerror = FALSE;
 		$getcoltable=preg_replace("/ as [\s\S]+? /"," ",preg_replace("/ as [\s\S]+?,/",",",$this->GetBetween($qrytable,"select","from")));
 		// ===============================
-		$tblnm= trim(str_replace("from ","",substr($qrytable,strpos($qrytable,"from"),strlen($qrytable))));
+		$tblnm= trim(str_replace("from ","",substr(strtolower($qrytable),strpos(strtolower($qrytable),"from"),strlen($qrytable))));
 		if(strpos($tblnm,' ') !== false){
 		  $this->proctbl=FALSE;
 		}else{$this->proctbl=TRUE;}
