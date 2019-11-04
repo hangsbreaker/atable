@@ -306,10 +306,13 @@ class Atable {
 					$datarecord=$this->db_num_rows($this->db_query($this->querysql));
     			if($this->db_num_rows($qry)==0){
     				if(strpos(strtolower($qry), 'error')!==false && $this->debug){
-    					$sqlerror = TRUE;
-    					$theatable.= '<tr><td colspan="'.(count($atablecol)+1).'" style="color:#e74c3c;text-align:center;">'.$qry.'</td><tr>';
+    					$sqlerror = TRUE;$edtbtn=0;
+							if(($this->edit || $this->delete) && $this->proctbl){$edtbtn=1;}
+    					$theatable.= '<tr><td colspan="'.(count($atablecol)+1+$edtbtn).'" style="color:#e74c3c;text-align:center;">'.$qry.'</td><tr>';
     				}else{
-    					$theatable.= '<tr><td colspan="'.(count($atablecol)+1).'" style="font-weight:bold;text-align:center;">Not Found.</td><tr>';
+							$edtbtn=0;
+							if(($this->edit || $this->delete) && $this->proctbl){$edtbtn=1;}
+    					$theatable.= '<tr><td colspan="'.(count($atablecol)+1+$edtbtn).'" style="font-weight:bold;text-align:center;">Not Found.</td><tr>';
     				}
     			}
     			$jml_pages = 1;
@@ -325,8 +328,9 @@ class Atable {
     		}
     		if($this->db_num_rows($qry)==0){
     			if(strpos(strtolower($qry), 'error')!==false && $this->debug){
-    				$sqlerror = TRUE;
-    				$theatable.= '<tr><td colspan="'.(count($atablecol)+1).'" style="color:#e74c3c;text-align:center;">'.$qry.'</td><tr>';
+    				$sqlerror = TRUE;$edtbtn=0;
+						if(($this->edit || $this->delete) && $this->proctbl){$edtbtn=1;}
+    				$theatable.= '<tr><td colspan="'.(count($atablecol)+1+$edtbtn).'" style="color:#e74c3c;text-align:center;">'.$qry.'</td><tr>';
     			}else{
 						$edtbtn=0;
 						if(($this->edit || $this->delete) && $this->proctbl){$edtbtn=1;}
@@ -335,7 +339,9 @@ class Atable {
     		}
     	}
     	if($showsql || $sqlerror){
-    		$theatable.= '<tr><td colspan="'.(count($atablecol)+1).'" style="text-align:center !important;color:#c1a;">'.$this->querysql.'</td></tr>';
+				$edtbtn=0;
+				if(($this->edit || $this->delete) && $this->proctbl){$edtbtn=1;}
+    		$theatable.= '<tr><td colspan="'.(count($atablecol)+1+$edtbtn).'" style="text-align:center !important;color:#c1a;">'.$this->querysql.'</td></tr>';
     	}
     	if($qry){$continue=FALSE;$break=FALSE;$atabletr='';
     		while($row=$this->db_fetch_object($qry)){
