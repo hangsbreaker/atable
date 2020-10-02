@@ -1,36 +1,64 @@
 <?php
-$GLOBALS['atablenum']=0;
-class Atable {
+$GLOBALS['atablenum'] = 0;
+class Atable
+{
 	// ==== param init
-	var $query; var $col; var $colv; var $limit; var $limitfind; var $orderby; var $groupby; var $where; var $addvar; var $param; var $addlastrow; var $colsize; var $colalign; var $caption; var $style; var $showsql;
-	var $debug=TRUE; var $colnumber=TRUE;
-	var $searchbar=TRUE; var $datainfo=TRUE; var $paging=TRUE;
-	var $reload=FALSE; var $collist=FALSE; var $xls=FALSE;var $loadmore=TRUE; var $showall=FALSE;
+	var $query;
+	var $col;
+	var $colv;
+	var $limit;
+	var $limitfind;
+	var $orderby;
+	var $groupby;
+	var $where;
+	var $addvar;
+	var $param;
+	var $addlastrow;
+	var $colsize;
+	var $colalign;
+	var $caption;
+	var $style;
+	var $showsql;
+	var $debug = TRUE;
+	var $colnumber = TRUE;
+	var $searchbar = TRUE;
+	var $datainfo = TRUE;
+	var $paging = TRUE;
+	var $reload = FALSE;
+	var $collist = FALSE;
+	var $xls = FALSE;
+	var $loadmore = TRUE;
+	var $showall = FALSE;
 	var $querysql;
 	var $database;
-	var $dblink="";var $dbcon="";
-	var $add=FALSE;var $edit=FALSE;var $delete=FALSE;var $proctbl=FALSE;
-	function load(){
-		if(empty($this->database)){
-			if($this->dbcon==""){
-				foreach(array_reverse($GLOBALS) as $variable){
-					if(is_resource($variable) && get_resource_type($variable)=='mysql link'){
+	var $dblink = "";
+	var $dbcon = "";
+	var $add = FALSE;
+	var $edit = FALSE;
+	var $delete = FALSE;
+	var $proctbl = FALSE;
+	function load()
+	{
+		if (empty($this->database)) {
+			if ($this->dbcon == "") {
+				foreach (array_reverse($GLOBALS) as $variable) {
+					if (is_resource($variable) && get_resource_type($variable) == 'mysql link') {
 						$this->dblink = "mysql";
-						$this->dbcon=$variable;
+						$this->dbcon = $variable;
 						break;
-					}else if(is_object($variable)  && get_class($variable)=='mysqli'){
+					} else if (is_object($variable)  && get_class($variable) == 'mysqli') {
 						$this->dblink = "mysqli";
-						$this->dbcon=$variable;
+						$this->dbcon = $variable;
 						break;
-					}else if(is_resource($variable) && get_resource_type($variable)=='pgsql link'){
+					} else if (is_resource($variable) && get_resource_type($variable) == 'pgsql link') {
 						$this->dblink = "pgsql";
-						$this->dbcon=$variable;
+						$this->dbcon = $variable;
 						break;
 					}
 				}
 			}
-		}else{
-			if(empty($this->dblink)){
+		} else {
+			if (empty($this->dblink)) {
 				$this->dblink = $this->database;
 			}
 		}
@@ -38,477 +66,581 @@ class Atable {
 		$qrytable = $this->query;
 		$atablecol = json_decode($this->col);
 		$atablecolv = json_decode($this->colv);
-		$limit = !empty($this->limit)?$this->limit:10;
-		$limitfind = !empty($this->limitfind)?$this->limitfind:$limit;
-		$orderby = !empty($this->orderby)?$this->orderby:'';
-		$groupby = !empty($this->groupby)?$this->groupby:'';
-		$where = !empty($this->where)?$this->where:'';
-		$colnumber = isset($this->colnumber)?$this->colnumber:TRUE;
-		$addvar = !empty($this->addvar)?json_decode($this->addvar,true):'';
-		$param = !empty($this->param)?$this->param:'';
-		$addlastrow = !empty($this->addlastrow)?$this->addlastrow:'';
-		$colsize = !empty($this->colsize)?json_decode($this->colsize):'';
-		$colalign = !empty($this->colalign)?json_decode(strtoupper($this->colalign)):'';
-		$showsql = !empty($this->showsql)?$this->showsql:'';
-		$caption = !empty($this->caption)?$this->caption:'';
-		$style = !empty($this->style)?$this->style:'table table-hover';
+		$limit = !empty($this->limit) ? $this->limit : 10;
+		$limitfind = !empty($this->limitfind) ? $this->limitfind : $limit;
+		$orderby = !empty($this->orderby) ? $this->orderby : '';
+		$groupby = !empty($this->groupby) ? $this->groupby : '';
+		$where = !empty($this->where) ? $this->where : '';
+		$colnumber = isset($this->colnumber) ? $this->colnumber : TRUE;
+		$addvar = !empty($this->addvar) ? json_decode($this->addvar, true) : '';
+		$param = !empty($this->param) ? $this->param : '';
+		$addlastrow = !empty($this->addlastrow) ? $this->addlastrow : '';
+		$colsize = !empty($this->colsize) ? json_decode($this->colsize) : '';
+		$colalign = !empty($this->colalign) ? json_decode(strtoupper($this->colalign)) : '';
+		$showsql = !empty($this->showsql) ? $this->showsql : '';
+		$caption = !empty($this->caption) ? $this->caption : '';
+		$style = !empty($this->style) ? $this->style : 'table table-hover';
 		$lblcol = array();
 		$sortpost = "";
 		$sqlerror = FALSE;
-		$getcoltable=preg_replace("/ as [\s\S]+? /"," ",preg_replace("/ as [\s\S]+?,/",",",$this->GetBetween($qrytable,"select","from")));
+		$getcoltable = preg_replace("/ as [\s\S]+? /", " ", preg_replace("/ as [\s\S]+?,/", ",", $this->GetBetween($qrytable, "select", "from")));
 		// ===============================
-		$tblnm= trim(str_replace("from ","",substr(strtolower($qrytable),strpos(strtolower($qrytable),"from"),strlen($qrytable))));
-		if(strpos($tblnm,' ') !== false){
-		  $this->proctbl=FALSE;
-		}else{$this->proctbl=TRUE;}
-		if(isset($_POST['atable_process_data'])){
-			if($GLOBALS['atablenum']==$_POST['process_table']){
-			  $npd=0;$recdt="";
-			  if($_POST['atable_process_data']=='edit'){
-			    $qryp= "update $tblnm set ";
-			    foreach ($_POST['vdata'] as $key => $value) {
-			      if($npd>0){$qryp.=',';$recdt.=' AND ';}$npd++;
-			      $qryp.=$key."='".$value."'";
-						if($_POST['ndata'][$key]==""){
-				      $recdt.="(".$key."='' OR ".$key." is null)";
-						}else{
-				      $recdt.=$key."='".$_POST['ndata'][$key]."'";
+		$tblnm = trim(str_replace("from ", "", substr(strtolower($qrytable), strpos(strtolower($qrytable), "from"), strlen($qrytable))));
+		if (strpos($tblnm, ' ') !== false) {
+			$this->proctbl = FALSE;
+		} else {
+			$this->proctbl = TRUE;
+		}
+		if (isset($_POST['atable_process_data'])) {
+			if ($GLOBALS['atablenum'] == $_POST['process_table']) {
+				$npd = 0;
+				$recdt = "";
+				if ($_POST['atable_process_data'] == 'edit') {
+					$qryp = "update $tblnm set ";
+					foreach ($_POST['vdata'] as $key => $value) {
+						if ($npd > 0) {
+							$qryp .= ',';
+							$recdt .= ' AND ';
 						}
-			    }
-			    $qryp.=" where ".$recdt;
-			  }else if($_POST['atable_process_data']=='delete'){
-			    $qryp= "delete from $tblnm where ";
-			    foreach ($_POST['vdata'] as $key => $value) {
-			      if($npd>0){$recdt.=' AND ';}$npd++;
-						if($_POST['ndata'][$key]==""){
-				      $recdt.="(".$key."='' OR ".$key." is null)";
-						}else{
-							$recdt.=$key."='".$_POST['ndata'][$key]."'";
+						$npd++;
+						$qryp .= $key . "='" . $value . "'";
+						if ($_POST['ndata'][$key] == "") {
+							$recdt .= "(" . $key . "='' OR " . $key . " is null)";
+						} else {
+							$recdt .= $key . "='" . $_POST['ndata'][$key] . "'";
 						}
-			    }
-			    $qryp.=$recdt;
-			  }else if($_POST['atable_process_data']=='add'){
-			    $qryp= "insert into $tblnm (";
-			    foreach ($_POST['vdata'] as $key => $value) {
-			      if($npd>0){$qryp.=',';$recdt.=', ';}$npd++;
-			      $qryp.=$key;
-			      $recdt.="'".$value."'";
-			    }
-			    $qryp.=") values (".$recdt.")";
-			  }
-			  //echo $qryp;
-			  $sts=$this->db_query($qryp);
-			  if($sts){echo " atable_process_true";}else{echo " atable_process_false";}
-			  exit;
+					}
+					$qryp .= " where " . $recdt;
+				} else if ($_POST['atable_process_data'] == 'delete') {
+					$qryp = "delete from $tblnm where ";
+					foreach ($_POST['vdata'] as $key => $value) {
+						if ($npd > 0) {
+							$recdt .= ' AND ';
+						}
+						$npd++;
+						if ($_POST['ndata'][$key] == "") {
+							$recdt .= "(" . $key . "='' OR " . $key . " is null)";
+						} else {
+							$recdt .= $key . "='" . $_POST['ndata'][$key] . "'";
+						}
+					}
+					$qryp .= $recdt;
+				} else if ($_POST['atable_process_data'] == 'add') {
+					$qryp = "insert into $tblnm (";
+					foreach ($_POST['vdata'] as $key => $value) {
+						if ($npd > 0) {
+							$qryp .= ',';
+							$recdt .= ', ';
+						}
+						$npd++;
+						$qryp .= $key;
+						$recdt .= "'" . $value . "'";
+					}
+					$qryp .= ") values (" . $recdt . ")";
+				}
+				//echo $qryp;
+				$sts = $this->db_query($qryp);
+				if ($sts) {
+					echo " atable_process_true";
+				} else {
+					echo " atable_process_false";
+				}
+				exit;
 			}
 		}
-		$theatable= '<div class="atable">'.($this->dblink == ''?'<div class="warningdb">Atable Unknown Database connection.</div>':'').'<div class="atablepreloader" id="atablepreloader'.$GLOBALS['atablenum'].'"><span>Loading ....</span></div>
-		<div class="findfield" style="padding:0px 5px;min-width:200px;z-index:3;"><input type="text" class="txtfind" name="find" placeholder="Search" id="txtfind-'.$GLOBALS['atablenum'].'" onkeyup="atable_txtfind(this)"><div class="fndclear" onclick="clearsrc('.$GLOBALS['atablenum'].')">&times;</div></div>
-			<div class="atform" id="atform'.$GLOBALS['atablenum'].'"></div>
-			<div class="dtatable" id="dtatable'.$GLOBALS['atablenum'].'">';
-		if(isset($_POST['atabledata'.$GLOBALS['atablenum']]) && isset($_POST['fromatable'])){
-			if(isset($_POST['sortby'])){
-				if($_POST['sortby']!=""){
-					$orderby=$_POST['sortby'];
-					$sortpost=$_POST['sortby'];
+		$theatable = '<div class="atable">' . ($this->dblink == '' ? '<div class="warningdb">Atable Unknown Database connection.</div>' : '') . '<div class="atablepreloader" id="atablepreloader' . $GLOBALS['atablenum'] . '"><span>Loading ....</span></div>
+		<div class="findfield" style="padding:0px 5px;min-width:200px;z-index:3;"><input type="text" class="txtfind" name="find" placeholder="Search" id="txtfind-' . $GLOBALS['atablenum'] . '" onkeyup="atable_txtfind(this)"><div class="fndclear" onclick="clearsrc(' . $GLOBALS['atablenum'] . ')">&times;</div></div>
+			<div class="atform" id="atform' . $GLOBALS['atablenum'] . '"></div>
+			<div class="dtatable" id="dtatable' . $GLOBALS['atablenum'] . '">';
+		if (isset($_POST['atabledata' . $GLOBALS['atablenum']]) && isset($_POST['fromatable'])) {
+			if (isset($_POST['sortby'])) {
+				if ($_POST['sortby'] != "") {
+					$orderby = $_POST['sortby'];
+					$sortpost = $_POST['sortby'];
 				}
 			}
-			if(empty($limit)){$limit=10;}
-			if(!empty($addvar)){extract($addvar);}
-			if(!empty($orderby)){$orderby='ORDER BY '.$orderby;}
-			if(!empty($groupby)){$groupby='GROUP BY '.$groupby;}else{if($getcoltable!=' * '){$groupby='GROUP BY '.$getcoltable;}}
-			if(!empty($where)){$where='HAVING '.$where;}
-			$theatable.= '<div class="atablewrap" id="atablewrap'.$GLOBALS['atablenum'].'">
-						<table class="'.$style.'" id="dtblatable'.$GLOBALS['atablenum'].'" border="0">
-    				<caption>'.$caption.'</caption>
+			if (empty($limit)) {
+				$limit = 10;
+			}
+			if (!empty($addvar)) {
+				extract($addvar);
+			}
+			if (!empty($orderby)) {
+				$orderby = 'ORDER BY ' . $orderby;
+			}
+			if (!empty($groupby)) {
+				$groupby = 'GROUP BY ' . $groupby;
+			} else {
+				if ($getcoltable != ' * ') {
+					$groupby = 'GROUP BY ' . $getcoltable;
+				}
+			}
+			if (!empty($where)) {
+				$where = 'HAVING ' . $where;
+			}
+			$theatable .= '<div class="atablewrap" id="atablewrap' . $GLOBALS['atablenum'] . '">
+						<table class="' . $style . '" id="dtblatable' . $GLOBALS['atablenum'] . '" border="0">
+    				<caption>' . $caption . '</caption>
     				<thead>';
-    				$atr=0;$nrospn=0;$colsrown=array();
-    				foreach ($atablecolv as $vth) {if(is_array($vth)){$atr++;}}
-    				if($atr==0){$theatable.= '<tr>';$theatable.= ($colnumber==TRUE?'<th width="1px"'.($atr>0?' rowspan="'.$atr.'"':'').'>No</th>':'');}
-    				$sortpost = explode(" ",$sortpost);
-    				foreach($atablecolv as $key=>$acolv){
-    					if(is_array($acolv)){
-								$nrospn=count($atablecolv);
-    						$theatable.= '<tr>';
-                if($key==0){$theatable.= ($colnumber==TRUE?'<th width="1px"'.($atr>0?' rowspan="'.$atr.'"':'').'>No</th>':'');}
-    		        $vthn=$vth[0];$colrown=array();$colrowv=array();$arrkey=0;$ncolss=0;
-    						foreach ($acolv as $keyf => $vth) {
-    				      $vthn=$vth;$colrow='';$colsz='';$colalgn='';
-    				      if(is_array($vth)){
-    				        $vthn=$vth[0];
-    				        foreach ($vth as $keyn => $value) {
-    				          if($value!='' && $keyn!=0){
-    										if(strtolower(substr($value,0,1))=='w'){
-    											$colsz=' width="'.substr($value,1).'"';
-    										}else if(strtolower($value)=='ac'){
-    											$colalgn=' style="text-align:center;"';
-    										}else if(strtolower($value)=='al'){
-    											$colalgn=' style="text-align:left;"';
-    										}else if(strtolower($value)=='ar'){
-    											$colalgn=' style="text-align:right;"';
-    										}else{
-    					            $colrown[$keyf]=substr($value,3);
-    					            $colrowv[$keyf]=strtolower(substr($value,0,3));
-							            if($colrowv[$keyf]=='col'){$ncolss=$ncolss+$colrown[$keyf];$arrn=$ncolss;}
-							            if($colrowv[$keyf]=='row'){
-							              if($colrowv[$keyf-1]!='row'){$arrn++;}
-							              $ncolss++;
-							              $colsrown[$key][$arrn-1]++;
-							            }
-    										}
-    				            $colrow.=' '.$colrowv[$keyf].'span="'.$colrown[$keyf].'"';
-    				          }
-    				        }
-    				      }
-    							$theatable.= '<th'.$colsz.$colalgn.$colrow.'>';
-									//$arrkey=($colrowv[$keyf-1]=='col' && $keyf>0?$keyf+$colrown[$keyf-1]-1:$arrkey);
-									$arrkey=($colrowv[$keyf-1]=='col' && $keyf>0?$arrkey+$colrown[$keyf-1]-1:$arrkey);
-									$nmcol= str_replace('$','',str_replace(';','',$atablecol[$arrkey]));
-									$existcol= $this->GetBetween($qrytable,"select","from");
-									if(strpos($existcol,$nmcol)!==false){
-										$bysort = $nmcol;
-									}else{
-										$bysort = $vthn.';';
-									}
-									if($sortpost[0]==$bysort){
-										if($sortpost[1]=='ASC'){
-											$iconsort = '<span>&#9662;</span>';
-										}else{
-											$iconsort = '<span>&#9652;</span>';
+			$atr = 0;
+			$nrospn = 0;
+			$colsrown = array();
+			foreach ($atablecolv as $vth) {
+				if (is_array($vth)) {
+					$atr++;
+				}
+			}
+			if ($atr == 0) {
+				$theatable .= '<tr>';
+				$theatable .= ($colnumber == TRUE ? '<th width="1px"' . ($atr > 0 ? ' rowspan="' . $atr . '"' : '') . '>No</th>' : '');
+			}
+			$sortpost = explode(" ", $sortpost);
+			foreach ($atablecolv as $key => $acolv) {
+				if (is_array($acolv)) {
+					$nrospn = count($atablecolv);
+					$theatable .= '<tr>';
+					if ($key == 0) {
+						$theatable .= ($colnumber == TRUE ? '<th width="1px"' . ($atr > 0 ? ' rowspan="' . $atr . '"' : '') . '>No</th>' : '');
+					}
+					$vthn = $vth[0];
+					$colrown = array();
+					$colrowv = array();
+					$arrkey = 0;
+					$ncolss = 0;
+					foreach ($acolv as $keyf => $vth) {
+						$vthn = $vth;
+						$colrow = '';
+						$colsz = '';
+						$colalgn = '';
+						if (is_array($vth)) {
+							$vthn = $vth[0];
+							foreach ($vth as $keyn => $value) {
+								if ($value != '' && $keyn != 0) {
+									if (strtolower(substr($value, 0, 1)) == 'w') {
+										$colsz = ' width="' . substr($value, 1) . '"';
+									} else if (strtolower($value) == 'ac') {
+										$colalgn = ' style="text-align:center;"';
+									} else if (strtolower($value) == 'al') {
+										$colalgn = ' style="text-align:left;"';
+									} else if (strtolower($value) == 'ar') {
+										$colalgn = ' style="text-align:right;"';
+									} else {
+										$colrown[$keyf] = substr($value, 3);
+										$colrowv[$keyf] = strtolower(substr($value, 0, 3));
+										if ($colrowv[$keyf] == 'col') {
+											$ncolss = $ncolss + $colrown[$keyf];
+											$arrn = $ncolss;
 										}
-									}else{
-										$iconsort = '';
+										if ($colrowv[$keyf] == 'row') {
+											if ($colrowv[$keyf - 1] != 'row') {
+												$arrn++;
+											}
+											$ncolss++;
+											$colsrown[$key][$arrn - 1]++;
+										}
 									}
-									//$lblcol[$arrkey]=$vthn;
-									if(array_key_exists($arrkey,$colsrown[$key-1])){
-										$arrkey+=$colsrown[$key-1][$arrkey];
-										$lblcol[$arrkey]=$vthn;
-									}else{
-										$lblcol[$arrkey]=$vthn;
-									}
-    							$theatable.= (strpos($bysort, ';')!==false||($colrowv=='col')?$vthn.$kk:$kk.'<a href="javascript:void(0);" id="sortby-'.$GLOBALS['atablenum'].'-'.$bysort.'" class="sortby" onclick="atable_sortedby(this);">'.$iconsort.'&nbsp;'.$vthn.'</a>');
-    							$theatable.= '</th>';
-									$arrkey++;
-    						}
-								if($key==0){
-									if(($this->edit || $this->delete) && $this->proctbl){
-										$theatable.= '<th'.(isset($colsize[count($colalign)-1])?' width="'.$colsize[count($colalign)-1].'"':'').(isset($colalign)?' style="text-align:'.($colalign[count($colalign)-1]=='R'?'right':($colalign[count($colalign)-1]=='C'?'center':'left')).';"':'').' rowspan="'.$nrospn.'">Action</th>';
-									}
+									$colrow .= ' ' . $colrowv[$keyf] . 'span="' . $colrown[$keyf] . '"';
 								}
-								$kyrow++;
-    						$theatable.= '</tr>';
-    					}else{
-    						$theatable.= '<th'.(isset($colsize[$key])?' width="'.$colsize[$key].'"':'').(isset($colalign)?' style="text-align:'.($colalign[$key]=='R'?'right':($colalign[$key]=='C'?'center':'left')).';"':'').$colrow.'>';
-								$nmcol= str_replace('$','',str_replace(';','',$atablecol[$key]));
-								$existcol= $this->GetBetween($qrytable,"select","from");
-								if(strpos($existcol,$nmcol)!==false){
-									$bysort = $nmcol;
-								}else{
-									$bysort = $atablecol[$key];
-								}
-								if($sortpost[0]==$bysort){
-									if($sortpost[1]=='ASC'){
-										$iconsort = '<span>&#9662;</span>';
-									}else{
-										$iconsort = '<span>&#9652;</span>';
-									}
-								}else{
-									$iconsort = '';
-								}
-								$lblcol[$key]=$acolv;
-    						$theatable.= (strpos($bysort, ';')!==false?$acolv:'<a href="javascript:void(0);" id="sortby-'.$GLOBALS['atablenum'].'-'.$bysort.'" class="sortby" onclick="atable_sortedby(this);">'.$iconsort.'&nbsp;'.$acolv.'</a>');
-    						$theatable.= '</th>';
-    					}
-    				}
-						ksort($lblcol);
-    				if($atr==0){
-							if(($this->edit || $this->delete) && $this->proctbl){
-								$theatable.= '<th'.(isset($colsize[$key+1])?' width="'.$colsize[$key+1].'"':'').(isset($colalign)?' style="text-align:'.($colalign[$key+1]=='R'?'right':($colalign[$key+1]=='C'?'center':'left')).';"':'').$colrow.'>Action</th>';
-								array_push($lblcol,'Action');
-							}
-							$theatable.= '</tr>';
-						}else{
-							if(($this->edit || $this->delete) && $this->proctbl){
-								array_push($lblcol,'Action');
 							}
 						}
-    	$theatable.= '</thead>
-    			<tbody>';
-    	$i = 1;
-    	$per_page = $limit;
-    	$datarecord = $this->db_num_rows($this->db_query($qrytable." ".$groupby." ".$where));
-    	$jml_pages = ceil($datarecord/$per_page);
-    	$pages = 1;
-    	// get page
-    	if(isset($_POST['h'])) {
-    		$pages = $_POST['h'];
-    		$i=$i+(($pages-1)*$per_page);
-    	}
-    	if(isset($_POST['afind'])){
-				$afind = $_POST['afind'];
-    		if($afind==''){
-    			$per_page = $limit;
-    			if(isset($_POST['showall'])){
-    				$forlimit = "";
-    				$jml_pages = 1;
-    			}else{
-    				$forlimit = " LIMIT $per_page OFFSET ".($pages-1) * $per_page;
-    			}
-    			$this->querysql = $qrytable." ".$groupby." ".$where." ".$orderby.$forlimit;
-    			$qry = $this->db_query($this->querysql);
-    			if($this->db_num_rows($qry)==0){
-						$edtbtn=0;
-						if(($this->edit || $this->delete) && $this->proctbl){$edtbtn=1;}
-    				$theatable.= '<tr><td colspan="'.(count($atablecol)+1+$edtbtn).'" style="font-weight:bold;text-align:center;">No Data.</td><tr>';
-    			}
-    		}else{
-    			$afind=str_replace(' ','%',str_replace("'", "''", $afind));
-    			if(strpos(strtolower($afind), '"')!==false){
-    				$afind=str_replace('"','',preg_replace('/(?| *(".*?") *| *(\'.*?\') *)| +/s', '%$1', $afind));
-    			}
-    			$per_page = $limitfind;
-    			if($where!=""){
-    				$iswhere = ' AND ';
-    			}else{
-    				$iswhere = ' HAVING ';
-    			}
-    			if(isset($_POST['showall'])){
-    				$forlimit = "";
-    			}else{
-    				$forlimit = " LIMIT $per_page OFFSET ".($pages-1) * $per_page;
-    			}
-    			$columnwhere="";
-					if(!empty($groupby)){$colgorup=str_replace('GROUP BY ','',$groupby);}else{$colgorup=$getcoltable;}
-    			$colsrc=preg_replace("/,(?=[^)]*(?:[(]|$))/", ",' ',",$colgorup);
-    			if($colsrc==" * "){$colsrc=implode(",' ',",$atablecol);}
-    			$colwhere=explode(",' ',",$colsrc);
-    			$lencol=count($colwhere);
-    			if($lencol>50){
-    				$i=0;
-    				$columnwhere.="(";
-    				for($n=0;$n<ceil(count($colwhere)/50);$n++){
-    					$arrhalf = array_slice($colwhere, $n+$i, 25*($n+1));
-    					if($n>0){$columnwhere.=" OR ";}
-    					$columnwhere.="lower(concat(";
-    					foreach($arrhalf as $key => $value){
-    						if($key!=0){$columnwhere.=",' ',";}
-    						$columnwhere.=$value;
-    						$i++;
-    					}
-    					$columnwhere.=")) LIKE '%".strtolower($afind)."%'";
-    				}
-    				$columnwhere.=")";
-    			}else{
-    				$columnwhere="lower(concat(".$colsrc.")) LIKE '%".strtolower($afind)."%'";
-    			}
-    			$this->querysql = $qrytable." ".$groupby." ".$where.$iswhere.$columnwhere." "." ".$orderby;
-    			$qry=$this->db_query($this->querysql.$forlimit);
-					$datarecord=$this->db_num_rows($this->db_query($this->querysql));
-    			if($this->db_num_rows($qry)==0){
-    				if(strpos(strtolower($qry), 'error')!==false && $this->debug){
-    					$sqlerror = TRUE;$edtbtn=0;
-							if(($this->edit || $this->delete) && $this->proctbl){$edtbtn=1;}
-    					$theatable.= '<tr><td colspan="'.(count($atablecol)+1+$edtbtn).'" style="color:#e74c3c;text-align:center;">'.$qry.'</td><tr>';
-    				}else{
-							$edtbtn=0;
-							if(($this->edit || $this->delete) && $this->proctbl){$edtbtn=1;}
-    					$theatable.= '<tr><td colspan="'.(count($atablecol)+1+$edtbtn).'" style="font-weight:bold;text-align:center;">Not Found.</td><tr>';
-    				}
-    			}
-    			$jml_pages = 1;
-    		}
-    	}else{
-    		if(isset($_POST['showall'])){
-    			$this->querysql = $qrytable." ".$groupby." ".$where." ".$orderby;
-    			$qry = $this->db_query($this->querysql);
-    			$jml_pages = 1;
-    		}else{
-    			$this->querysql = $qrytable." ".$groupby." ".$where." ".$orderby." LIMIT $per_page OFFSET ".($pages-1) * $per_page;
-    			$qry = $this->db_query($this->querysql);
-    		}
-    		if($this->db_num_rows($qry)==0){
-    			if(strpos(strtolower($qry), 'error')!==false && $this->debug){
-    				$sqlerror = TRUE;$edtbtn=0;
-						if(($this->edit || $this->delete) && $this->proctbl){$edtbtn=1;}
-    				$theatable.= '<tr><td colspan="'.(count($atablecol)+1+$edtbtn).'" style="color:#e74c3c;text-align:center;">'.$qry.'</td><tr>';
-    			}else{
-						$edtbtn=0;
-						if(($this->edit || $this->delete) && $this->proctbl){$edtbtn=1;}
-    				$theatable.= '<tr><td colspan="'.(count($atablecol)+1+$edtbtn).'" style="font-weight:bold;text-align:center;">No Data.</td><tr>';
-    			}
-    		}
-    	}
-    	if($showsql || $sqlerror){
-				$edtbtn=0;
-				if(($this->edit || $this->delete) && $this->proctbl){$edtbtn=1;}
-    		$theatable.= '<tr><td colspan="'.(count($atablecol)+1+$edtbtn).'" style="text-align:center !important;color:#c1a;">'.$this->querysql.'</td></tr>';
-    	}
-    	if($qry){$continue=FALSE;$break=FALSE;$atabletr='';
-    		while($row=$this->db_fetch_object($qry)){
-    			if(!empty($param)){eval($param);}
-    			if($continue){$continue=FALSE;continue;}
-    			if($break){$break=FALSE;break;}
-					$atable_tr=$atabletr!=''?' '.$atabletr:'';
-    			$theatable.= '<tr'.$atable_tr.'>'.
-    					($colnumber==TRUE?'<td data-label="No">'.$i.'</td>':'');
-    					$nocols=0;
-    					foreach($atablecol as $key=>$acol){
-    						$theatable.= '<td '.(isset($colalign)?'style="text-align:'.($colalign[$nocols]=='R'?'right':($colalign[$nocols]=='C'?'center':'left')).';"':'').' data-label="'.$lblcol[$key].'">';
-    							if(strpos($acol, ';')!==false){
-    								eval('$theatable.='.$acol);
-    							}else{
-    								$theatable.= $row->$acol!=""?$row->$acol:"&nbsp;";
-    							}
-    						$theatable.= '</td>';
-    						$nocols++;
-    					}
-							if(($this->edit || $this->delete) && $this->proctbl){
-								$theatable.='<td '.(isset($colalign)?'style="text-align:'.($colalign[$nocols]=='R'?'right':($colalign[$nocols]=='C'?'center':'left')).';"':'').' data-label="'.$lblcol[count($lblcol)-1].'">';
-									if($this->edit){$theatable.='<button type="button" class="btn btn-default btn-xs atedit" onclick=\'atable_processdata('.$GLOBALS['atablenum'].',this,"edit",'.$this->col.','.json_encode($lblcol).','.$colnumber.')\' style="font-size:18px;height:30px;"><span class="ic edit"></span></button>';}
-									if($this->delete){$theatable.='<button type="button" class="btn btn-default btn-xs atdelete" onclick=\'atable_processdata('.$GLOBALS['atablenum'].',this,"delete",'.$this->col.','.json_encode($lblcol).','.$colnumber.')\' style="font-size:18px;height:30px;"><span class="ic trash"></span></button>';}
-								$theatable.='</td>';
+						$theatable .= '<th' . $colsz . $colalgn . $colrow . '>';
+						//$arrkey=($colrowv[$keyf-1]=='col' && $keyf>0?$keyf+$colrown[$keyf-1]-1:$arrkey);
+						$arrkey = ($colrowv[$keyf - 1] == 'col' && $keyf > 0 ? $arrkey + $colrown[$keyf - 1] - 1 : $arrkey);
+						$nmcol = str_replace('$', '', str_replace(';', '', $atablecol[$arrkey]));
+						$existcol = $this->GetBetween($qrytable, "select", "from");
+						if (strpos($existcol, $nmcol) !== false) {
+							$bysort = $nmcol;
+						} else {
+							$bysort = $vthn . ';';
+						}
+						if ($sortpost[0] == $bysort) {
+							if ($sortpost[1] == 'ASC') {
+								$iconsort = '<span>&#9662;</span>';
+							} else {
+								$iconsort = '<span>&#9652;</span>';
 							}
-    			$theatable.= '</tr>';
-    			$i++;
-    		}
-    	}
-		if(!empty($addlastrow)){eval('$theatable.='.$addlastrow);}
-		$theatable.= '</tbody>
+						} else {
+							$iconsort = '';
+						}
+						//$lblcol[$arrkey]=$vthn;
+						if (array_key_exists($arrkey, $colsrown[$key - 1])) {
+							$arrkey += $colsrown[$key - 1][$arrkey];
+							$lblcol[$arrkey] = $vthn;
+						} else {
+							$lblcol[$arrkey] = $vthn;
+						}
+						$theatable .= (strpos($bysort, ';') !== false || ($colrowv == 'col') ? $vthn . $kk : $kk . '<a href="javascript:void(0);" id="sortby-' . $GLOBALS['atablenum'] . '-' . $bysort . '" class="sortby" onclick="atable_sortedby(this);">' . $iconsort . '&nbsp;' . $vthn . '</a>');
+						$theatable .= '</th>';
+						$arrkey++;
+					}
+					if ($key == 0) {
+						if (($this->edit || $this->delete) && $this->proctbl) {
+							$theatable .= '<th' . (isset($colsize[count($colalign) - 1]) ? ' width="' . $colsize[count($colalign) - 1] . '"' : '') . (isset($colalign) ? ' style="text-align:' . ($colalign[count($colalign) - 1] == 'R' ? 'right' : ($colalign[count($colalign) - 1] == 'C' ? 'center' : 'left')) . ';"' : '') . ' rowspan="' . $nrospn . '">Action</th>';
+						}
+					}
+					$kyrow++;
+					$theatable .= '</tr>';
+				} else {
+					$theatable .= '<th' . (isset($colsize[$key]) ? ' width="' . $colsize[$key] . '"' : '') . (isset($colalign) ? ' style="text-align:' . ($colalign[$key] == 'R' ? 'right' : ($colalign[$key] == 'C' ? 'center' : 'left')) . ';"' : '') . $colrow . '>';
+					$nmcol = str_replace('$', '', str_replace(';', '', $atablecol[$key]));
+					$existcol = $this->GetBetween($qrytable, "select", "from");
+					if (strpos($existcol, $nmcol) !== false) {
+						$bysort = $nmcol;
+					} else {
+						$bysort = $atablecol[$key];
+					}
+					if ($sortpost[0] == $bysort) {
+						if ($sortpost[1] == 'ASC') {
+							$iconsort = '<span>&#9662;</span>';
+						} else {
+							$iconsort = '<span>&#9652;</span>';
+						}
+					} else {
+						$iconsort = '';
+					}
+					$lblcol[$key] = $acolv;
+					$theatable .= (strpos($bysort, ';') !== false ? $acolv : '<a href="javascript:void(0);" id="sortby-' . $GLOBALS['atablenum'] . '-' . $bysort . '" class="sortby" onclick="atable_sortedby(this);">' . $iconsort . '&nbsp;' . $acolv . '</a>');
+					$theatable .= '</th>';
+				}
+			}
+			ksort($lblcol);
+			if ($atr == 0) {
+				if (($this->edit || $this->delete) && $this->proctbl) {
+					$theatable .= '<th' . (isset($colsize[$key + 1]) ? ' width="' . $colsize[$key + 1] . '"' : '') . (isset($colalign[$key + 1]) ? ' style="text-align:' . ($colalign[$key + 1] == 'R' ? 'right' : ($colalign[$key + 1] == 'C' ? 'center' : 'left')) . ';"' : '') . $colrow . '>Action</th>';
+					array_push($lblcol, 'Action');
+				}
+				$theatable .= '</tr>';
+			} else {
+				if (($this->edit || $this->delete) && $this->proctbl) {
+					array_push($lblcol, 'Action');
+				}
+			}
+			$theatable .= '</thead>
+    			<tbody>';
+			$i = 1;
+			$per_page = $limit;
+			$datarecord = $this->db_num_rows($this->db_query($qrytable . " " . $groupby . " " . $where));
+			$jml_pages = ceil($datarecord / $per_page);
+			$pages = 1;
+			// get page
+			if (isset($_POST['h'])) {
+				$pages = $_POST['h'];
+				$i = $i + (($pages - 1) * $per_page);
+			}
+			if (isset($_POST['afind'])) {
+				$afind = $_POST['afind'];
+				if ($afind == '') {
+					$per_page = $limit;
+					if (isset($_POST['showall'])) {
+						$forlimit = "";
+						$jml_pages = 1;
+					} else {
+						$forlimit = " LIMIT $per_page OFFSET " . ($pages - 1) * $per_page;
+					}
+					$this->querysql = $qrytable . " " . $groupby . " " . $where . " " . $orderby . $forlimit;
+					$qry = $this->db_query($this->querysql);
+					if ($this->db_num_rows($qry) == 0) {
+						$edtbtn = 0;
+						if (($this->edit || $this->delete) && $this->proctbl) {
+							$edtbtn = 1;
+						}
+						$theatable .= '<tr><td colspan="' . (count($atablecol) + 1 + $edtbtn) . '" style="font-weight:bold;text-align:center;">No Data.</td><tr>';
+					}
+				} else {
+					$afind = str_replace(' ', '%', str_replace("'", "''", $afind));
+					if (strpos(strtolower($afind), '"') !== false) {
+						$afind = str_replace('"', '', preg_replace('/(?| *(".*?") *| *(\'.*?\') *)| +/s', '%$1', $afind));
+					}
+					$per_page = $limitfind;
+					if ($where != "") {
+						$iswhere = ' AND ';
+					} else {
+						$iswhere = ' HAVING ';
+					}
+					if (isset($_POST['showall'])) {
+						$forlimit = "";
+					} else {
+						$forlimit = " LIMIT $per_page OFFSET " . ($pages - 1) * $per_page;
+					}
+					$columnwhere = "";
+					if (!empty($groupby)) {
+						$colgorup = str_replace('GROUP BY ', '', $groupby);
+					} else {
+						$colgorup = $getcoltable;
+					}
+					$colsrc = preg_replace("/,(?=[^)]*(?:[(]|$))/", ",' ',", $colgorup);
+					if ($colsrc == " * ") {
+						$colsrc = implode(",' ',", $atablecol);
+					}
+					$colwhere = explode(",' ',", $colsrc);
+					$lencol = count($colwhere);
+					if ($lencol > 50) {
+						$i = 0;
+						$columnwhere .= "(";
+						for ($n = 0; $n < ceil(count($colwhere) / 50); $n++) {
+							$arrhalf = array_slice($colwhere, $n + $i, 25 * ($n + 1));
+							if ($n > 0) {
+								$columnwhere .= " OR ";
+							}
+							$columnwhere .= "lower(concat(";
+							foreach ($arrhalf as $key => $value) {
+								if ($key != 0) {
+									$columnwhere .= ",' ',";
+								}
+								$columnwhere .= $value;
+								$i++;
+							}
+							$columnwhere .= ")) LIKE '%" . strtolower($afind) . "%'";
+						}
+						$columnwhere .= ")";
+					} else {
+						$columnwhere = "lower(concat(" . $colsrc . ")) LIKE '%" . strtolower($afind) . "%'";
+					}
+					$this->querysql = $qrytable . " " . $groupby . " " . $where . $iswhere . $columnwhere . " " . " " . $orderby;
+					$qry = $this->db_query($this->querysql . $forlimit);
+					$datarecord = $this->db_num_rows($this->db_query($this->querysql));
+					if ($this->db_num_rows($qry) == 0) {
+						if (strpos(strtolower($qry), 'error') !== false && $this->debug) {
+							$sqlerror = TRUE;
+							$edtbtn = 0;
+							if (($this->edit || $this->delete) && $this->proctbl) {
+								$edtbtn = 1;
+							}
+							$theatable .= '<tr><td colspan="' . (count($atablecol) + 1 + $edtbtn) . '" style="color:#e74c3c;text-align:center;">' . $qry . '</td><tr>';
+						} else {
+							$edtbtn = 0;
+							if (($this->edit || $this->delete) && $this->proctbl) {
+								$edtbtn = 1;
+							}
+							$theatable .= '<tr><td colspan="' . (count($atablecol) + 1 + $edtbtn) . '" style="font-weight:bold;text-align:center;">Not Found.</td><tr>';
+						}
+					}
+					$jml_pages = 1;
+				}
+			} else {
+				if (isset($_POST['showall'])) {
+					$this->querysql = $qrytable . " " . $groupby . " " . $where . " " . $orderby;
+					$qry = $this->db_query($this->querysql);
+					$jml_pages = 1;
+				} else {
+					$this->querysql = $qrytable . " " . $groupby . " " . $where . " " . $orderby . " LIMIT $per_page OFFSET " . ($pages - 1) * $per_page;
+					$qry = $this->db_query($this->querysql);
+				}
+				if ($this->db_num_rows($qry) == 0) {
+					if (strpos(strtolower($qry), 'error') !== false && $this->debug) {
+						$sqlerror = TRUE;
+						$edtbtn = 0;
+						if (($this->edit || $this->delete) && $this->proctbl) {
+							$edtbtn = 1;
+						}
+						$theatable .= '<tr><td colspan="' . (count($atablecol) + 1 + $edtbtn) . '" style="color:#e74c3c;text-align:center;">' . $qry . '</td><tr>';
+					} else {
+						$edtbtn = 0;
+						if (($this->edit || $this->delete) && $this->proctbl) {
+							$edtbtn = 1;
+						}
+						$theatable .= '<tr><td colspan="' . (count($atablecol) + 1 + $edtbtn) . '" style="font-weight:bold;text-align:center;">No Data.</td><tr>';
+					}
+				}
+			}
+			if ($showsql || $sqlerror) {
+				$edtbtn = 0;
+				if (($this->edit || $this->delete) && $this->proctbl) {
+					$edtbtn = 1;
+				}
+				$theatable .= '<tr><td colspan="' . (count($atablecol) + 1 + $edtbtn) . '" style="text-align:center !important;color:#c1a;">' . $this->querysql . '</td></tr>';
+			}
+			if ($qry) {
+				$continue = FALSE;
+				$break = FALSE;
+				$atabletr = '';
+				while ($row = $this->db_fetch_object($qry)) {
+					if (!empty($param)) {
+						eval($param);
+					}
+					if ($continue) {
+						$continue = FALSE;
+						continue;
+					}
+					if ($break) {
+						$break = FALSE;
+						break;
+					}
+					$atable_tr = $atabletr != '' ? ' ' . $atabletr : '';
+					$theatable .= '<tr' . $atable_tr . '>' . ($colnumber == TRUE ? '<td data-label="No">' . $i . '</td>' : '');
+					$nocols = 0;
+					foreach ($atablecol as $key => $acol) {
+						$theatable .= '<td ' . (isset($colalign) ? 'style="text-align:' . ($colalign[$nocols] == 'R' ? 'right' : ($colalign[$nocols] == 'C' ? 'center' : 'left')) . ';"' : '') . ' data-label="' . $lblcol[$key] . '">';
+						if (strpos($acol, ';') !== false) {
+							eval('$theatable.=' . $acol);
+						} else {
+							$theatable .= $row->$acol != "" ? $row->$acol : "&nbsp;";
+						}
+						$theatable .= '</td>';
+						$nocols++;
+					}
+					if (($this->edit || $this->delete) && $this->proctbl) {
+						$theatable .= '<td ' . (isset($colalign) ? 'style="text-align:' . ($colalign[$nocols] == 'R' ? 'right' : ($colalign[$nocols] == 'C' ? 'center' : 'left')) . ';"' : '') . ' data-label="' . $lblcol[count($lblcol) - 1] . '">';
+						if ($this->edit) {
+							$theatable .= '<button type="button" class="btn btn-default btn-xs atedit" onclick=\'atable_processdata(' . $GLOBALS['atablenum'] . ',this,"edit",' . $this->col . ',' . json_encode($lblcol) . ',' . $colnumber . ')\' style="font-size:18px;height:30px;"><span class="ic edit"></span></button>';
+						}
+						if ($this->delete) {
+							$theatable .= '<button type="button" class="btn btn-default btn-xs atdelete" onclick=\'atable_processdata(' . $GLOBALS['atablenum'] . ',this,"delete",' . $this->col . ',' . json_encode($lblcol) . ',' . $colnumber . ')\' style="font-size:18px;height:30px;"><span class="ic trash"></span></button>';
+						}
+						$theatable .= '</td>';
+					}
+					$theatable .= '</tr>';
+					$i++;
+				}
+			}
+			if (!empty($addlastrow)) {
+				eval('$theatable.=' . $addlastrow);
+			}
+			$theatable .= '</tbody>
 		</table></div>';
-		$showpg=0;$class="";//$lblcol
-		$theatable.= '<!-- datainfo -->
-		<div class="colhide" id="colhide'.$GLOBALS['atablenum'].'">
-		<div style="margin-bottom:6px;"><select multiple="multiple" style="width:250px;min-height:83px;max-height:120px;" id="slctmltp'.$GLOBALS['atablenum'].'" class="form-control">';
-			if($this->colnumber){
-				$theatable.= '<option value="0" selected="selected">No</option>';
+			$showpg = 0;
+			$class = ""; //$lblcol
+			$theatable .= '<!-- datainfo -->
+		<div class="colhide" id="colhide' . $GLOBALS['atablenum'] . '">
+		<div style="margin-bottom:6px;"><select multiple="multiple" style="width:250px;min-height:83px;max-height:120px;" id="slctmltp' . $GLOBALS['atablenum'] . '" class="form-control">';
+			if ($this->colnumber) {
+				$theatable .= '<option value="0" selected="selected">No</option>';
 			}
-			foreach($lblcol as $key=>$lbl){
-				$theatable.= '<option value="'.($this->colnumber?$key+1:$key).'" selected="selected">'.$lbl.'</option>';
+			foreach ($lblcol as $key => $lbl) {
+				$theatable .= '<option value="' . ($this->colnumber ? $key + 1 : $key) . '" selected="selected">' . $lbl . '</option>';
 			}
-		$theatable.= '</select></div>
-		<button type="button" class="btn btn-default btn-sm" id="colhidecancel" style="float:right" onclick="atable_showhide(\'colhide'.$GLOBALS['atablenum'].'\')">Cancel</button>
-		<button type="button" onclick="atable_colshide(\'dtblatable'.$GLOBALS['atablenum'].'\',getSelectMultiValues(\'slctmltp'.$GLOBALS['atablenum'].'\'),'.$GLOBALS['atablenum'].');atable_showhide(\'colhide'.$GLOBALS['atablenum'].'\')" class="btn btn-default btn-sm" id="colhideok" style="float:right">Ok</button>
+			$theatable .= '</select></div>
+		<button type="button" class="btn btn-default btn-sm" id="colhidecancel" style="float:right" onclick="atable_showhide(\'colhide' . $GLOBALS['atablenum'] . '\')">Cancel</button>
+		<button type="button" onclick="atable_colshide(\'dtblatable' . $GLOBALS['atablenum'] . '\',getSelectMultiValues(\'slctmltp' . $GLOBALS['atablenum'] . '\'),' . $GLOBALS['atablenum'] . ');atable_showhide(\'colhide' . $GLOBALS['atablenum'] . '\')" class="btn btn-default btn-sm" id="colhideok" style="float:right">Ok</button>
 		</div>
-		<div class="datainfo">'.
-		($this->add==TRUE && $this->proctbl?
-		  '<button type="button" onclick=\'atable_processdata('.$GLOBALS['atablenum'].',this,"add",'.$this->col.','.json_encode($lblcol).','.$colnumber.')\' class="btn btn-primary btn-xs" title="Add Data" id="dtadd'.$GLOBALS['atablenum'].'" style="font-size:18px;height:30px;"><b>+</b></button>&nbsp;':'').
-		($this->reload==TRUE?
-		  '<button type="button" onclick="atable_reload('.$GLOBALS['atablenum'].')" class="btn btn-info btn-xs" title="Reload" id="dtreload'.$GLOBALS['atablenum'].'" style="font-size:18px;height:30px;">&#8635;</button>&nbsp;':'').
-		($this->collist==TRUE?
-		  '<button type="button" onclick="atable_showhide(\'colhide'.$GLOBALS['atablenum'].'\')" class="btn btn-default btn-xs" title="Column" id="dtlist'.$GLOBALS['atablenum'].'" style="font-size:18px;height:30px;">&#8862;</button>&nbsp;':'').
-		($this->xls==TRUE?
-		  '<button type="button" onclick="atable_toxls(\'dtblatable'.$GLOBALS['atablenum'].'\',\''.str_replace(" ","_",$caption).'\')" id="dtxls'.$GLOBALS['atablenum'].'" class="btn btn-success btn-sm" title="Export to Excel" id="dtxls">xls</button>&nbsp;':'').
-		($this->datainfo==TRUE?
-		('<span class="inffrom" id="inffrom'.$GLOBALS['atablenum'].'">'.(($i-1)==0?0:((($pages-1) * $per_page)+1)).'</span> to <span class="atblinfto" id="infto'.$GLOBALS['atablenum'].'">'.($i-1)." of ".$datarecord."</span> data").
-		'&nbsp;&nbsp;'.
-		($this->loadmore==TRUE?
-		'<a href="javascript:void(0);" id="loadmore-'.$GLOBALS['atablenum'].'" class="loadmore" onclick="atable_loadmore(this);" '.(($i-1)>=$datarecord?'style="display:none;"':'').'>Load More</a>&nbsp;&nbsp;':'').
-		($this->showall==TRUE?
-		'<a href="javascript:void(0);" id="showall-'.$GLOBALS['atablenum'].'" class="showall" onclick="atable_showall(this);">Show All</a>
-		<a href="javascript:void(0);" id="showless-'.$GLOBALS['atablenum'].'" class="showless" style="display:none;" onclick="atable_showless(this);">Show Less</a>':''):'').'
+		<div class="datainfo">' . ($this->add == TRUE && $this->proctbl ?
+				'<button type="button" onclick=\'atable_processdata(' . $GLOBALS['atablenum'] . ',this,"add",' . $this->col . ',' . json_encode($lblcol) . ',' . $colnumber . ')\' class="btn btn-primary btn-xs" title="Add Data" id="dtadd' . $GLOBALS['atablenum'] . '" style="font-size:18px;height:30px;"><b>+</b></button>&nbsp;' : '') . ($this->reload == TRUE ?
+				'<button type="button" onclick="atable_reload(' . $GLOBALS['atablenum'] . ')" class="btn btn-info btn-xs" title="Reload" id="dtreload' . $GLOBALS['atablenum'] . '" style="font-size:18px;height:30px;">&#8635;</button>&nbsp;' : '') . ($this->collist == TRUE ?
+				'<button type="button" onclick="atable_showhide(\'colhide' . $GLOBALS['atablenum'] . '\')" class="btn btn-default btn-xs" title="Column" id="dtlist' . $GLOBALS['atablenum'] . '" style="font-size:18px;height:30px;">&#8862;</button>&nbsp;' : '') . ($this->xls == TRUE ?
+				'<button type="button" onclick="atable_toxls(\'dtblatable' . $GLOBALS['atablenum'] . '\',\'' . str_replace(" ", "_", $caption) . '\')" id="dtxls' . $GLOBALS['atablenum'] . '" class="btn btn-success btn-sm" title="Export to Excel" id="dtxls">xls</button>&nbsp;' : '') . ($this->datainfo == TRUE ? ('<span class="inffrom" id="inffrom' . $GLOBALS['atablenum'] . '">' . (($i - 1) == 0 ? 0 : ((($pages - 1) * $per_page) + 1)) . '</span> to <span class="atblinfto" id="infto' . $GLOBALS['atablenum'] . '">' . ($i - 1) . " of " . $datarecord . "</span> data") .
+				'&nbsp;&nbsp;' . ($this->loadmore == TRUE ?
+					'<a href="javascript:void(0);" id="loadmore-' . $GLOBALS['atablenum'] . '" class="loadmore" onclick="atable_loadmore(this);" ' . (($i - 1) >= $datarecord ? 'style="display:none;"' : '') . '>Load More</a>&nbsp;&nbsp;' : '') . ($this->showall == TRUE ?
+					'<a href="javascript:void(0);" id="showall-' . $GLOBALS['atablenum'] . '" class="showall" onclick="atable_showall(this);">Show All</a>
+		<a href="javascript:void(0);" id="showless-' . $GLOBALS['atablenum'] . '" class="showless" style="display:none;" onclick="atable_showless(this);">Show Less</a>' : '') : '') . '
 		</div>
 		<!-- paging -->
-		<div class="paggingfield" '.($this->paging==TRUE?'':'style="display:none;"').'>
+		<div class="paggingfield" ' . ($this->paging == TRUE ? '' : 'style="display:none;"') . '>
 			<ul class="pagination">';
-			if($pages>1){
-				$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.($pages-1).'-'.$GLOBALS['atablenum'].'" class="pages" onclick="atable_pages(\''.($pages-1).'-'.$GLOBALS['atablenum'].'\');">&laquo;</a></li>';
+			if ($pages > 1) {
+				$theatable .= '<li ' . $class . '><a href="javascript:void(0);" id="' . ($pages - 1) . '-' . $GLOBALS['atablenum'] . '" class="pages" onclick="atable_pages(\'' . ($pages - 1) . '-' . $GLOBALS['atablenum'] . '\');">&laquo;</a></li>';
 			}
-			for($page = 1;$page <= $jml_pages;$page++){
-				$page == $pages ? $class='class="active"' : $class="";
-				if((($page >= $pages-2) && ($page <= $pages +2)) || ($page==1) || ($page==$jml_pages)){
-					if(($showpg==1)&&($page !=2 )){$theatable.= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';}
-					if(($showpg!=($jml_pages-1))&&($page == $jml_pages)){$theatable.= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';}
-					if($page == $pages){$theatable.= '<li '.$class.'><a href="javascript:void(this);" id="'.$page.'-'.$GLOBALS['atablenum'].'" onclick="atable_pages(\''.$page.'-'.$GLOBALS['atablenum'].'\');">'.$page.'</a></li>';}
-					else{$theatable.= '<li '.$class.'><a href="javascript:void(this);" id="'.$page.'-'.$GLOBALS['atablenum'].'" class="pages" onclick="atable_pages(\''.$page.'-'.$GLOBALS['atablenum'].'\');">'.$page.'</a></li>';}
-					$showpg=$page;
+			for ($page = 1; $page <= $jml_pages; $page++) {
+				$page == $pages ? $class = 'class="active"' : $class = "";
+				if ((($page >= $pages - 2) && ($page <= $pages + 2)) || ($page == 1) || ($page == $jml_pages)) {
+					if (($showpg == 1) && ($page != 2)) {
+						$theatable .= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';
+					}
+					if (($showpg != ($jml_pages - 1)) && ($page == $jml_pages)) {
+						$theatable .= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';
+					}
+					if ($page == $pages) {
+						$theatable .= '<li ' . $class . '><a href="javascript:void(this);" id="' . $page . '-' . $GLOBALS['atablenum'] . '" onclick="atable_pages(\'' . $page . '-' . $GLOBALS['atablenum'] . '\');">' . $page . '</a></li>';
+					} else {
+						$theatable .= '<li ' . $class . '><a href="javascript:void(this);" id="' . $page . '-' . $GLOBALS['atablenum'] . '" class="pages" onclick="atable_pages(\'' . $page . '-' . $GLOBALS['atablenum'] . '\');">' . $page . '</a></li>';
+					}
+					$showpg = $page;
 				}
 			}
-			if($pages<$jml_pages){
-				$theatable.= '<li '.$class.'><a href="javascript:void(0);" id="'.($pages+1).'-'.$GLOBALS['atablenum'].'" class="pages" onclick="atable_pages(\''.($pages+1).'-'.$GLOBALS['atablenum'].'\');">&raquo;</a></li>';
+			if ($pages < $jml_pages) {
+				$theatable .= '<li ' . $class . '><a href="javascript:void(0);" id="' . ($pages + 1) . '-' . $GLOBALS['atablenum'] . '" class="pages" onclick="atable_pages(\'' . ($pages + 1) . '-' . $GLOBALS['atablenum'] . '\');">&raquo;</a></li>';
 			}
-			$theatable.= '</ul>
+			$theatable .= '</ul>
 		</div>';
-		}// end post
-		$theatable.= "</div></div>";
+		} // end post
+		$theatable .= "</div></div>";
 		$GLOBALS['atablenum']++;
 		return $theatable;
-	}// end function
-	function GetBetween($pool,$var1="",$var2=""){
-		$pool=strtolower($pool);//exception
-		$temp1 = strpos($pool,$var1)+strlen($var1);
-		$result = substr($pool,$temp1,strlen($pool));
-		$dd=strpos($result,$var2);
-		if($dd == 0){
-		  $dd = strlen($result);
+	} // end function
+	function GetBetween($pool, $var1 = "", $var2 = "")
+	{
+		$pool = strtolower($pool); //exception
+		$temp1 = strpos($pool, $var1) + strlen($var1);
+		$result = substr($pool, $temp1, strlen($pool));
+		$dd = strpos($result, $var2);
+		if ($dd == 0) {
+			$dd = strlen($result);
 		}
-		return substr($result,0,$dd);
+		return substr($result, 0, $dd);
 	}
-  function db_query($qry){
-  	$res = "";
-  	if($this->dblink=="mysql"){
-  		$res = mysql_query($qry);
-  		if(!$res){
-  			$res = mysql_error();
-  		}
-  	}else if($this->dblink=="mysqli"){
-			if($this->dbcon!=''){
-  			$res = mysqli_query($this->dbcon,$qry);
-			}else{$res = mysqli_query($qry);}
-  		if(!$res){
-  			$res = mysqli_errno($this->dbcon);
-  		}
-  	}else if($this->dblink=="pgsql"){
-			if($this->dbcon!=''){
-	  		$res = pg_query($this->dbcon,$qry);
-			}else{$res = pg_query($qry);}
-  		if(!$res){
-  			$res = pg_last_error($this->dbcon);
-  		}
-  	}else if($this->dblink=="ci"){
-			$this->CI = & get_instance();
-			$database=!empty($this->database)?$this->database:"db";
-  		$res = $this->CI->$database->query($qry);
-  		if(!$res){
-  			$res = $this->CI->$database->_error_message();
-  		}
-  	}
-  	return $res;
-  }
-  function db_fetch_object($qry){
-  	$res = "";
-  	if($this->dblink=="mysql"){
-  		$res = mysql_fetch_object($qry);
-  	}else if($this->dblink=="mysqli"){
-  		$res = mysqli_fetch_object($qry);
-  	}else if($this->dblink=="pgsql"){
-  		$res = pg_fetch_object($qry);
-  	}else if($this->dblink=="ci"){
-			$civer=explode(".",CI_VERSION);
-			if($civer[0]=="2"){
-  			$res = $qry->_fetch_object();
-			}else{
-  			$res = $qry->unbuffered_row();
+	function db_query($qry)
+	{
+		$res = "";
+		if ($this->dblink == "mysql") {
+			$res = mysql_query($qry);
+			if (!$res) {
+				$res = mysql_error();
 			}
-  	}
-  	return $res;
-  }
-  function db_num_rows($qry){
-  	$res = "";
-  	if($this->dblink=="mysql"){
-  		$res = mysql_num_rows($qry);
-  	}else if($this->dblink=="mysqli"){
-  		$res = mysqli_num_rows($qry);
-  	}else if($this->dblink=="pgsql"){
-  		$res = pg_num_rows($qry);
-  	}else if($this->dblink=="ci"){
-  		$res = $qry->num_rows();
-  	}
-  	return $res;
-  }
+		} else if ($this->dblink == "mysqli") {
+			if ($this->dbcon != '') {
+				$res = mysqli_query($this->dbcon, $qry);
+			} else {
+				$res = mysqli_query($qry);
+			}
+			if (!$res) {
+				$res = mysqli_errno($this->dbcon);
+			}
+		} else if ($this->dblink == "pgsql") {
+			if ($this->dbcon != '') {
+				$res = pg_query($this->dbcon, $qry);
+			} else {
+				$res = pg_query($qry);
+			}
+			if (!$res) {
+				$res = pg_last_error($this->dbcon);
+			}
+		} else if ($this->dblink == "ci") {
+			$this->CI = &get_instance();
+			$database = !empty($this->database) ? $this->database : "db";
+			$res = $this->CI->$database->query($qry);
+			if (!$res) {
+				$res = $this->CI->$database->_error_message();
+			}
+		}
+		return $res;
+	}
+	function db_fetch_object($qry)
+	{
+		$res = "";
+		if ($this->dblink == "mysql") {
+			$res = mysql_fetch_object($qry);
+		} else if ($this->dblink == "mysqli") {
+			$res = mysqli_fetch_object($qry);
+		} else if ($this->dblink == "pgsql") {
+			$res = pg_fetch_object($qry);
+		} else if ($this->dblink == "ci") {
+			$civer = explode(".", CI_VERSION);
+			if ($civer[0] == "2") {
+				$res = $qry->_fetch_object();
+			} else {
+				$res = $qry->unbuffered_row();
+			}
+		}
+		return $res;
+	}
+	function db_num_rows($qry)
+	{
+		$res = "";
+		if ($this->dblink == "mysql") {
+			$res = mysql_num_rows($qry);
+		} else if ($this->dblink == "mysqli") {
+			$res = mysqli_num_rows($qry);
+		} else if ($this->dblink == "pgsql") {
+			$res = pg_num_rows($qry);
+		} else if ($this->dblink == "ci") {
+			$res = $qry->num_rows();
+		}
+		return $res;
+	}
 }
-function atable_init(){
-	if(!isset($_POST['fromatable'])){
-	echo '<style>*{margin:0;padding:0;box-sizing: border-box;}
+function atable_init()
+{
+	if (!isset($_POST['fromatable'])) {
+		echo '<style>*{margin:0;padding:0;box-sizing: border-box;}
 	.atable{font-family:Arial;font-size:14px;color:#333;display:list-item;list-style:none;clear:both;margin-top:10px;margin-bottom:80px;position:relative;}
 	.atable .atablewrap{width:100%;}
 	.atable .dtatable .table{margin-bottom:0px;}
@@ -1404,9 +1536,8 @@ function atable_init(){
 		if(prc!="delete"){$("#"+idsetf).focus();}
 	}
 	</script>';
-	$http_s = isset($_SERVER['HTTPS'])?"https://":"http://";
-	$this_page = $http_s.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-	echo "<script>$(document).ready(function(e) {load_atable('".$this_page."','".json_encode($_POST)."');});</script>";
+		$http_s = isset($_SERVER['HTTPS']) ? "https://" : "http://";
+		$this_page = $http_s . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		echo "<script>$(document).ready(function(e) {load_atable('" . $this_page . "','" . json_encode($_POST) . "');});</script>";
 	}
 }
-?>
