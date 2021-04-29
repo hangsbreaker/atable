@@ -103,11 +103,11 @@ class Atable
 							$recdt .= ' AND ';
 						}
 						$npd++;
-						$qryp .= $key . "='" . $value . "'";
+						$qryp .= $key . "='" . $this->escapestring($value) . "'";
 						if ($_POST['ndata'][$key] == "") {
 							$recdt .= "(" . $key . "='' OR " . $key . " is null)";
 						} else {
-							$recdt .= $key . "='" . $_POST['ndata'][$key] . "'";
+							$recdt .= $key . "='" . $this->escapestring($_POST['ndata'][$key]) . "'";
 						}
 					}
 					$qryp .= " where " . $recdt;
@@ -121,7 +121,7 @@ class Atable
 						if ($_POST['ndata'][$key] == "") {
 							$recdt .= "(" . $key . "='' OR " . $key . " is null)";
 						} else {
-							$recdt .= $key . "='" . $_POST['ndata'][$key] . "'";
+							$recdt .= $key . "='" . $this->escapestring($_POST['ndata'][$key]) . "'";
 						}
 					}
 					$qryp .= $recdt;
@@ -134,11 +134,11 @@ class Atable
 						}
 						$npd++;
 						$qryp .= $key;
-						$recdt .= "'" . $value . "'";
+						$recdt .= "'" . $this->escapestring($value) . "'";
 					}
 					$qryp .= ") values (" . $recdt . ")";
 				}
-				//echo $qryp;
+				echo $qryp;
 				$sts = $this->db_query($qryp);
 				if ($sts) {
 					echo " atable_process_true";
@@ -319,9 +319,11 @@ class Atable
     			<tbody>';
 			$i = 1;
 			$per_page = $limit;
-			$datarecord = $this->db_num_rows($this->db_query($qrytable . " " . $groupby . " " . $where));
+			$existcol = explode(",", $this->GetBetween($qrytable, "select", "from"));
+			$datarecord = $this->db_num_rows($this->db_query("SELECT count(" . trim($existcol[0]) . ") FROM " . $tblnm . " " . $groupby . " " . $where));
 			$jml_pages = ceil($datarecord / $per_page);
 			$pages = 1;
+
 			// get page
 			if (isset($_POST['h'])) {
 				$pages = $_POST['h'];
@@ -633,6 +635,20 @@ class Atable
 			$res = pg_num_rows($qry);
 		} else if ($this->dblink == "ci") {
 			$res = $qry->num_rows();
+		}
+		return $res;
+	}
+	function escapestring($qry)
+	{
+		$res = "";
+		if ($this->dblink == "mysqli") {
+			if ($this->dbcon != '') {
+				$res = mysqli_real_escape_string($this->dbcon, $qry);
+			}
+		} else if ($this->dblink == "pgsql") {
+			if ($this->dbcon != '') {
+				$res = pg_escape_string($this->dbcon, $qry);
+			}
 		}
 		return $res;
 	}
@@ -1504,7 +1520,7 @@ function atable_init()
 		      ndata[cols[i]]=rows[i+nm].replace("&nbsp;","");
 				}
 	    }
-	    $.post(thepage,{process_table:ntbl,vdata:vdata, ndata:ndata, atable_process_data:prc},function(data){//console.log(data);
+	    $.post(thepage,{process_table:ntbl,vdata:vdata, ndata:ndata, atable_process_data:prc},function(data){console.log(data);
 	      if(data.includes("atable_process_true")){
 	        if(prc=="delete" || prc=="add"){frm.style.display="none";}
 	        if(prc!="add"){
