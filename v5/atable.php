@@ -83,6 +83,7 @@ class Atable
 		$lblcol = array();
 		$sortpost = "";
 		$sqlerror = FALSE;
+		$_POST['limitpage'] = $limit;
 		$getcoltable = preg_replace("/ as [\s\S]+? /", " ", preg_replace("/ as [\s\S]+?,/", ",", $this->GetBetween($qrytable, "select", "from")));
 		// ===============================
 		$tblnm = trim(str_replace("from ", "", substr(strtolower($qrytable), strpos(strtolower($qrytable), "from"), strlen($qrytable))));
