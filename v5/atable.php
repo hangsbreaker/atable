@@ -253,7 +253,7 @@ class Atable
 						} else {
 							$bysort = $vthn . ';';
 						}
-						if ($sortpost[0] == $bysort) {
+						if ($sortpost[0] == $bysort && $bysort!='') {
 							if ($sortpost[1] == 'ASC') {
 								$iconsort = '<span>&#9662;</span>';
 							} else {
@@ -289,7 +289,7 @@ class Atable
 					} else {
 						$bysort = $atablecol[$key];
 					}
-					if ($sortpost[0] == $bysort) {
+					if ($sortpost[0] == $bysort && $bysort!='') {
 						if ($sortpost[1] == 'ASC') {
 							$iconsort = '<span>&#9662;</span>';
 						} else {
