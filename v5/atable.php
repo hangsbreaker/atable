@@ -37,6 +37,7 @@ class Atable
 	var $edit = FALSE;
 	var $delete = FALSE;
 	var $proctbl = FALSE;
+	var $rowlimit = TRUE;
 	function load()
 	{
 		if (empty($this->database)) {
@@ -80,6 +81,7 @@ class Atable
 		$showsql = !empty($this->showsql) ? $this->showsql : '';
 		$caption = !empty($this->caption) ? $this->caption : '';
 		$style = !empty($this->style) ? $this->style : 'table table-hover';
+		$tfooter = !empty($this->tfooter) ? $this->tfooter : '';
 		$lblcol = array();
 		$sortpost = "";
 		$sqlerror = FALSE;
@@ -162,6 +164,8 @@ class Atable
 			}
 			if (empty($limit)) {
 				$limit = 10;
+			} else if (isset($_POST['limitpage'])) {
+				$limit = $_POST['limitpage'];
 			}
 			if (!empty($addvar)) {
 				extract($addvar);
@@ -254,7 +258,7 @@ class Atable
 						} else {
 							$bysort = $vthn . ';';
 						}
-						if ($sortpost[0] == $bysort && $bysort!='') {
+						if ($sortpost[0] == $bysort && $bysort != '') {
 							if ($sortpost[1] == 'ASC') {
 								$iconsort = '<span>&#9662;</span>';
 							} else {
@@ -290,7 +294,7 @@ class Atable
 					} else {
 						$bysort = $atablecol[$key];
 					}
-					if ($sortpost[0] == $bysort && $bysort!='') {
+					if ($sortpost[0] == $bysort && $bysort != '') {
 						if ($sortpost[1] == 'ASC') {
 							$iconsort = '<span>&#9662;</span>';
 						} else {
@@ -321,7 +325,8 @@ class Atable
 			$i = 1;
 			$per_page = $limit;
 			$existcol = explode(",", $this->GetBetween($qrytable, "select", "from"));
-			$datarecord = $this->db_num_rows($this->db_query("SELECT count(" . trim($existcol[0]) . ") FROM " . $tblnm . " " . $groupby . " " . $where));
+			$row = $this->db_fetch_object($this->db_query("SELECT count(*) as j FROM (SELECT count(*) as col FROM " . $tblnm . " " . $groupby . " " . $where . ") t"));
+			$datarecord = $row->j;
 			$jml_pages = ceil($datarecord / $per_page);
 			$pages = 1;
 
@@ -499,7 +504,7 @@ class Atable
 			if (!empty($addlastrow)) {
 				eval('$theatable.=' . $addlastrow);
 			}
-			$theatable .= '</tbody>
+			$theatable .= '</tbody>' . $tfooter . '
 		</table></div>';
 			$showpg = 0;
 			$class = ""; //$lblcol
@@ -516,7 +521,8 @@ class Atable
 		<button type="button" class="btn btn-default btn-sm" id="colhidecancel" style="float:right" onclick="atable_showhide(\'colhide' . $GLOBALS['atablenum'] . '\')">Cancel</button>
 		<button type="button" onclick="atable_colshide(\'dtblatable' . $GLOBALS['atablenum'] . '\',getSelectMultiValues(\'slctmltp' . $GLOBALS['atablenum'] . '\'),' . $GLOBALS['atablenum'] . ');atable_showhide(\'colhide' . $GLOBALS['atablenum'] . '\')" class="btn btn-default btn-sm" id="colhideok" style="float:right">Ok</button>
 		</div>
-		<div class="datainfo">' . ($this->add == TRUE && $this->proctbl ?
+		<div class="datainfo">' . ($this->rowlimit == TRUE ?
+				'<select type="button" id="rowlimit' . $GLOBALS['atablenum'] . '" class="rowlimit" onchange="atable_setlimit(this,\'' . $GLOBALS['atablenum'] . '\')"><option value="5" ' . ($limit == 5 ? 'selected="selected"' : '') . '>5</option><option value="10" ' . ($limit == 10 ? 'selected="selected"' : '') . '>10</option><option value="15" ' . ($limit == 15 ? 'selected="selected"' : '') . '>15</option><option value="20" ' . ($limit == 20 ? 'selected="selected"' : '') . '>20</option><option value="25" ' . ($limit == 25 ? 'selected="selected"' : '') . '>25</option><option value="50" ' . ($limit == 50 ? 'selected="selected"' : '') . '>50</option><option value="100" ' . ($limit == 100 ? 'selected="selected"' : '') . '>100</option></select>&nbsp;' : '') . ($this->add == TRUE && $this->proctbl ?
 				'<button type="button" onclick=\'atable_processdata(' . $GLOBALS['atablenum'] . ',this,"add",' . $this->col . ',' . json_encode($lblcol) . ',' . $colnumber . ')\' class="btn btn-primary btn-xs" title="Add Data" id="dtadd' . $GLOBALS['atablenum'] . '" style="font-size:18px;height:30px;"><b>+</b></button>&nbsp;' : '') . ($this->reload == TRUE ?
 				'<button type="button" onclick="atable_reload(' . $GLOBALS['atablenum'] . ')" class="btn btn-info btn-xs" title="Reload" id="dtreload' . $GLOBALS['atablenum'] . '" style="font-size:18px;height:30px;">&#8635;</button>&nbsp;' : '') . ($this->collist == TRUE ?
 				'<button type="button" onclick="atable_showhide(\'colhide' . $GLOBALS['atablenum'] . '\')" class="btn btn-default btn-xs" title="Column" id="dtlist' . $GLOBALS['atablenum'] . '" style="font-size:18px;height:30px;">&#8862;</button>&nbsp;' : '') . ($this->xls == TRUE ?
@@ -532,13 +538,18 @@ class Atable
 			if ($pages > 1) {
 				$theatable .= '<li ' . $class . '><a href="javascript:void(0);" id="' . ($pages - 1) . '-' . $GLOBALS['atablenum'] . '" class="pages" onclick="atable_pages(\'' . ($pages - 1) . '-' . $GLOBALS['atablenum'] . '\');">&laquo;</a></li>';
 			}
-			for ($page = 1; $page <= $jml_pages; $page++) {
+			if ($jml_pages > 50000) {
+				$nextpg = $pages + 5;
+			} else {
+				$nextpg = $jml_pages;
+			}
+			for ($page = 1; $page <= $nextpg; $page++) { //$jml_pages
 				$page == $pages ? $class = 'class="active"' : $class = "";
-				if ((($page >= $pages - 2) && ($page <= $pages + 2)) || ($page == 1) || ($page == $jml_pages)) {
+				if ((($page >= $pages - 2) && ($page <= $pages + 2)) || ($page == 1) || ($page == $nextpg)) { //$jml_pages
 					if (($showpg == 1) && ($page != 2)) {
 						$theatable .= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';
 					}
-					if (($showpg != ($jml_pages - 1)) && ($page == $jml_pages)) {
+					if (($showpg != ($nextpg - 1)) && ($page == $nextpg)) { //$jml_pages
 						$theatable .= '<li><a href="javascript:void(0);" class="gapdot">...</a></li>';
 					}
 					if ($page == $pages) {
@@ -581,8 +592,6 @@ class Atable
 		} else if ($this->dblink == "mysqli") {
 			if ($this->dbcon != '') {
 				$res = mysqli_query($this->dbcon, $qry);
-			} else {
-				$res = mysqli_query($qry);
 			}
 			if (!$res) {
 				$res = mysqli_errno($this->dbcon);
@@ -642,7 +651,7 @@ class Atable
 	function escapestring($qry)
 	{
 		$res = "";
-		if ($this->dblink == "mysqli") {
+		/*if ($this->dblink == "mysqli") {
 			if ($this->dbcon != '') {
 				$res = mysqli_real_escape_string($this->dbcon, $qry);
 			}
@@ -650,7 +659,17 @@ class Atable
 			if ($this->dbcon != '') {
 				$res = pg_escape_string($this->dbcon, $qry);
 			}
-		}
+		} else if ($this->dblink == "pgsql") {
+			if ($this->dbcon != '') {
+				$res = pg_escape_string($this->dbcon, $qry);
+			}
+		}*/
+
+		$i = array("\x00", "\n", "\r", "\\", "'", "\"", "\\\"", "\x1a");
+		$reg = array("\\x00", "\\n", "\\r", "\\\\", "''", "\"", "\"", "\\x1a");
+		$res = str_replace($i, $reg, $qry);
+
+		// $res = htmlentities($qry, ENT_QUOTES, 'UTF-8');
 		return $res;
 	}
 }
@@ -783,6 +802,15 @@ function atable_init()
 	.atable .fndclear:hover {
 		background: #ccc;
 		display:table;
+	}
+	.atable .rowlimit{
+		height: 30px;
+		display: inline-block;
+		width: 45px;
+		border-radius: 3px;
+		border: solid 1px #aaa;
+		background: #fff;
+		outline: none;
 	}
 	.atable .colhide{
 		display:none;
@@ -1004,6 +1032,7 @@ function atable_init()
 	var xhr;
 	var thepage="";
 	var datapost={};
+	var limitpage = 10;
 	var sortby=[];var ascdsc=[];var numpage=[];var colshowhide=[];
 	var atable;var forEach;var atablests=[];
 	(function($) {
@@ -1030,6 +1059,7 @@ function atable_init()
 		tbpage["sortby"]=sortby[vid[1]];
 		tbpage["colshowhide"]=colshowhide[vid[1]];
 		tbpage["fromatable"]=true;
+		tbpage["limitpage"]=limitpage;
 		tbpage.afind=v_afind;
 		xhr = $.ajax({
 			type: "POST",
@@ -1062,6 +1092,7 @@ function atable_init()
 		tbpage["sortby"]=sortby[vid[1]];
 		tbpage["colshowhide"]=colshowhide[vid[1]];
 		tbpage["fromatable"]=true;
+		tbpage["limitpage"]=limitpage;
 		tbpage.afind=v_afind;
 		//console.log(tbpage);
 		xhr = $.ajax({
@@ -1091,6 +1122,11 @@ function atable_init()
 			}
 		});
 	};
+	function atable_setlimit(slc,tbid){
+		limitpage = slc.value;
+		atable_reload(tbid);
+		// console.log(slc.value+" "+tbid);
+	}
 	function atable_getpage(tableID){
 		if(numpage[tableID]==undefined){
 			numpage[tableID]=1;
@@ -1230,6 +1266,7 @@ function atable_init()
 		tbpage["sortby"]=sortby[vid[1]];
 		tbpage["colshowhide"]=colshowhide[vid[1]];
 		tbpage["fromatable"]=true;
+		tbpage["limitpage"]=limitpage;
 		tbpage.afind=v_afind;
 		xhr = $.ajax({
 			type: "POST",
@@ -1273,6 +1310,7 @@ function atable_init()
 		tbpage["sortby"]=sortby[vid[1]];
 		tbpage["colshowhide"]=colshowhide[vid[1]];
 		tbpage["fromatable"]=true;
+		tbpage["limitpage"]=limitpage;
 		tbpage.afind=v_afind;
 		xhr = $.ajax({
 			type: "POST",
@@ -1309,7 +1347,9 @@ function atable_init()
 			colshowhide[i]=[];
 			ascdsc[i]="";
 			loadtable["atabledata"+i]=true;
-			document.getElementById("atablepreloader"+i).style.display="flex";
+			if(document.getElementById("atablepreloader"+i)){
+				document.getElementById("atablepreloader"+i).style.display="flex";
+			}
 		});
 		loadtable.fromatable=true;
 		xhr = $.ajax({
@@ -1329,7 +1369,9 @@ function atable_init()
 						atable[i].innerHTML=atableno[i];
 						atablests[i]=true;
 					}
-					document.getElementById("atablepreloader"+i).style.display="none";
+					if(document.getElementById("atablepreloader"+i)){
+						document.getElementById("atablepreloader"+i).style.display="none";
+					}
 				});
 			}
 		});
@@ -1345,6 +1387,7 @@ function atable_init()
 			tbpage["sortby"]=sortby[vid];
 			tbpage["colshowhide"]=colshowhide[vid[1]];
 			tbpage["fromatable"]=true;
+			tbpage["limitpage"]=limitpage;
 			tbpage.afind=v_afind;
 			xhr = $.ajax({
 				type: "POST",
@@ -1521,7 +1564,8 @@ function atable_init()
 		      ndata[cols[i]]=rows[i+nm].replace("&nbsp;","");
 				}
 	    }
-	    $.post(thepage,{process_table:ntbl,vdata:vdata, ndata:ndata, atable_process_data:prc},function(data){console.log(data);
+	    $.post(thepage,{process_table:ntbl,vdata:vdata, ndata:ndata, atable_process_data:prc},function(data){
+		  //console.log(data);
 	      if(data.includes("atable_process_true")){
 	        if(prc=="delete" || prc=="add"){frm.style.display="none";}
 	        if(prc!="add"){
