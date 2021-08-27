@@ -45,7 +45,7 @@ aTable.table = (function() {
 		$("#" + this.id).html(
 			'<div class="atable"><div class="atablepreloader" id="atablepreloader' +
 				this.tableId +
-				'">Loading ....</div><div class="dtatable" id="dtatable' +
+				'">Loading ....</div><div class="adtatable" id="dtatable' +
 				this.tableId +
 				'"><div class="atablewrap" id="atablewrap' +
 				this.tableId +
@@ -411,8 +411,6 @@ aTable.table = (function() {
 				}
 			}
 
-			rowbody$.append(row$);
-
 			if (this.tbdata[i]["foottitle"] !== undefined) {
 				var row$ = $("<tr/>");
 				row$.append(
@@ -422,8 +420,8 @@ aTable.table = (function() {
 							'"/>'
 					).html(this.tbdata[i]["foottitle"])
 				);
-				rowbody$.append(row$);
 			}
+			rowbody$.append(row$);
 		}
 		$("#" + this.tableId).append(rowbody$);
 
@@ -791,7 +789,7 @@ function atable_toexcel(tableID = "", filename = "") {
 	var downloadLink;
 	var dataType = "application/vnd.ms-excel";
 	var tableSelect = document.getElementById(tableID);
-	var tableHTML = remHiddenTag(tableSelect.outerHTML, "none")
+	var tableHTML = remHiddenTags(tableSelect.outerHTML, "none")
 		.replace(/ /g, "%20")
 		.replace(/<\/?a[^>]*>/g, "")
 		.replace('border="0"', 'border="1"');
@@ -807,17 +805,17 @@ function atable_toexcel(tableID = "", filename = "") {
 		navigator.msSaveOrOpenBlob(blob, filename);
 	} else {
 		downloadLink.href = "data:" + dataType + ", " + tableHTML;
-		downloadLink.onclick = atabledestroyClickedElement;
+		downloadLink.onclick = atabledestroyClickedElements;
 		downloadLink.download = filename;
 		downloadLink.click();
 	}
 }
 
-function atabledestroyClickedElement(event) {
+function atabledestroyClickedElements(event) {
 	document.body.removeChild(event.target);
 }
 
-function remHiddenTag(html, match) {
+function remHiddenTags(html, match) {
 	var container = document.createElement("span");
 	container.innerHTML = html;
 	Array.from(
