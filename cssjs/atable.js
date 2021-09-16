@@ -331,6 +331,7 @@ aTable.table = (function() {
 		for (var i = (this.pagen - 1) * this.dtlimit; i < maxnum; i++) {
 			var row$ = $("<tr/>");
 			if (this.tbdata[i]["subtitle"] !== undefined) {
+				row$.attr("class", "tbsubtitle");
 				row$.append(
 					$(
 						'<td colspan="' +
@@ -412,7 +413,7 @@ aTable.table = (function() {
 			}
 
 			if (this.tbdata[i]["foottitle"] !== undefined) {
-				var row$ = $("<tr/>");
+				var row$ = $('<tr class="tbfoottitle"/>');
 				row$.append(
 					$(
 						'<td colspan="' +
