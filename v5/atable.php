@@ -480,7 +480,8 @@ class Atable
 					foreach ($atablecol as $key => $acol) {
 						$theatable .= '<td ' . (isset($colalign) ? 'style="text-align:' . ($colalign[$nocols] == 'R' ? 'right' : ($colalign[$nocols] == 'C' ? 'center' : 'left')) . ';"' : '') . ' data-label="' . $lblcol[$key] . '">';
 						if (strpos($acol, ';') !== false) {
-							eval('$theatable.=' . $acol);
+							eval('$acolv=' . $acol);
+							$theatable .= $acolv != "" ? $acolv : "&nbsp;";
 						} else {
 							$theatable .= $row->$acol != "" ? $row->$acol : "&nbsp;";
 						}
@@ -869,6 +870,9 @@ function atable_init()
 		color:#000;
 		font-size: 1.5em;
 		text-align: center;
+	}
+	.atable .showall{
+		display:inline-block;
 	}
 	.atable .btn:focus{
 		outline: none;
