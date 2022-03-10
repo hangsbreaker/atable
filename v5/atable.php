@@ -1190,6 +1190,7 @@ function atable_init()
 		tbpage["sortby"]=sortby[vid[1]];
 		tbpage["colshowhide"]=colshowhide[vid[1]];
 		tbpage["fromatable"]=true;
+		tbpage["limitpage"]=limitpage;
 		tbpage.afind=v_afind;
 		//console.log(tbpage);
 		xhr = $.ajax({
