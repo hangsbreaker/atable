@@ -1,14 +1,13 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 class Atablelib{
-	function atablelib(){
+	function __construct(){
 		$CI = & get_instance();
-		log_message('Debug', 'Atable class is loaded.');
+		include APPPATH . 'third_party/Atable.php';
 	}
 
 	function init(){
-		include APPPATH.'third_party/atable/atable.php';
-		atable_init();
+		return atable_init();
 	}
 
 	function setup(){
