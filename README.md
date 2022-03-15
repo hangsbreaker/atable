@@ -1,4 +1,4 @@
-# atable
+# aTable
 Responsive Ajax data table with php<br>
 This atable is automatic creating ajax table that data get from database<br>
 (Automatic Pagination, Sorting and Searching)<br>
