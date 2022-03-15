@@ -1201,10 +1201,10 @@ function atable_init()
 				document.getElementById("atablepreloader"+vid[1]).style.display="none";
 				var atableno;var atblinfto;
 				var htmldata = "<div>"+rbline(data)+"</div>";
-				$(htmldata).find(".dtatable tbody").each(function(i, obj){
-					atableno=this.innerHTML;
+				$(htmldata).find(".dtatable #dtblatable"+vid[1]+" tbody").each(function(i, obj){
+					if(i==0){atableno=this.innerHTML;}
 				});
-				$(htmldata).find(".dtatable .atblinfto").each(function(i, obj){
+				$(htmldata).find("#dtatable"+vid[1]+" .atblinfto").each(function(i, obj){
 					atblinfto=this.innerHTML;
 				});
 				forEach.call(atable, function (el, i) {
