@@ -10,22 +10,21 @@ atable_init();
 
 # Using
 $atable = new Atable();<br>
-$atable->limit      // number limit data select (default 10)<br>
-$atable->limitfind  // number limit data after find (default 300)<br>
-$atable->query      // sql query string parameter (required)<br>
-$atable->where      // where string after query parameter (default empty)<br>
-$atable->orderby    // order by string after query parameter (default empty)<br>
-$atable->groupby    // group by string after query parameter (default empty)<br>
-$atable->col        // column name table in database (required)<br>
-$atable->colv       // column name view (visible in webpage as table column header) (required)<br>
-$atable->param      // php string inside one single quote ('') will be eval to atable<br>
-$atable->colnumber  // show/hide column number boolean (default TRUE)<br>
-$atable->colsize    // column size of table as style (default empty)<br>
-$atable->colalign   // column align table as style L(left),R(right),C(center) (default align left)<br>
-$atable->showsql    // show query result boolean (default FALSE)<br>
-$atable->style      // modify table css class (default using bootstrap 3)<br>
-$atable->caption    // title of table (default empty)<br>
-// v5 using object<br>
+$atable->limit&emsp;&emsp;&emsp;&emsp;// number limit data select (default 10)<br>
+$atable->limitfind&emsp;&emsp;&ensp;// number limit data after find (default 300)<br>
+$atable->query&emsp;&emsp;&emsp;&nbsp;// sql query string parameter (required)<br>
+$atable->where&emsp;&emsp;&emsp;// where string after query parameter (default empty)<br>
+$atable->orderby&emsp;&emsp;&ensp;// order by string after query parameter (default empty)<br>
+$atable->groupby&emsp;&emsp;&nbsp;// group by string after query parameter (default empty)<br>
+$atable->col&emsp;&emsp;&emsp;&emsp;&ensp;// column name table in database (required)<br>
+$atable->colv&emsp;&emsp;&emsp;&emsp;// column name view (visible in webpage as table column header) (required)<br>
+$atable->param&emsp;&emsp;&emsp;// php string inside one single quote ('') will be eval to atable<br>
+$atable->colnumber&emsp;// show/hide column number boolean (default TRUE)<br>
+$atable->colsize&emsp;&emsp;&ensp;&nbsp;// column size of table as style (default empty)<br>
+$atable->colalign&emsp;&emsp;&ensp;// column align table as style L(left),R(right),C(center) (default align left)<br>
+$atable->showsql&emsp;&emsp;&nbsp;// show query result boolean (default FALSE)<br>
+$atable->style&emsp;&emsp;&emsp;&ensp;&nbsp;// modify table css class (default using bootstrap 3)<br>
+$atable->caption&emsp;&emsp;&ensp;// title of table (default empty)<br>
 $atable->reload=TRUE;<br>
 $atable->datainfo=FALSE;<br>
 $atable->paging=FALSE;<br>
@@ -76,5 +75,5 @@ echo $atableb->load();<br><br>
 ** $_POST->databases='mysqli'; // for mysqli database<br>
 ** $_POST->databases='pgsql'; // for pgsql database<br>
 ** ===================================================<br>
-** $_POST->toatable=TRUE; // add this for send parameter to atable<br>
+** $_POST["toatable"]=TRUE; // add this for send parameter to atable<br>
 **/
