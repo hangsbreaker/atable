@@ -199,6 +199,9 @@ class Atable
 				$theatable .= '<tr>';
 				$theatable .= ($colnumber == TRUE ? '<th width="1px"' . ($atr > 0 ? ' rowspan="' . $atr . '"' : '') . '>No</th>' : '');
 			}
+			$colrow = '';
+			$colsz = '';
+			$colalgn = '';
 			$sortpost = explode(" ", $sortpost);
 			foreach ($atablecolv as $key => $acolv) {
 				if (is_array($acolv)) {
