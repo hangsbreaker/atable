@@ -9,7 +9,7 @@ Support database (mysql, mysqli, pgsql) and joining table
 atable_init();
 
 # Using
-$atable = new Atable();
+$atable = new Atable();<br>
 $atable->limit      // number limit data select (default 10)<br>
 $atable->limitfind  // number limit data after find (default 300)<br>
 $atable->query      // sql query string parameter (required)<br>
@@ -41,7 +41,7 @@ echo $atable->load();<br>
 require atable.php // include or require the atable script<br>
 // ======================================================================================<br>
 // creating ajax atable<br>
-$atablea = new Atable();
+$atablea = new Atable();<br>
 $atablea->limit = 10;<br>
 $atablea->query = "SELECT m.nrp, m.nama, j.kode_jurusan, j.nama_jurusan, m.tahun_masuk FROM mahasiswa m, jurusan j";<br>
 $atablea->orderby = "m.tahun_masuk DESC, m.nama ASC";<br>
@@ -58,7 +58,7 @@ echo $atablea->load();<br><br>
 
 // ======================================================================================<br>
 // creating Second ajax atable<br>
-$atableb = new Atable();
+$atableb = new Atable();<br>
 $atableb->limit = 5;<br>
 $atableb->query = "SELECT * FROM mahasiswa";<br>
 $atableb->col = "['nrp', 'nama', 'kelamin']";<br>
