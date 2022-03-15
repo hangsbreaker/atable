@@ -1498,12 +1498,14 @@ function atable_init()
 	  var disp=[];var rows=[];var nm=0;
 		if(numb){nm=1;}
 	  $(me).parents("tr").each(function(i) {
-	    $("td", this).each(function(j){rows.push($(this).html().replace("&nbsp;","").replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&quot;/g, "\"")
-      .replace(/&#039;/g, "\'"));
-			disp.push($(this).css("display"));});
+	    $("td[data-label]", this).each(function(j){
+			rows.push($(this).html().replace("&nbsp;","").replace(/&amp;/g, "&")
+			.replace(/&lt;/g, "<")
+			.replace(/&gt;/g, ">")
+			.replace(/&quot;/g, "\"")
+			.replace(/&#039;/g, "\'"));
+			disp.push($(this).css("display"));
+		});
 	  });
 	  var frm=document.getElementById("atform"+ntbl);
 	  frm.style.display="block";
@@ -1518,33 +1520,35 @@ function atable_init()
 	  table.setAttribute("id", "atble"+ntbl);
 	  var rowCount=table.rows.length;var ni=0;var idsetf="";
 		for(var i=0;i<(rows.length-1)-nm;i++){
-			if(!cols[i].includes(";")){
-		    var row=table.insertRow(ni);
-		    var sp = document.createElement("span");
-			  sp.setAttribute("class", "atfspan");
-		    sp.innerHTML=colsv[i];
-		    var inp = document.createElement("input");
-		    inp.setAttribute("type", "text");
-		    inp.setAttribute("id", cols[i]+"-"+ntbl);
-		    inp.setAttribute("class", "form-control");
-		    if(prc=="delete"){
-		      inp.setAttribute("readonly", "readonly");
-		      inp.setAttribute("style", "margin-bottom:5px;background:#ffffff");
-		    }else{
-		      inp.setAttribute("style", "margin-bottom:5px;");
-		    }
-		    if(prc!="add"){inp.value=rows[i+nm];}
-				if(ni==0){idsetf=cols[i]+"-"+ntbl;}
-		    var newcell=row.insertCell(0);
-		    newcell.appendChild(sp);
-		    newcell=row.insertCell(1);
-		    newcell.innerHTML="&nbsp;&nbsp;&nbsp;";
-		    newcell=row.insertCell(2);
-		    newcell.appendChild(inp);
-				if(disp[i]=="none"){row.style.display=disp[i];}
-				ni++;
+			if(cols[i]!=undefined){
+				if(!cols[i].includes(";")){
+					var row=table.insertRow(ni);
+					var sp = document.createElement("span");
+					sp.setAttribute("class", "atfspan");
+					sp.innerHTML=colsv[i];
+					var inp = document.createElement("input");
+					inp.setAttribute("type", "text");
+					inp.setAttribute("id", cols[i]+"-"+ntbl);
+					inp.setAttribute("class", "form-control");
+					if(prc=="delete"){
+						inp.setAttribute("readonly", "readonly");
+						inp.setAttribute("style", "margin-bottom:5px;background:#ffffff");
+					}else{
+						inp.setAttribute("style", "margin-bottom:5px;");
+					}
+					if(prc!="add"){inp.value=rows[i+nm];}
+					if(ni==0){idsetf=cols[i]+"-"+ntbl;}
+					var newcell=row.insertCell(0);
+					newcell.appendChild(sp);
+					newcell=row.insertCell(1);
+					newcell.innerHTML="&nbsp;&nbsp;&nbsp;";
+					newcell=row.insertCell(2);
+					newcell.appendChild(inp);
+					if(disp[i]=="none"){row.style.display=disp[i];}
+					ni++;
+				}
 			}
-	  }
+	  	}
 	  var cn = document.createElement("button");
 	  cn.setAttribute("type", "button");
 	  cn.setAttribute("class", "btn btn-default btn-xs");
@@ -1557,7 +1561,7 @@ function atable_init()
 	    sv.setAttribute("class", "btn btn-danger btn-xs");
 	    sv.innerHTML="<span class=\"ic trash-white\"></span>";
 	  }else{
-	    sv.setAttribute("class", "btn btn-info btn-xs");
+	    sv.setAttribute("class", "btn btn-success btn-xs");
 	    sv.innerHTML="<span class=\"ic save-white\"></span>";
 	  }
 	  $(cn).on("click",function(e){frm.style.display="none";});
