@@ -20,6 +20,7 @@ aTable.table = (function() {
 			this.p.colnumber = true;
 		}
 		if (this.p.limit == undefined) {
+            		this.p.limit = 10;
 			this.dtlimit = 10;
 			if (this.tbdata.length < this.dtlimit) {
 				this.dtlimit = this.tbdata.length;
