@@ -1120,7 +1120,7 @@ function atable_init()
 					if(i==vid[1]){
 						atable[i].innerHTML=atableno[i];
 						var dtinf=atblinfto.split(" of ");
-						if(dtinf[0]==dtinf[1]){
+						if(dtinf[0]==dtinf[1] && document.getElementById("loadmore-"+i)!=null){
 							document.getElementById("loadmore-"+i).style.display="none";
 						}
 					}
