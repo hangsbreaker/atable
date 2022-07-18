@@ -398,14 +398,14 @@ class Atable
 								if ($key != 0) {
 									$columnwhere .= ",' ',";
 								}
-								$columnwhere .= $value;
+								$columnwhere .= "COALESCE(" . $value . ",'')";
 								$i++;
 							}
 							$columnwhere .= ")) LIKE '%" . strtolower($afind) . "%'";
 						}
 						$columnwhere .= ")";
 					} else {
-						$columnwhere = "lower(concat(" . $colsrc . ")) LIKE '%" . strtolower($afind) . "%'";
+						$columnwhere = "lower(concat(COALESCE(" . $colsrc . ",''))) LIKE '%" . strtolower($afind) . "%'";
 					}
 					$this->querysql = $qrytable . " " . $groupby . " " . $where . $iswhere . $columnwhere . " " . " " . $orderby;
 					$qry = $this->db_query($this->querysql . $forlimit);
