@@ -734,16 +734,22 @@ aTable.table = (function() {
 							ncc = ncc + parseInt(colspan) - 1;
 						}
 
-						slctmltp.options[ncc].selected = true;
+            					if (slctmltp.options[ncc] != undefined) {
+							slctmltp.options[ncc].selected = true;
+						}
 						if (this.p.colhide != undefined) {
 							if (this.p.colhide.indexOf(ncc) > -1) {
-								slctmltp.options[ncc].selected = false;
 								cols.push(ncc);
+								if (slctmltp.options[ncc] != undefined) {
+									slctmltp.options[ncc].selected = false;
+								}
 							}
 						}
 						if (cols.includes(ncc)) {
 							tbl.rows[i].cells[j].style.display = "none";
-							slctmltp.options[ncc].selected = false;
+							if (slctmltp.options[ncc] != undefined) {
+								slctmltp.options[ncc].selected = false;
+							}
 						}
 						ncc++;
 					}
