@@ -405,6 +405,7 @@ class Atable
 						}
 						$columnwhere .= ")";
 					} else {
+						$colsrc = str_replace(",' ',", ",' '), COALESCE(", $colsrc);
 						$columnwhere = "lower(concat(COALESCE(" . $colsrc . ",''))) LIKE '%" . strtolower($afind) . "%'";
 					}
 					$this->querysql = $qrytable . " " . $groupby . " " . $where . $iswhere . $columnwhere . " " . " " . $orderby;
