@@ -1612,6 +1612,6 @@ function atable_init()
 	</script>';
 		$http_s = isset($_SERVER['HTTPS']) ? "https://" : "http://";
 		$this_page = $http_s . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-		echo "<script>$(document).ready(function(e) {load_atable('" . $this_page . "','" . json_encode($_POST) . "');});</script>";
+		echo "<script>$(document).ready(function(e) {load_atable('" . $this_page . "','" . str_replace("'", "\'", json_encode($_POST)) . "');});</script>";
 	}
 }
