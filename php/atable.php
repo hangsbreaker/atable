@@ -412,7 +412,7 @@ class Atable
 					$qry = $this->db_query($this->querysql . $forlimit);
 					$datarecord = $this->db_num_rows($this->db_query($this->querysql));
 					if ($this->db_num_rows($qry) == 0) {
-						if (strpos(strtolower($qry), 'error') !== false && $this->debug) {
+						if ($qry == false && $this->debug) {
 							$sqlerror = TRUE;
 							$edtbtn = 0;
 							if (($this->edit || $this->delete) && $this->proctbl) {
@@ -439,7 +439,7 @@ class Atable
 					$qry = $this->db_query($this->querysql);
 				}
 				if ($this->db_num_rows($qry) == 0) {
-					if (strpos(strtolower($qry), 'error') !== false && $this->debug) {
+					if ($qry == false && $this->debug) {
 						$sqlerror = TRUE;
 						$edtbtn = 0;
 						if (($this->edit || $this->delete) && $this->proctbl) {
