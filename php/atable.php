@@ -411,15 +411,15 @@ class Atable
 					$this->querysql = $qrytable . " " . $groupby . " " . $where . $iswhere . $columnwhere . " " . " " . $orderby;
 					$qry = $this->db_query($this->querysql . $forlimit);
 					$datarecord = $this->db_num_rows($this->db_query($this->querysql));
-					if ($this->db_num_rows($qry) == 0) {
-						if ($qry == false && $this->debug) {
-							$sqlerror = TRUE;
-							$edtbtn = 0;
-							if (($this->edit || $this->delete) && $this->proctbl) {
-								$edtbtn = 1;
-							}
-							$theatable .= '<tr><td colspan="' . (count($atablecol) + 1 + $edtbtn) . '" style="color:#e74c3c;text-align:center;">' . $qry . '</td><tr>';
-						} else {
+					if ($qry == false && $this->debug) {
+						$sqlerror = TRUE;
+						$edtbtn = 0;
+						if (($this->edit || $this->delete) && $this->proctbl) {
+							$edtbtn = 1;
+						}
+						$theatable .= '<tr><td colspan="' . (count($atablecol) + 1 + $edtbtn) . '" style="color:#e74c3c;text-align:center;">' . $qry . '</td><tr>';
+					} else {
+						if ($this->db_num_rows($qry) == 0) {
 							$edtbtn = 0;
 							if (($this->edit || $this->delete) && $this->proctbl) {
 								$edtbtn = 1;
@@ -438,15 +438,15 @@ class Atable
 					$this->querysql = $qrytable . " " . $groupby . " " . $where . " " . $orderby . " LIMIT $per_page OFFSET " . ($pages - 1) * $per_page;
 					$qry = $this->db_query($this->querysql);
 				}
-				if ($this->db_num_rows($qry) == 0) {
-					if ($qry == false && $this->debug) {
-						$sqlerror = TRUE;
-						$edtbtn = 0;
-						if (($this->edit || $this->delete) && $this->proctbl) {
-							$edtbtn = 1;
-						}
-						$theatable .= '<tr><td colspan="' . (count($atablecol) + 1 + $edtbtn) . '" style="color:#e74c3c;text-align:center;">' . $qry . '</td><tr>';
-					} else {
+				if ($qry == false && $this->debug) {
+					$sqlerror = TRUE;
+					$edtbtn = 0;
+					if (($this->edit || $this->delete) && $this->proctbl) {
+						$edtbtn = 1;
+					}
+					$theatable .= '<tr><td colspan="' . (count($atablecol) + 1 + $edtbtn) . '" style="color:#e74c3c;text-align:center;">' . $qry . '</td><tr>';
+				} else {
+					if ($this->db_num_rows($qry) == 0) {
 						$edtbtn = 0;
 						if (($this->edit || $this->delete) && $this->proctbl) {
 							$edtbtn = 1;
