@@ -589,6 +589,7 @@ aTable.table = (function() {
 	};
 	tdata.prototype.search = function(q = "") {
 		var threshold = 1;
+		var filter = [];
 		if (this.p.data.length > 500) {
 			threshold = 3;
 		}
@@ -601,7 +602,6 @@ aTable.table = (function() {
 			}
 
 			var re = new RegExp(q, "g");
-			var filter = [];
 			for (var i = 0; i < this.p.data.length; i++) {
 				var rowobj = this.p.data[i];
 				var row = Object.keys(rowobj)
@@ -626,6 +626,7 @@ aTable.table = (function() {
 			}
 			this.tbody();
 		}
+		return filter;
 	};
 
 	tdata.prototype.clearsrc = function(natbl) {
