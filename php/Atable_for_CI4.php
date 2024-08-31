@@ -287,13 +287,13 @@ class Atable
 					}
 					if ($key == 0) {
 						if (($this->edit || $this->delete) && $this->proctbl) {
-							$theatable .= '<th' . (isset($colsize[count($colalign) - 1]) ? ' width="' . $colsize[count($colalign) - 1] . '"' : '') . (isset($colalign) ? ' style="text-align:' . ($colalign[count($colalign) - 1] == 'R' ? 'right' : ($colalign[count($colalign) - 1] == 'C' ? 'center' : 'left')) . ';"' : '') . ' rowspan="' . $nrospn . '">Action</th>';
+							$theatable .= '<th' . (is_array($colsize) ? (isset($colsize[count($colalign) - 1]) ? ' width="' . $colsize[count($colalign) - 1] . '"' : '') : '') . (is_array($colalign) ? ' style="text-align:' . ($colalign[count($colalign) - 1] == 'R' ? 'right' : ($colalign[count($colalign) - 1] == 'C' ? 'center' : 'left')) . ';"' : '') . ' rowspan="' . $nrospn . '">Action</th>';
 						}
 					}
 					$kyrow++;
 					$theatable .= '</tr>';
 				} else {
-					$theatable .= '<th' . (isset($colsize[$key]) ? ' width="' . $colsize[$key] . '"' : '') . (isset($colalign) ? ' style="text-align:' . ($colalign[$key] == 'R' ? 'right' : ($colalign[$key] == 'C' ? 'center' : 'left')) . ';"' : '') . $colrow . '>';
+					$theatable .= '<th' . (is_array($colsize) ? (isset($colsize[$key]) ? ' width="' . $colsize[$key] . '"' : '') : '') . (is_array($colalign) ? (isset($colalign) ? ' style="text-align:' . ($colalign[$key] == 'R' ? 'right' : ($colalign[$key] == 'C' ? 'center' : 'left')) . ';"' : '') : '') . $colrow . '>';
 					$nmcol = str_replace('$', '', str_replace(';', '', $atablecol[$key]));
 					$existcol = $this->GetBetween($qrytable, "select", "from");
 					if (strpos($existcol, $nmcol) !== false) {
@@ -486,7 +486,7 @@ class Atable
 					$theatable .= '<tr' . $atable_tr . '>' . ($colnumber == TRUE ? '<td data-label="No">' . $i . '</td>' : '');
 					$nocols = 0;
 					foreach ($atablecol as $key => $acol) {
-						$theatable .= '<td ' . (isset($colalign) ? 'style="text-align:' . ($colalign[$nocols] == 'R' ? 'right' : ($colalign[$nocols] == 'C' ? 'center' : 'left')) . ';"' : '') . ' data-label="' . $lblcol[$key] . '">';
+						$theatable .= '<td ' . (is_array($colalign) ? 'style="text-align:' . ($colalign[$nocols] == 'R' ? 'right' : ($colalign[$nocols] == 'C' ? 'center' : 'left')) . ';"' : '') . ' data-label="' . $lblcol[$key] . '">';
 						if (strpos($acol, ';') !== false) {
 							eval ('$acolv=' . $acol);
 							$theatable .= $acolv != "" ? $acolv : "&nbsp;";
@@ -497,7 +497,7 @@ class Atable
 						$nocols++;
 					}
 					if (($this->edit || $this->delete) && $this->proctbl) {
-						$theatable .= '<td ' . (isset($colalign) ? 'style="text-align:' . ($colalign[$nocols] == 'R' ? 'right' : ($colalign[$nocols] == 'C' ? 'center' : 'left')) . ';"' : '') . ' data-label="' . $lblcol[count($lblcol) - 1] . '">';
+						$theatable .= '<td ' . (is_array($colalign) ? 'style="text-align:' . ($colalign[$nocols] == 'R' ? 'right' : ($colalign[$nocols] == 'C' ? 'center' : 'left')) . ';"' : '') . ' data-label="' . $lblcol[count($lblcol) - 1] . '">';
 						if ($this->edit) {
 							$theatable .= '<button type="button" class="btn btn-default btn-xs atedit" onclick=\'atable_processdata(' . $GLOBALS['atablenum'] . ',this,"edit",' . $this->col . ',' . json_encode($lblcol) . ',' . $colnumber . ')\' style="font-size:18px;height:30px;"><span class="ic edit"></span></button>';
 						}
@@ -654,18 +654,18 @@ class Atable
 	{
 		$res = "";
 		/*if ($this->dblink == "mysqli") {
-																						  if ($this->dbcon != '') {
-																							  $res = mysqli_real_escape_string($this->dbcon, $qry);
-																						  }
-																					  } else if ($this->dblink == "pgsql") {
-																						  if ($this->dbcon != '') {
-																							  $res = pg_escape_string($this->dbcon, $qry);
-																						  }
-																					  } else if ($this->dblink == "pgsql") {
-																						  if ($this->dbcon != '') {
-																							  $res = pg_escape_string($this->dbcon, $qry);
-																						  }
-																					  }*/
+																															  if ($this->dbcon != '') {
+																																  $res = mysqli_real_escape_string($this->dbcon, $qry);
+																															  }
+																														  } else if ($this->dblink == "pgsql") {
+																															  if ($this->dbcon != '') {
+																																  $res = pg_escape_string($this->dbcon, $qry);
+																															  }
+																														  } else if ($this->dblink == "pgsql") {
+																															  if ($this->dbcon != '') {
+																																  $res = pg_escape_string($this->dbcon, $qry);
+																															  }
+																														  }*/
 
 		$i = array("\x00", "\n", "\r", "\\", "'", "\"", "\\\"", "\x1a");
 		$reg = array("\\x00", "\\n", "\\r", "\\\\", "''", "\"", "\"", "\\x1a");
