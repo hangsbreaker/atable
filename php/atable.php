@@ -65,19 +65,19 @@ class Atable
 		}
 		// ==== param init
 		$qrytable = $this->query;
-		$atablecol = json_decode($this->col);
-		$atablecolv = json_decode($this->colv);
+		$atablecol = is_array($this->col) ? $this->col : json_decode($this->col);
+		$atablecolv = is_array($this->colv) ? $this->colv : json_decode($this->colv);
 		$limit = !empty($this->limit) ? $this->limit : 10;
 		$limitfind = !empty($this->limitfind) ? $this->limitfind : $limit;
 		$orderby = !empty($this->orderby) ? $this->orderby : '';
 		$groupby = !empty($this->groupby) ? $this->groupby : '';
 		$where = !empty($this->where) ? $this->where : '';
 		$colnumber = isset($this->colnumber) ? $this->colnumber : TRUE;
-		$addvar = !empty($this->addvar) ? json_decode($this->addvar, true) : '';
+		$addvar = !empty($this->addvar) ? is_array($this->addvar) ? $this->addvar : json_decode($this->addvar, true) : '';
 		$param = !empty($this->param) ? $this->param : '';
 		$addlastrow = !empty($this->addlastrow) ? $this->addlastrow : '';
-		$colsize = !empty($this->colsize) ? json_decode($this->colsize) : '';
-		$colalign = !empty($this->colalign) ? json_decode(strtoupper($this->colalign)) : '';
+		$colsize = !empty($this->colsize) ? (is_array($this->colsize) ? $this->colsize : json_decode($this->colsize)) : '';
+		$colalign = !empty($this->colalign) ? (is_array($this->colalign) ? $this->colalign : json_decode(strtoupper($this->colalign))) : '';
 		$showsql = !empty($this->showsql) ? $this->showsql : '';
 		$caption = !empty($this->caption) ? $this->caption : '';
 		$style = !empty($this->style) ? $this->style : 'table table-hover';
