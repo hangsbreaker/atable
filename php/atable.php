@@ -18,6 +18,7 @@ class Atable
 	var $colalign;
 	var $caption;
 	var $style;
+	var $tfooter;
 	var $showsql;
 	var $debug = TRUE;
 	var $colnumber = TRUE;
