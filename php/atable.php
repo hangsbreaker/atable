@@ -496,10 +496,10 @@ class Atable
 					if (($this->edit || $this->delete) && $this->proctbl) {
 						$theatable .= '<td ' . (isset($colalign) ? 'style="text-align:' . ($colalign[$nocols] == 'R' ? 'right' : ($colalign[$nocols] == 'C' ? 'center' : 'left')) . ';"' : '') . ' data-label="' . $lblcol[count($lblcol) - 1] . '">';
 						if ($this->edit) {
-							$theatable .= '<button type="button" class="btn btn-default btn-xs atedit" onclick=\'atable_processdata(' . $GLOBALS['atablenum'] . ',this,"edit",' . $this->col . ',' . json_encode($lblcol) . ',' . $colnumber . ')\' style="font-size:18px;height:30px;"><span class="ic edit"></span></button>';
+							$theatable .= '<button type="button" class="btn btn-default btn-xs atedit" onclick=\'atable_processdata(' . $GLOBALS['atablenum'] . ',this,"edit",' . json_encode($atablecol) . ',' . json_encode($lblcol) . ',' . $colnumber . ')\' style="font-size:18px;height:30px;"><span class="ic edit"></span></button>';
 						}
 						if ($this->delete) {
-							$theatable .= '<button type="button" class="btn btn-default btn-xs atdelete" onclick=\'atable_processdata(' . $GLOBALS['atablenum'] . ',this,"delete",' . $this->col . ',' . json_encode($lblcol) . ',' . $colnumber . ')\' style="font-size:18px;height:30px;"><span class="ic trash"></span></button>';
+							$theatable .= '<button type="button" class="btn btn-default btn-xs atdelete" onclick=\'atable_processdata(' . $GLOBALS['atablenum'] . ',this,"delete",' . json_encode($atablecol) . ',' . json_encode($lblcol) . ',' . $colnumber . ')\' style="font-size:18px;height:30px;"><span class="ic trash"></span></button>';
 						}
 						$theatable .= '</td>';
 					}
@@ -529,7 +529,7 @@ class Atable
 		</div>
 		<div class="datainfo">' . ($this->rowlimit == TRUE ?
 				'<select type="button" id="rowlimit' . $GLOBALS['atablenum'] . '" class="rowlimit" onchange="atable_setlimit(this,\'' . $GLOBALS['atablenum'] . '\')"><option value="5" ' . ($limit == 5 ? 'selected="selected"' : '') . '>5</option><option value="10" ' . ($limit == 10 ? 'selected="selected"' : '') . '>10</option><option value="15" ' . ($limit == 15 ? 'selected="selected"' : '') . '>15</option><option value="20" ' . ($limit == 20 ? 'selected="selected"' : '') . '>20</option><option value="25" ' . ($limit == 25 ? 'selected="selected"' : '') . '>25</option><option value="50" ' . ($limit == 50 ? 'selected="selected"' : '') . '>50</option><option value="100" ' . ($limit == 100 ? 'selected="selected"' : '') . '>100</option></select>&nbsp;' : '') . ($this->add == TRUE && $this->proctbl ?
-				'<button type="button" onclick=\'atable_processdata(' . $GLOBALS['atablenum'] . ',this,"add",' . $this->col . ',' . json_encode($lblcol) . ',' . $colnumber . ')\' class="btn btn-primary btn-xs" title="Add Data" id="dtadd' . $GLOBALS['atablenum'] . '" style="font-size:18px;height:30px;"><b>+</b></button>&nbsp;' : '') . ($this->reload == TRUE ?
+				'<button type="button" onclick=\'atable_processdata(' . $GLOBALS['atablenum'] . ',this,"add",' . json_encode($atablecol) . ',' . json_encode($lblcol) . ',' . $colnumber . ')\' class="btn btn-primary btn-xs" title="Add Data" id="dtadd' . $GLOBALS['atablenum'] . '" style="font-size:18px;height:30px;"><b>+</b></button>&nbsp;' : '') . ($this->reload == TRUE ?
 				'<button type="button" onclick="atable_reload(' . $GLOBALS['atablenum'] . ')" class="btn btn-info btn-xs" title="Reload" id="dtreload' . $GLOBALS['atablenum'] . '" style="font-size:18px;height:30px;">&#8635;</button>&nbsp;' : '') . ($this->collist == TRUE ?
 				'<button type="button" onclick="atable_showhide(\'colhide' . $GLOBALS['atablenum'] . '\')" class="btn btn-default btn-xs" title="Column" id="dtlist' . $GLOBALS['atablenum'] . '" style="font-size:18px;height:30px;">&#8862;</button>&nbsp;' : '') . ($this->xls == TRUE ?
 				'<button type="button" onclick="atable_toxls(\'dtblatable' . $GLOBALS['atablenum'] . '\',\'' . str_replace(" ", "_", $caption) . '\')" id="dtxls' . $GLOBALS['atablenum'] . '" class="btn btn-success btn-sm" title="Export to Excel" id="dtxls">xls</button>&nbsp;' : '') . ($this->datainfo == TRUE ? ('<span class="inffrom" id="inffrom' . $GLOBALS['atablenum'] . '">' . (($i - 1) == 0 ? 0 : ((($pages - 1) * $per_page) + 1)) . '</span> to <span class="atblinfto" id="infto' . $GLOBALS['atablenum'] . '">' . ($i - 1) . " of " . $datarecord . "</span> data") .
